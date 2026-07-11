@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import {
   ChevronRight,
   Check,
@@ -68,72 +69,7 @@ export default function SystemConfiguration() {
       </div>
 
       {/* Stepper */}
-      <div className="bg-white rounded-lg shadow-sm border border-zinc-200 p-3 flex items-center justify-between">
-        {/* Step 1 */}
-        <div className="flex items-center gap-3 flex-1">
-          <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0">
-            <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-              <Check size={14} strokeWidth={3} />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[12px] font-bold text-[#020b22]">Basic Information</span>
-            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">Completed</span>
-          </div>
-          <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
-        </div>
-
-        {/* Step 2 */}
-        <div className="flex items-center gap-3 flex-1">
-          <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0">
-            <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-              <Check size={14} strokeWidth={3} />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[12px] font-bold text-[#020b22]">Subscription & Plan</span>
-            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">Completed</span>
-          </div>
-          <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
-        </div>
-
-        {/* Step 3 */}
-        <div className="flex items-center gap-3 flex-1">
-          <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0">
-            <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-              <Check size={14} strokeWidth={3} />
-            </div>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[12px] font-bold text-[#020b22]">Admin & Contact</span>
-            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">Completed</span>
-          </div>
-          <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
-        </div>
-
-        {/* Step 4 (Active) */}
-        <div className="flex items-center gap-3 flex-1">
-          <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
-            4
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[12px] font-bold text-[#020b22]">Configuration</span>
-            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">System preferences</span>
-          </div>
-          <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
-        </div>
-
-        {/* Step 5 */}
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 text-[#020b22] flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
-            5
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[12px] font-bold text-[#020b22]">Review & Confirm</span>
-            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">Verify and create</span>
-          </div>
-        </div>
-      </div>
+      <StepIndicator current={4} />
 
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-2 mt-2">
 
@@ -473,4 +409,67 @@ export default function SystemConfiguration() {
 
     </div>
   );
+}
+
+const STEP_ROUTES: Record<number, string> = {
+    1: '/super-admin/step-1',
+    2: '/super-admin/step-2',
+    3: '/super-admin/step-3',
+    4: '/super-admin/system-configuration',
+    5: '/super-admin/step-5',
+};
+
+function StepIndicator({ current }: { current: number }) {
+    const steps = [
+        { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
+        { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
+        { id: 3, title: 'Admin & Contact', subtitle: 'Primary contact details' },
+        { id: 4, title: 'Configuration', subtitle: 'System preferences' },
+        { id: 5, title: 'Review & Confirm', subtitle: 'Verify and create' },
+    ];
+
+    return (
+        <div className="bg-white rounded-lg shadow-sm border border-zinc-200 p-3 flex items-center justify-between">
+            {steps.map((step, index) => {
+                const isCompleted = step.id < current;
+                const isActive = step.id === current;
+                const isPending = step.id > current;
+                const stepLink = STEP_ROUTES[step.id];
+
+                return (
+                    <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
+                        <Link href={stepLink} className="flex items-center gap-3 group">
+                            {isCompleted && (
+                                <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                        <Check size={14} strokeWidth={3} />
+                                    </div>
+                                </div>
+                            )}
+                            {isActive && (
+                                <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
+                                    {step.id}
+                                </div>
+                            )}
+                            {isPending && (
+                                <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 text-[#020b22] flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm group-hover:bg-slate-200 transition-colors">
+                                    {step.id}
+                                </div>
+                            )}
+
+                            <div className="flex flex-col">
+                                <span className="text-[12px] font-bold text-[#020b22] group-hover:text-indigo-600 transition-colors">{step.title}</span>
+                                <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                                    {isCompleted ? 'Completed' : step.subtitle}
+                                </span>
+                            </div>
+                        </Link>
+                        {index < steps.length - 1 && (
+                            <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
+    );
 }

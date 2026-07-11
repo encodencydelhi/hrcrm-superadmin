@@ -139,41 +139,62 @@ const STEP_ROUTES: Record<number, string> = {
     1: '/super-admin/step-1',
     2: '/super-admin/step-2',
     3: '/super-admin/step-3',
-    4: '/super-admin/step-4',
+    4: '/super-admin/system-configuration',
     5: '/super-admin/step-5',
 };
 
 function StepIndicator({ current }: { current: number }) {
+    const steps = [
+        { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
+        { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
+        { id: 3, title: 'Admin & Contact', subtitle: 'Primary contact details' },
+        { id: 4, title: 'Configuration', subtitle: 'System preferences' },
+        { id: 5, title: 'Review & Confirm', subtitle: 'Verify and create' },
+    ];
+
     return (
-        <Card className="rounded-sm border-zinc-200/80 shadow-sm">
-            <CardContent className="flex items-center justify-between gap-2 overflow-x-auto p-1.5">
-                {STEPS.map((step, i) => (
-                    <React.Fragment key={step.id}>
-                        <Link
-                            href={STEP_ROUTES[step.id] ?? '#'}
-                            className="flex items-center gap-2 shrink-0 group cursor-pointer"
-                        >
-                            <span
-                                className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-bold transition-colors ${step.id === current
-                                    ? 'bg-indigo-700 text-white'
-                                    : step.id < current
-                                        ? 'bg-emerald-500 text-white'
-                                        : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-indigo-400 group-hover:text-indigo-500'
-                                    }`}
-                            >
-                                {step.id < current ? <Check size={14} /> : step.id}
-                            </span>
-                            <div className="hidden sm:block leading-tight">
-                                <p className={`text-[12px] font-semibold transition-colors ${step.id === current ? 'text-zinc-900' : 'text-zinc-400 group-hover:text-indigo-600'
-                                    }`}>{step.title}</p>
-                                <p className="text-[10.5px] text-zinc-400">{step.subtitle}</p>
+        <div className="bg-white rounded-lg shadow-sm border border-zinc-200 p-3 flex items-center justify-between">
+            {steps.map((step, index) => {
+                const isCompleted = step.id < current;
+                const isActive = step.id === current;
+                const isPending = step.id > current;
+                const stepLink = STEP_ROUTES[step.id];
+
+                return (
+                    <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
+                        <Link href={stepLink} className="flex items-center gap-3 group">
+                            {isCompleted && (
+                                <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                        <Check size={14} strokeWidth={3} />
+                                    </div>
+                                </div>
+                            )}
+                            {isActive && (
+                                <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
+                                    {step.id}
+                                </div>
+                            )}
+                            {isPending && (
+                                <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 text-[#020b22] flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm group-hover:bg-slate-200 transition-colors">
+                                    {step.id}
+                                </div>
+                            )}
+
+                            <div className="flex flex-col">
+                                <span className="text-[12px] font-bold text-[#020b22] group-hover:text-indigo-600 transition-colors">{step.title}</span>
+                                <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                                    {isCompleted ? 'Completed' : step.subtitle}
+                                </span>
                             </div>
                         </Link>
-                        {i < STEPS.length - 1 && <span className="h-px flex-1 min-w-[16px] bg-zinc-200" />}
-                    </React.Fragment>
-                ))}
-            </CardContent>
-        </Card>
+                        {index < steps.length - 1 && (
+                            <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
+                        )}
+                    </div>
+                );
+            })}
+        </div>
     );
 }
 
