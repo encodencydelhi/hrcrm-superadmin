@@ -193,7 +193,7 @@ const CompanyCreatedSuccessFully = () => {
                     {/* LEFT COLUMN */}
                     <div className={`flex flex-col ${GAP} min-w-0`}>
                         {/* Hero banner */}
-                        <div className="relative overflow-hidden rounded-lg bg-[#000d2a] p-5 border border-gray-300 flex-row flex gap-2">
+                        <div className="relative overflow-hidden rounded-lg bg-[#000d2a] p-3 border border-gray-300 flex-row flex gap-2">
                             <Image src={celebration} width={100} height={100} alt="celebrate" className="object-contain" />
                           <div className="pl-2 relative z-10">
                             <h2 className="text-white font-semibold">Congratulatios! Your Company is now live.</h2>
@@ -276,7 +276,7 @@ const CompanyCreatedSuccessFully = () => {
                                             </p>
                                             {step.button && (
                                                 <button
-                                                    className={`w-full rounded-md px-2 py-1 text-[11px] font-medium ${step.state === "current"
+                                                    className={`w-auto rounded-md px-2 py-1 text-[11px] font-medium ${step.state === "current"
                                                             ? "bg-[#0B1D3A] text-white"
                                                             : "border border-gray-300 text-gray-600 hover:bg-gray-50"
                                                         }`}
@@ -451,17 +451,17 @@ const CompanyCreatedSuccessFully = () => {
                         </div>
 
                         {/* Need Help */}
-                        <div className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}>
+                        <div className={`bg-blue-100 ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}>
                             <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
                                 <div className="flex items-center gap-3">
                                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-50 border border-gray-300">
                                         <Headset className="h-6 w-6 text-green-600" />
                                     </span>
                                     <div>
-                                        <p className="text-sm font-semibold text-gray-900">
+                                        <p className="text-xs font-semibold text-gray-900">
                                             Need Help Getting Started?
                                         </p>
-                                        <p className="text-xs max-w-[280px]">
+                                        <p className="text-[10px] max-w-[280px]">
                                             Our customer success team is here to help you with
                                             setup and onboarding.
                                         </p>
@@ -600,9 +600,9 @@ const CompanyCreatedSuccessFully = () => {
                         </div>
 
                         {/* You're in Good Hands */}
-                         <div className="rounded-lg bg-[#0B1D3A] p-4 flex gap-2">
+                         <div className="rounded-lg bg-[#0B1D3A] p-3 flex gap-2 items-start">
                           
-                                <Award className="h-16 w-16 text-amber-400" />
+                                <Award className="h-16 w-24 text-amber-400" />
                             <div>
 
                                 <p className="mb-2 text-xs font-semibold text-amber-400">
