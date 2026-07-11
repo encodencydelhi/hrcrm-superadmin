@@ -147,10 +147,10 @@ function InfoRow({
       </span>
       <div className="flex justify-between w-full">
 
-        <span className="text-xs flex-1">{label}</span>
+        <span className="text-[10px] flex-1">{label}</span>
         <div className="flex-1">
-          <p className="text-xs font-medium text-gray-800">{value}</p>
-          {sub && <p className="text-xs ">{sub}</p>}
+          <p className="text-[10px] font-medium text-gray-800">{value}</p>
+          {sub && <p className="text-[10px] ">{sub}</p>}
         </div>
       </div>
     </div>
@@ -168,7 +168,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     <div className="min-h-screen bg-gray-50">
       <PageLayout>
         {/* Breadcrumb */}
-        <nav className={`mb-2 flex items-center ${GAP} text-xs`}>
+        <nav className={`mb-2 flex items-center ${GAP} text-[10px]`}>
           <a href="#" className="text-blue-600 hover:underline">
             Home
           </a>
@@ -186,26 +186,26 @@ const TechnicalAccessRequestDetailsPage = () => {
             <h1 className="text-xl font-bold text-gray-900">
               Technical Access Request Details
             </h1>
-            <p className="text-xs ">
+            <p className="text-[10px] ">
               View request information, approval status and access
               configuration
             </p>
           </div>
           <div className={`flex flex-wrap items-center ${GAP}`}>
             <button
-              className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium  hover:bg-gray-50`}
+              className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Back to Requests
             </button>
             <button
-              className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium  hover:bg-gray-50`}
+              className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}
             >
               <Download className="h-3.5 w-3.5" />
               Download
             </button>
             <button
-              className={`flex items-center ${GAP} rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700`}
+              className={`flex items-center ${GAP} rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-medium text-white hover:bg-blue-700`}
             >
               More Actions
               <ChevronDown className="h-3.5 w-3.5" />
@@ -223,7 +223,7 @@ const TechnicalAccessRequestDetailsPage = () => {
                 <FileText className="h-5 w-5 text-blue-600" />
               </span>
               <div>
-                <p className="text-xs ">Request ID</p>
+                <p className="text-[10px] ">Request ID</p>
                 <div className="flex items-center gap-1.5">
                   <p className="text-sm font-bold text-gray-900">
                     TAR-2025-028
@@ -232,22 +232,22 @@ const TechnicalAccessRequestDetailsPage = () => {
                     Pending
                   </span>
                 </div>
-                <p className="text-xs ">
+                <p className="text-[10px]">
                   Requested on 30 May 2025, 11:20 AM
                 </p>
               </div>
             </div>
 
             <div>
-              <p className="text-xs ">Purpose</p>
+              <p className="text-[10px] ">Purpose</p>
               <p className="text-sm font-semibold text-gray-800">
                 System Maintenance
               </p>
-              <p className="text-xs ">Server optimization</p>
+              <p className="text-[10px] ">Server optimization</p>
             </div>
 
             <div>
-              <p className="mb-1 text-xs ">
+              <p className="mb-1 text-[10px] ">
                 Requested By (Crewcam)
               </p>
               <div className="flex items-center gap-2">
@@ -260,13 +260,13 @@ const TechnicalAccessRequestDetailsPage = () => {
                   <p className="text-sm font-medium text-gray-800">
                     Rahul Verma
                   </p>
-                  <p className="text-xs ">Sr. Support Engineer</p>
+                  <p className="text-[10px] ">Sr. Support Engineer</p>
                 </div>
               </div>
             </div>
 
             <div>
-              <p className="mb-1 text-xs ">Company</p>
+              <p className="mb-1 text-[10px] ">Company</p>
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-bold text-white">
                   T
@@ -278,8 +278,8 @@ const TechnicalAccessRequestDetailsPage = () => {
             </div>
 
             <div>
-              <p className="mb-1 text-xs ">Access Type</p>
-              <span className="inline-block rounded-md bg-purple-100 px-2 py-1 text-xs font-medium text-purple-600">
+              <p className="mb-1 text-[10px] ">Access Type</p>
+              <span className="inline-block rounded-md bg-purple-100 px-2 py-1 text-[10px] font-medium text-purple-600">
                 Time-Bound Access
               </span>
             </div>
@@ -294,7 +294,7 @@ const TechnicalAccessRequestDetailsPage = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap border-b-2 px-1 pb-2 text-xs font-medium transition-colors ${activeTab === tab
+              className={`whitespace-nowrap border-b-2 px-1 pb-2 text-[10px] font-medium transition-colors ${activeTab === tab
                 ? "border-blue-600 text-blue-600"
                 : "border-transparent  hover:"
                 }`}
@@ -315,12 +315,12 @@ const TechnicalAccessRequestDetailsPage = () => {
               {requestInfoRows.map((row) => (
                 <InfoRow key={row.label} {...row} />
               ))}
-              <div className={`flex items-center ${GAP}`}>
+              <div className={`flex items-start ${GAP}`}>
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gray-100 ">
-                  <User className="h-3.5 w-3.5" />
+                  <User className="h-3.5 w-3.5 text-blue-600" />
                 </span>
                 <div className="flex justify-between w-full">
-                  <span className="text-xs flex-1">
+                  <span className="text-[10px] flex-1">
                     Requested By (Crewcam)
                   </span>
                   <div className="mt-0.5 flex items-center gap-2 flex-1">
@@ -330,28 +330,28 @@ const TechnicalAccessRequestDetailsPage = () => {
                       className="h-6 w-6 rounded-full object-cover"
                     />
                     <div>
-                      <p className="text-sm font-medium text-gray-800">
+                      <p className="text-[10px] font-medium text-gray-800">
                         Rahul Verma
                       </p>
-                      <p className="text-xs ">
+                      <p className="text-[10px] ">
                         Sr. Support Engineer
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
-              <div className={`flex items-center ${GAP}`}>
+              <div className={`flex items-start ${GAP}`}>
                 <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gray-100 ">
-                  <Phone className="h-3.5 w-3.5" />
+                  <Phone className="h-3.5 w-3.5 text-blue-600" />
                 </span>
                 <div className="flex justify-between w-full">
-                  <p className="text-xs flex-1">Contact</p>
+                  <p className="text-[10px] flex-1">Contact</p>
                   <div className="flex-1">
 
-                    <p className="text-xs font-medium text-gray-800 break-all">
+                    <p className="text-[10px] font-medium text-gray-800 break-all">
                       rahul.verma@crewcam.com
                     </p>
-                    <p className="text-xs font-medium text-gray-800">
+                    <p className="text-[10px] font-medium text-gray-800">
                       +91 98765 43210
                     </p>
                   </div>
@@ -372,7 +372,7 @@ const TechnicalAccessRequestDetailsPage = () => {
             </div>
             <div className="mt-3 flex items-center gap-2 rounded-lg border border-orange-100 bg-orange-50 p-2">
               <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-orange-500" />
-              <p className="text-xs ">
+              <p className="text-[10px] ">
                 Access will be automatically revoked on{" "}
                 <span className="block font-semibold text-orange-600">
                   02 Jun 2025, 06:00 PM
@@ -405,17 +405,17 @@ const TechnicalAccessRequestDetailsPage = () => {
                       <span className="absolute left-3 top-6 h-full w-px bg-gray-200" />
                     )}
                     <span
-                      className={`relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${circleClass}`}
+                      className={`relative z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${circleClass}`}
                     >
                       {step.step}
                     </span>
                     <div>
-                      <p className={`text-xs font-semibold ${titleClass}`}>
+                      <p className={`text-[10px] font-semibold ${titleClass}`}>
                         {step.title}
                       </p>
-                      <p className="text-xs ">{step.desc}</p>
+                      <p className="text-[10px] ">{step.desc}</p>
                       {step.sub && (
-                        <p className="text-xs ">{step.sub}</p>
+                        <p className="text-[10px] ">{step.sub}</p>
                       )}
                     </div>
                   </div>
@@ -456,28 +456,28 @@ const TechnicalAccessRequestDetailsPage = () => {
                   1/2
                 </span>
               </div>
-              <p className="mt-2 text-xs ">
+              <p className="mt-2 text-[10px] ">
                 Approvals Completed
               </p>
             </div>
 
-            <p className="mb-2 text-xs font-semibold ">
+            <p className="mb-2 text-[10px] font-semibold ">
               Pending Approvals (1)
             </p>
             <div className="mb-2 flex items-center gap-2">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-300 text-[10px] font-semibold text-white">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-300 text-[10px] font-semibold text-white">
                 A
               </span>
               <div>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-[10px] font-medium text-gray-800">
                   Anjali Sharma
                 </p>
-                <p className="text-xs ">HR Manager</p>
-                <p className="text-xs ">TechVision Pvt. Ltd.</p>
+                <p className="text-[10px] ">HR Manager</p>
+                <p className="text-[10px] ">TechVision Pvt. Ltd.</p>
               </div>
             </div>
 
-            <p className="mb-2 text-xs font-semibold ">
+            <p className="mb-2 text-[10px] font-semibold ">
               Completed Approvals (1)
             </p>
             <div className="flex items-center gap-2">
@@ -487,11 +487,11 @@ const TechnicalAccessRequestDetailsPage = () => {
                 className="h-7 w-7 shrink-0 rounded-full object-cover"
               />
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-[10px] font-medium text-gray-800">
                   Sandeep Rao
                 </p>
-                <p className="text-xs ">IT Head</p>
-                <p className="text-xs ">TechVision Pvt. Ltd.</p>
+                <p className="text-[10px] ">IT Head</p>
+                <p className="text-[10px] ">TechVision Pvt. Ltd.</p>
               </div>
               <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
             </div>
@@ -504,11 +504,11 @@ const TechnicalAccessRequestDetailsPage = () => {
             <h3 className="mb-2 text-sm font-semibold text-gray-900">
               Request Justification
             </h3>
-            <p className="mb-2 text-xs ">
+            <p className="mb-2 text-[10px] ">
               We need to perform server optimization and clean up redundant
               data to improve system performance.
             </p>
-            <p className="text-xs ">
+            <p className="text-[10px] ">
               This includes database maintenance, log cleanup, and
               configuration tuning.
             </p>
@@ -536,24 +536,24 @@ const TechnicalAccessRequestDetailsPage = () => {
                     </span>
                     <div className="flex-1">
                       <div className="flex flex-col justify-between gap-0.5 sm:flex-row sm:items-start">
-                        <p className="text-sm font-semibold text-gray-900">
+                        <p className="text-[10px] font-semibold text-gray-900">
                           {item.title}
                         </p>
-                        <p className="whitespace-nowrap text-xs ">
+                        <p className="whitespace-nowrap text-[10px] ">
                           {item.date}{" "}
                         </p>
                       </div>
                        <div className="flex flex-col justify-between gap-0.5 sm:flex-row sm:items-start">
                         <div>
 
-                      <p className="text-xs ">{item.desc}</p>
+                      <p className="text-[10px] ">{item.desc}</p>
                       {item.extra && (
-                        <p className="text-xs">
+                        <p className="text-[10px]">
                           · {item.extra}
                         </p>
                       )}
                       </div>
-                          <span className="ml-1 text-xs">{item.time}</span>
+                          <span className="ml-1 text-[10px]">{item.time}</span>
 
                       </div>
                     </div>
@@ -573,7 +573,7 @@ const TechnicalAccessRequestDetailsPage = () => {
               </h3>
               <a
                 href="#"
-                className="text-xs font-medium text-blue-600 hover:underline"
+                className="text-[10px] font-medium text-blue-600 hover:underline"
               >
                 View All
               </a>
@@ -587,10 +587,10 @@ const TechnicalAccessRequestDetailsPage = () => {
                     <FileText className="h-4 w-4 text-red-500" />
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-gray-800">
+                    <p className="text-xs font-medium text-gray-800">
                       Maintenance_Plan.pdf
                     </p>
-                    <p className="text-xs ">PDF · 1.2 MB</p>
+                    <p className="text-[10px] ">PDF · 1.2 MB</p>
                   </div>
                 </div>
                 <button className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-gray-200  hover:bg-gray-50">
@@ -605,10 +605,10 @@ const TechnicalAccessRequestDetailsPage = () => {
                     <FileSpreadsheet className="h-4 w-4 text-green-600" />
                   </span>
                   <div>
-                    <p className="text-sm font-medium text-gray-800">
+                    <p className="text-xs font-medium text-gray-800">
                       Access_Scope_Details.xlsx
                     </p>
-                    <p className="text-xs ">XLSX · 245 KB</p>
+                    <p className="text-[10px] ">XLSX · 245 KB</p>
                   </div>
                 </div>
                 <button className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-gray-200  hover:bg-gray-50">
@@ -620,7 +620,7 @@ const TechnicalAccessRequestDetailsPage = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-gray-100 pt-4 text-xs  sm:flex-row">
+        <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-gray-100 pt-4 text-[10px]  sm:flex-row">
           <p>© 2025 Crewcam HRMS. All Rights Reserved.</p>
           <div className="flex items-center gap-4">
             <a href="#" className="hover:">
