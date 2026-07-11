@@ -80,63 +80,62 @@ export default function SessionTimeoutSettings() {
         </div>
 
         {/* Summary Card */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm mb-4 overflow-hidden">
-          <div className="grid grid-cols-1 md:grid-cols-5 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+        <div className="bg-white border border-slate-200 rounded-md shadow-sm mb-4 overflow-hidden">
+          <div className="flex w-full divide-x divide-slate-100 justify-between items-stretch">
             {/* Request ID */}
-            <div className="p-2 flex gap-3">
-              <div className="bg-blue-50 text-blue-600 rounded-lg p-2.5 h-fit mt-1 border border-blue-100">
-                <FileText className="h-5 w-5" />
+            <div className="p-3 xl:p-4 flex gap-3 items-center flex-1">
+              <div className="bg-blue-50 text-blue-600 rounded-xl p-2.5 h-fit border border-blue-100 shrink-0">
+                <FileText className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div>
-                <p className="text-xs text-slate-500 font-medium mb-1">Request ID</p>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-slate-900 font-semibold text-[15px]">TAR-2025-028</p>
-                  <span className="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-0.5 rounded-full font-semibold border border-emerald-100">Active</span>
+              <div className="flex flex-col justify-center min-w-0">
+                <p className="text-[11px] text-slate-500 font-medium mb-0.5 whitespace-nowrap">Request ID</p>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <p className="text-slate-900 font-bold text-[14px] tracking-tight whitespace-nowrap truncate">TAR-2025-028</p>
+                  <span className="bg-emerald-50 text-emerald-600 text-[9px] px-1.5 py-0.5 rounded border border-emerald-100 font-medium shrink-0">Active</span>
                 </div>
-                <p className="text-xs text-slate-500">Requested on 30 May 2025, 11:20 AM</p>
+                <p className="text-[10px] text-slate-400 whitespace-nowrap truncate">Requested on 30 May 2025</p>
               </div>
             </div>
 
             {/* Company */}
-            <div className="p-2 flex gap-3">
-              <div className="bg-blue-600 text-white rounded-lg p-2.5 h-fit mt-1 shadow-sm flex items-center justify-center">
-                <span className="font-semibold text-sm leading-none block">T</span>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500 font-medium mb-1">Company</p>
-                <p className="text-slate-900 font-semibold text-[15px]">TechVision Pvt. Ltd.</p>
+            <div className="p-3 xl:p-4 flex flex-col justify-center flex-1 min-w-0">
+              <p className="text-[11px] text-slate-500 font-medium mb-1 whitespace-nowrap">Company</p>
+              <div className="flex items-center gap-2">
+                <div className="bg-blue-600 text-white rounded h-5 w-5 shadow-sm flex items-center justify-center shrink-0">
+                  <span className="font-semibold text-[10px] leading-none block">T</span>
+                </div>
+                <p className="text-slate-900 font-bold text-[13px] whitespace-nowrap truncate">TechVision Pvt. Ltd.</p>
               </div>
             </div>
 
             {/* Purpose */}
-            <div className="p-2 flex flex-col justify-center">
-              <p className="text-xs text-slate-500 font-medium mb-1">Purpose</p>
-              <p className="text-slate-900 font-semibold text-[15px] mb-1">System Maintenance</p>
-              <p className="text-xs text-slate-500">Server optimization</p>
+            <div className="p-3 xl:p-4 flex flex-col justify-center flex-1 min-w-0">
+              <p className="text-[11px] text-slate-500 font-medium mb-1.5 whitespace-nowrap">Purpose</p>
+              <p className="text-slate-900 font-bold text-[13px] whitespace-nowrap truncate">System Maintenance</p>
+              <p className="text-[10px] text-blue-600 mt-0.5 font-medium whitespace-nowrap truncate">Server optimization</p>
             </div>
 
             {/* Access Type */}
-            <div className="p-2 flex flex-col justify-center">
-              <p className="text-xs text-slate-500 font-medium mb-2">Access Type</p>
+            <div className="p-3 xl:p-4 flex flex-col justify-center flex-1 min-w-0">
+              <p className="text-[11px] text-slate-500 font-medium mb-1.5 whitespace-nowrap">Access Type</p>
               <div>
-                <span className="bg-purple-50 text-purple-700 text-xs px-3 py-1 rounded-md font-medium border border-purple-100 inline-block">
+                <span className="bg-purple-100/50 text-purple-700 text-[11px] px-2 py-0.5 rounded font-semibold whitespace-nowrap inline-block">
                   Time-Bound Access
                 </span>
               </div>
             </div>
 
             {/* Access Duration */}
-            <div className="p-4 flex gap-3">
-              <div className="bg-emerald-50 text-emerald-600 rounded-lg p-2.5 h-fit mt-1 border border-emerald-100">
-                <Calendar className="h-5 w-5" />
+            <div className="p-3 xl:p-4 flex gap-3 items-center flex-1">
+              <div className="bg-emerald-50 text-emerald-600 rounded-xl p-2.5 h-fit border border-emerald-100 shrink-0">
+                <Calendar className="h-5 w-5" strokeWidth={1.5} />
               </div>
-              <div>
-                <p className="text-xs text-slate-500 font-medium mb-1">Access Duration</p>
-                <p className="text-slate-900 font-semibold text-[13px]">30 May 2025, 02:35 PM</p>
-                <p className="text-[11px] text-slate-400 my-0.5">to</p>
-                <p className="text-slate-900 font-semibold text-[13px] flex items-center gap-1">
-                  02 Jun 2025, 06:00 PM
-                  <span className="text-[11px] text-slate-500 font-normal">(3 Days)</span>
+              <div className="flex flex-col justify-center min-w-0">
+                <p className="text-[11px] text-slate-500 font-medium mb-0.5 whitespace-nowrap">Access Duration</p>
+                <p className="text-slate-900 font-bold text-[12px] whitespace-nowrap truncate">30 May 2025, 02:35 PM</p>
+                <p className="text-[10px] text-slate-400 my-px whitespace-nowrap">to</p>
+                <p className="text-slate-900 font-bold text-[12px] flex items-center gap-1 whitespace-nowrap truncate">
+                  02 Jun 2025, 06:00 PM <span className="text-[10px] text-slate-500 font-normal shrink-0">(3 Days)</span>
                 </p>
               </div>
             </div>
@@ -145,6 +144,7 @@ export default function SessionTimeoutSettings() {
 
         {/* Tabs */}
         <div className="mb-2 border-b border-slate-200">
+          {/* <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm"> */}
           <div className="flex flex-wrap gap-x-4 gap-y-2 -mb-px">
             {tabs.map((tab) => (
               <button
@@ -167,11 +167,11 @@ export default function SessionTimeoutSettings() {
           <div className="lg:col-span-8 space-y-2">
 
             {/* Configure Session Timeout Card */}
-            <div className="bg-white border border-slate-200 rounded-xl p-2 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
               <h2 className="text-base font-semibold text-slate-900 mb-1">Configure Session Timeout</h2>
               <p className="text-[13px] text-slate-500 mb-4">Set idle time limits and automatic logout preferences to maintain system security.</p>
 
-              <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-2">
+              <div className="bg-slate-50/50 border border-slate-200 rounded-md p-2">
 
                 {/* Toggle */}
                 <div className="flex items-start gap-4 mb-4">
@@ -262,7 +262,7 @@ export default function SessionTimeoutSettings() {
             </div>
 
             {/* Timeout Behavior Settings */}
-            <div className="bg-white border border-slate-200 rounded-xl p-2 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
               <h3 className="text-base font-semibold text-slate-900 mb-1">Timeout Behavior Settings</h3>
               <p className="text-[13px] text-slate-500 mb-4">Define what happens when a user session times out.</p>
 
@@ -271,7 +271,7 @@ export default function SessionTimeoutSettings() {
                 {/* Card 1 */}
                 <button
                   onClick={() => setTimeoutBehavior('automatic')}
-                  className={`text-left p-2 rounded-xl border transition-all relative shadow-sm ${timeoutBehavior === 'automatic'
+                  className={`text-left p-2 rounded-md border transition-all relative shadow-sm ${timeoutBehavior === 'automatic'
                     ? 'border-blue-500 bg-blue-50/30 ring-1 ring-blue-500'
                     : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
@@ -291,7 +291,7 @@ export default function SessionTimeoutSettings() {
                 {/* Card 2 */}
                 <button
                   onClick={() => setTimeoutBehavior('warn-logout')}
-                  className={`text-left p-2 rounded-xl border transition-all relative shadow-sm ${timeoutBehavior === 'warn-logout'
+                  className={`text-left p-2 rounded-md border transition-all relative shadow-sm ${timeoutBehavior === 'warn-logout'
                     ? 'border-blue-500 bg-blue-50/30 ring-1 ring-blue-500'
                     : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
@@ -311,7 +311,7 @@ export default function SessionTimeoutSettings() {
                 {/* Card 3 */}
                 <button
                   onClick={() => setTimeoutBehavior('warn-extend')}
-                  className={`text-left p-2 rounded-xl border transition-all relative shadow-sm ${timeoutBehavior === 'warn-extend'
+                  className={`text-left p-2 rounded-md border transition-all relative shadow-sm ${timeoutBehavior === 'warn-extend'
                     ? 'border-blue-500 bg-blue-50/30 ring-1 ring-blue-500'
                     : 'border-slate-200 hover:border-slate-300 bg-white'
                     }`}
@@ -332,11 +332,11 @@ export default function SessionTimeoutSettings() {
             </div>
 
             {/* Idle Activity Detection */}
-            <div className="bg-white border border-slate-200 rounded-xl p-2 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
               <h3 className="text-base font-semibold text-slate-900 mb-1">Idle Activity Detection</h3>
               <p className="text-[13px] text-slate-500 mb-4">Configure which activities reset the idle timer.</p>
 
-              <div className="bg-slate-50/50 rounded-xl p-2 border border-slate-200">
+              <div className="bg-slate-50/50 rounded-md p-2 border border-slate-200">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12">
                   <label className="flex items-center gap-3 cursor-pointer">
                     <div className="h-5 w-5 rounded bg-blue-600 text-white flex items-center justify-center border border-blue-600 shadow-sm">
@@ -407,7 +407,7 @@ export default function SessionTimeoutSettings() {
           <div className="lg:col-span-4 space-y-4">
 
             {/* Timeout Policy Summary Card */}
-            <div className="bg-white border border-slate-200 rounded-xl p-2 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
               <h3 className="text-[15px] font-semibold text-slate-900 mb-4">Timeout Policy Summary</h3>
 
               <div className="space-y-4">
@@ -462,7 +462,7 @@ export default function SessionTimeoutSettings() {
             </div>
 
             {/* Session Example Card */}
-            <div className="bg-white border border-slate-200 rounded-xl p-2 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
               <h3 className="text-[15px] font-semibold text-slate-900 mb-1">Session Example</h3>
               <p className="text-xs text-slate-500 mb-4">Here's how the timeout will work:</p>
 
@@ -502,7 +502,7 @@ export default function SessionTimeoutSettings() {
             </div>
 
             {/* Need Help Card */}
-            <div className="bg-white border border-slate-200 rounded-xl p-2 shadow-sm">
+            <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
               <h3 className="text-[15px] font-semibold text-slate-900 mb-2">Need Help?</h3>
               <div className="flex gap-3 mb-4">
                 <div className="text-blue-500 bg-blue-50 p-2 rounded-lg shrink-0 h-fit border border-blue-100">
