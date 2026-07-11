@@ -422,11 +422,10 @@ function SuperAdminCompaniesPageInner() {
       label: 'SETUP FEE',
       width: '110px',
       render: (_v, row) => (
-        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-          row.setupFeeStatus === 'PAID' ? 'bg-emerald-100 text-emerald-700'
-            : row.setupFeeStatus === 'WAIVED' ? 'bg-zinc-100 text-zinc-600'
+        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${row.setupFeeStatus === 'PAID' ? 'bg-emerald-100 text-emerald-700'
+          : row.setupFeeStatus === 'WAIVED' ? 'bg-zinc-100 text-zinc-600'
             : 'bg-amber-100 text-amber-700'
-        }`}>
+          }`}>
           {row.setupFeeStatus || 'PENDING'}
         </span>
       ),
@@ -436,11 +435,10 @@ function SuperAdminCompaniesPageInner() {
       label: 'SUBSCRIPTION',
       width: '130px',
       render: (_v, row) => (
-        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-          row.subscriptionStatus === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700'
-            : row.subscriptionStatus === 'PAST_DUE' ? 'bg-rose-100 text-rose-700'
+        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${row.subscriptionStatus === 'ACTIVE' ? 'bg-emerald-100 text-emerald-700'
+          : row.subscriptionStatus === 'PAST_DUE' ? 'bg-rose-100 text-rose-700'
             : 'bg-zinc-100 text-zinc-600'
-        }`}>
+          }`}>
           {row.subscriptionStatus || 'PENDING'} · {row.billingCycle === 'YEARLY' ? 'Yearly' : 'Monthly'}
         </span>
       ),
@@ -514,7 +512,7 @@ function SuperAdminCompaniesPageInner() {
         </div>
         <div className="flex items-center gap-2">
           <Button asChild className="h-9 text-xs font-semibold text-white" style={{ background: 'var(--brand-primary, #0b1638)' }}>
-            <Link href="/super-admin/companies/new"><Plus size={14} className="mr-1" /> Add New Company</Link>
+            <Link href="/super-admin/step-1"><Plus size={14} className="mr-1" /> Add New Company</Link>
           </Button>
           <Button variant="outline" className="h-9 text-xs">
             <Download size={14} className="mr-1.5" /> Export <ChevronDown size={12} className="ml-1.5" />
