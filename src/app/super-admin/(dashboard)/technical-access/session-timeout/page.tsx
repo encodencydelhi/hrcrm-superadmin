@@ -90,7 +90,7 @@ export default function SessionTimeoutSettings() {
               <div className="flex flex-col justify-center min-w-0">
                 <p className="text-[11px] text-slate-500 font-medium mb-0.5 whitespace-nowrap">Request ID</p>
                 <div className="flex items-center gap-1.5 mb-1">
-                  <p className="text-slate-900 font-bold text-[14px] tracking-tight whitespace-nowrap truncate">TAR-2025-028</p>
+                  <p className="text-slate-900 font-semibold text-[14px] tracking-tight whitespace-nowrap truncate">TAR-2025-028</p>
                   <span className="bg-emerald-50 text-emerald-600 text-[9px] px-1.5 py-0.5 rounded border border-emerald-100 font-medium shrink-0">Active</span>
                 </div>
                 <p className="text-[10px] text-slate-400 whitespace-nowrap truncate">Requested on 30 May 2025</p>
@@ -104,14 +104,14 @@ export default function SessionTimeoutSettings() {
                 <div className="bg-blue-600 text-white rounded h-5 w-5 shadow-sm flex items-center justify-center shrink-0">
                   <span className="font-semibold text-[10px] leading-none block">T</span>
                 </div>
-                <p className="text-slate-900 font-bold text-[13px] whitespace-nowrap truncate">TechVision Pvt. Ltd.</p>
+                <p className="text-slate-900 font-semibold text-[13px] whitespace-nowrap truncate">TechVision Pvt. Ltd.</p>
               </div>
             </div>
 
             {/* Purpose */}
             <div className="p-3 xl:p-4 flex flex-col justify-center flex-1 min-w-0">
               <p className="text-[11px] text-slate-500 font-medium mb-1.5 whitespace-nowrap">Purpose</p>
-              <p className="text-slate-900 font-bold text-[13px] whitespace-nowrap truncate">System Maintenance</p>
+              <p className="text-slate-900 font-semibold text-[13px] whitespace-nowrap truncate">System Maintenance</p>
               <p className="text-[10px] text-blue-600 mt-0.5 font-medium whitespace-nowrap truncate">Server optimization</p>
             </div>
 
@@ -132,9 +132,9 @@ export default function SessionTimeoutSettings() {
               </div>
               <div className="flex flex-col justify-center min-w-0">
                 <p className="text-[11px] text-slate-500 font-medium mb-0.5 whitespace-nowrap">Access Duration</p>
-                <p className="text-slate-900 font-bold text-[12px] whitespace-nowrap truncate">30 May 2025, 02:35 PM</p>
+                <p className="text-slate-900 font-semibold text-[12px] whitespace-nowrap truncate">30 May 2025, 02:35 PM</p>
                 <p className="text-[10px] text-slate-400 my-px whitespace-nowrap">to</p>
-                <p className="text-slate-900 font-bold text-[12px] flex items-center gap-1 whitespace-nowrap truncate">
+                <p className="text-slate-900 font-semibold text-[12px] flex items-center gap-1 whitespace-nowrap truncate">
                   02 Jun 2025, 06:00 PM <span className="text-[10px] text-slate-500 font-normal shrink-0">(3 Days)</span>
                 </p>
               </div>
