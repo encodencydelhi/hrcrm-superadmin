@@ -168,7 +168,7 @@ function StepIndicator({ current }: { current: number }) {
             <CardContent className="flex items-center justify-between gap-2 overflow-x-auto p-2">
                 {STEPS.map((step, i) => (
                     <React.Fragment key={step.id}>
-                        <Link href={`/super-admin/companies/new/step-${step.id}`} className="flex items-center gap-2 shrink-0 group cursor-pointer">
+                        <Link href={`/super-admin/step-${step.id}`} className="flex items-center gap-2 shrink-0 group cursor-pointer">
                             <span
                                 className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-[12px] font-bold transition-colors ${step.id === current
                                     ? 'bg-indigo-700 text-white'

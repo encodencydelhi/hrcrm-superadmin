@@ -136,11 +136,11 @@ function PageHeading() {
 
 // ─── Step indicator ─────────────────────────────────────────────────────────
 const STEP_ROUTES: Record<number, string> = {
-    1: '/super-admin/companies/new/step-1',
-    2: '/super-admin/companies/new/step-2',
-    3: '/super-admin/companies/new/step-3',
-    4: '/super-admin/companies/new/step-4',
-    5: '/super-admin/companies/new/step-5',
+    1: '/super-admin/step-1',
+    2: '/super-admin/step-2',
+    3: '/super-admin/step-3',
+    4: '/super-admin/step-4',
+    5: '/super-admin/step-5',
 };
 
 function StepIndicator({ current }: { current: number }) {
@@ -431,7 +431,7 @@ export default function AddNewCompanyPage() {
 
             <div className="flex-1 min-w-0">
 
-                <main className="mx-auto max-w-[1200px]  space-y-2">
+                <main className="mx-auto space-y-2">
                     <PageHeading />
                     <StepIndicator current={currentStep} />
 
