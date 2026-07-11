@@ -326,7 +326,7 @@ function StatusBadge({ status }: { status: StatusType }) {
     };
     return (
         <span
-            className={`inline-flex items-center rounded-md px-1 py-0.5 text-xs font-medium ${styles[status]}`}
+            className={`inline-flex items-center rounded-md px-1 py-0.5 text-[10px] font-medium ${styles[status]}`}
         >
             {status}
         </span>
@@ -344,7 +344,7 @@ function Avatar({
 }) {
     return (
         <div
-            className={`${size} ${colorClass} flex items-center justify-center rounded-full text-xs font-semibold shrink-0`}
+            className={`${size} ${colorClass} flex items-center justify-center rounded-full text-[10px] font-semibold shrink-0`}
         >
             {initials}
         </div>
@@ -380,10 +380,10 @@ const TechnicalAccessManagementPage = () => {
                 </nav>
 
                 {/* Title */}
-                <h1 className="text-[28px] font-bold leading-tight text-gray-900">
+                <h1 className="text-xl font-bold leading-tight text-gray-900">
                     Technical Access Management
                 </h1>
-                <p className="mb-5 text-sm ">
+                <p className="mb-5 text-xs">
                     Crewcam technical team can access company HRMS data only after
                     written approval from the company&apos;s HR.
                 </p>
@@ -397,7 +397,7 @@ const TechnicalAccessManagementPage = () => {
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600">
                                 <Info className="h-3.5 w-3.5 text-white" />
                             </span>
-                            <p className="text-sm ">
+                            <p className="text-xs">
                                 For security and compliance, all technical access requests
                                 must be initiated, reviewed and approved by the company HR.
                             </p>
@@ -426,14 +426,14 @@ const TechnicalAccessManagementPage = () => {
                                 <span
                                     className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}
                                 >
-                                    <Icon className={`h-5 w-5 ${stat.iconColor}`} />
+                                    <Icon className={`h-6 w-6 ${stat.iconColor}`} />
                                 </span>
                                 <div>
-                                    <p className="text-sm ">{stat.label}</p>
-                                    <p className="text-2xl font-bold text-gray-900">
+                                    <p className="text-xs">{stat.label}</p>
+                                    <p className="text-xl font-bold text-gray-900">
                                         {stat.value}
                                     </p>
-                                    <p className={`text-xs ${stat.captionColor}`}>
+                                    <p className={`text-[10px] ${stat.captionColor}`}>
                                         {stat.caption}
                                     </p>
                                 </div>
@@ -450,7 +450,7 @@ const TechnicalAccessManagementPage = () => {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`whitespace-nowrap border-b-2 pb-3 text-xs font-medium transition-colors ${activeTab === tab
+                                    className={`whitespace-nowrap border-b-2 pb-3 text-[10px] font-medium transition-colors ${activeTab === tab
                                         ? "border-blue-600 text-blue-600"
                                         : "border-transparent  hover:text-gray-700"
                                         }`}
@@ -529,7 +529,7 @@ const TechnicalAccessManagementPage = () => {
                                                             <p className="font-medium text-gray-800">
                                                                 {req.requestedBy.name}
                                                             </p>
-                                                            <p className="text-xs ">
+                                                            <p className="text-[10px] ">
                                                                 {req.requestedBy.role}
                                                             </p>
                                                         </div>
@@ -539,13 +539,13 @@ const TechnicalAccessManagementPage = () => {
                                                     <p className="font-medium text-gray-800">
                                                         {req.purpose}
                                                     </p>
-                                                    <p className="text-xs ">
+                                                    <p className="text-[10px] ">
                                                         {req.purposeSub}
                                                     </p>
                                                 </td>
                                                 <td className="px-2 py-2">
                                                     <p className="">{req.requestedOn}</p>
-                                                    <p className="text-xs ">
+                                                    <p className="text-[10px] ">
                                                         {req.requestedTime}
                                                     </p>
                                                 </td>
@@ -587,7 +587,7 @@ const TechnicalAccessManagementPage = () => {
 
                             {/* Pagination */}
                             <div className="flex flex-col gap-3 border-t border-gray-100 px-4 py-2 sm:flex-row sm:items-center sm:justify-between">
-                                <p className="text-xs ">
+                                <p className="text-[10px] ">
                                     Showing 1 to 5 of 28 entries
                                 </p>
                                 <div className="flex items-center gap-1.5">
@@ -597,7 +597,7 @@ const TechnicalAccessManagementPage = () => {
                                     {["1", "2", "3", "4", "5", "...", "6"].map((p, i) => (
                                         <button
                                             key={i}
-                                            className={`flex h-5 w-5 items-center justify-center rounded-sm text-xs ${p === "1"
+                                            className={`flex h-5 w-5 items-center justify-center rounded-sm text-[10px] ${p === "1"
                                                 ? "bg-blue-600 text-white"
                                                 : " hover:bg-gray-50 border-gray-200 border"
                                                 }`}
@@ -609,7 +609,7 @@ const TechnicalAccessManagementPage = () => {
                                         <ChevronRight className="h-4 w-4" />
                                     </button>
                                 </div>
-                                <div className="flex items-center gap-2 text-xs">
+                                <div className="flex items-center gap-2 text-[10px]">
                                     <span>Rows per page:</span>
                                     <button className="flex items-center gap-1 rounded-sm border border-gray-200 px-2.5 py-1.5">
                                         5 <ChevronDown className="h-3.5 w-3.5" />
@@ -622,7 +622,7 @@ const TechnicalAccessManagementPage = () => {
                         >
                             <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <h3 className="text-base font-semibold text-gray-900">
+                                    <h3 className="text-sm font-semibold text-gray-900">
                                         Active Technical Access Overview
                                     </h3>
                                     <p className="text-sm ">
@@ -631,7 +631,7 @@ const TechnicalAccessManagementPage = () => {
                                 </div>
                                 <a
                                     href="#"
-                                    className="flex items-center gap-1 whitespace-nowrap text-xs font-medium text-blue-600 hover:underline"
+                                    className="flex items-center gap-1 whitespace-nowrap text-[10px] font-medium text-blue-600 hover:underline"
                                 >
                                     View All Active Access
                                     <ArrowRight className="h-3.5 w-3.5" />
@@ -649,7 +649,7 @@ const TechnicalAccessManagementPage = () => {
                                             </span>
                                             <div>
                                                 <p className="text-[10px]">{stat.label}</p>
-                                                <p className="text-xs font-semibold">
+                                                <p className="text-[10px] font-semibold">
                                                     {stat.value}
                                                 </p>
                                                 <p className={`text-[10px] ${stat.captionColor}`}>
@@ -679,14 +679,14 @@ const TechnicalAccessManagementPage = () => {
                                     <h3 className="mb-1.5 text-sm font-semibold text-gray-900">
                                         Request New Technical Access
                                     </h3>
-                                    <p className="mb-4 text-xs ">
+                                    <p className="mb-4 text-[10px] ">
                                         Need technical support or maintenance from Crewcam team?
                                         Raise a new access request.
                                     </p>
 
                                 </div>
                             </div>
-                            <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-1.5 text-xs font-medium text-white hover:bg-blue-700">
+                            <button className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-1.5 text-[10px] font-medium text-white hover:bg-blue-700">
                                 <Plus className="h-4 w-4" />
                                 New Access Request
                             </button>
@@ -696,7 +696,7 @@ const TechnicalAccessManagementPage = () => {
                         <div
                             className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PADDING}`}
                         >
-                            <h3 className="mb-4 text-base font-semibold text-gray-900">
+                            <h3 className="mb-4 text-sm font-semibold text-gray-900">
                                 Access Process Flow
                             </h3>
                             <div className="relative flex flex-col gap-6">
@@ -708,16 +708,16 @@ const TechnicalAccessManagementPage = () => {
                                             {!isLast && (
                                                 <span className="absolute left-3.5 top-8 h-full w-px bg-blue-100" />
                                             )}
-                                            <span className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-semibold text-white">
+                                            <span className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-[10px] font-semibold text-white">
                                                 {item.step}
                                             </span>
                                             <div className="flex items-start gap-2">
                                                 <Icon className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
                                                 <div>
-                                                    <p className="text-xs font-semibold text-gray-800">
+                                                    <p className="text-[10px] font-semibold text-gray-800">
                                                         {item.title}
                                                     </p>
-                                                    <p className="text-xs ">{item.desc}</p>
+                                                    <p className="text-[10px] ">{item.desc}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -728,7 +728,7 @@ const TechnicalAccessManagementPage = () => {
                                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-400">
                                     <Lock className="h-4 w-4 text-white" />
                                 </span>
-                                <p className="text-xs">
+                                <p className="text-[10px]">
                                     All access is time-bound, purpose-specific and monitored for
                                     security.
                                 </p>
@@ -743,7 +743,7 @@ const TechnicalAccessManagementPage = () => {
 
 
                 {/* Footer */}
-                {/* <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-gray-100 pt-5 text-xs  sm:flex-row">
+                {/* <div className="mt-6 flex flex-col items-center justify-between gap-2 border-t border-gray-100 pt-5 text-[10px]  sm:flex-row">
           <p>© 2025 Crewcam HRMS. All Rights Reserved.</p>
           <div className="flex items-center gap-4">
             <a href="#" className="hover:">
