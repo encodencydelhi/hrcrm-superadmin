@@ -445,7 +445,7 @@ const TechnicalAccessManagementPage = () => {
                     className={`bg-white ${CARD_BORDER} rounded-t-xl px-4 pt-4`}
                 >
                     <div className="flex flex-col gap-2 border-b border-gray-100 pb-0 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex flex-wrap gap-6 overflow-x-auto">
+                        <div className="flex flex-wrap gap-2 overflow-x-auto">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
@@ -637,7 +637,7 @@ const TechnicalAccessManagementPage = () => {
                                     <ArrowRight className="h-3.5 w-3.5" />
                                 </a>
                             </div>
-                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                                 {overviewStats.map((stat) => {
                                     const Icon = stat.icon;
                                     return (
