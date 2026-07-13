@@ -347,8 +347,8 @@ const ActiveAccessPage = () => {
         </div>
 
         {/* Tabs */}
-        <div className={`overflow-x-auto border-b border-gray-200 ${GAP} rounded-lg border border-gray-200 bg-white ${PAD}`}>
-          <div className="flex min-w-max items-center gap-4 text-xs">
+        <div className={`overflow-x-auto border-b border-gray-200 ${GAP} rounded-lg border border-gray-200 bg-white px-2`}>
+          <div className="flex min-w-max items-center gap-4 text-[10px]">
             {tabs.map((tab) => {
               const isActive = tab === "Active Access";
               return (

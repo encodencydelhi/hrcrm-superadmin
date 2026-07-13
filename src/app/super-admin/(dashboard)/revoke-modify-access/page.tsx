@@ -44,7 +44,7 @@ const Breadcrumb = () => (
 );
 
 const PageHeader = () => (
-  <div className="flex items-start justify-between px-2 py-2">
+  <div className="flex items-start justify-between px-0 py-2">
     <div>
       <h1 className="text-xl font-semibold ">Revoke / Modify Access</h1>
       <p className="text-[10px]  mt-1">
@@ -132,7 +132,7 @@ const TABS = [
 ];
 
 const Tabs = () => (
-  <div className="flex items-center gap-4 border-b border-gray-200 px-2 mt-2 bg-white rounded-md overflow-x-auto overflow-y-hidden">
+  <div className="flex items-center gap-4 border-b border-gray-200 px-0 mt-2 bg-white rounded-md overflow-x-auto overflow-y-hidden">
     {TABS.map((tab) => {
       const active = tab === "Revoke / Modify Access";
       return (
