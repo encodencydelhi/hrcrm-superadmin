@@ -25,7 +25,7 @@ import PageLayout from "@/components/ui/pageLayout";
 
 const GAP = "gap-2";
 const PAD = "p-2";
-const CARD_PAD = "p-4";
+const CARD_PAD = "p-2";
 const CARD_RADIUS = "rounded-lg";
 const CARD_BORDER = "border border-gray-200";
 const PAGE_PADDING = "px-4 sm:px-6 lg:px-8";
@@ -288,7 +288,7 @@ const TechnicalAccessRequestDetailsPage = () => {
 
         {/* Tabs */}
         <div
-          className={`overflow-x-auto mb-2 flex  gap-4 border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
+          className={`overflow-x-auto mb-2 flex  gap-4 border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-2 pt-2`}
         >
           {tabs.map((tab) => (
             <button
