@@ -363,7 +363,7 @@ const TechnicalAccessManagementPage = () => {
         <div className="min-h-screen bg-gray-50">
             <PageLayout>
                 {/* Breadcrumb */}
-                <nav className="mb-2 flex items-center gap-1.5 text-sm">
+                <nav className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
                     <a href="#" className="text-blue-600 hover:underline">
                         Home
                     </a>
@@ -450,7 +450,7 @@ const TechnicalAccessManagementPage = () => {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`whitespace-nowrap border-b-2 pb-3 text-[10px] font-medium transition-colors ${activeTab === tab
+                                    className={`whitespace-nowrap border-b-2 pb-3 text-[10px] font-semibold transition-colors ${activeTab === tab
                                         ? "border-blue-600 text-blue-600"
                                         : "border-transparent  hover:text-gray-700"
                                         }`}

@@ -354,7 +354,7 @@ const ActiveAccessPage = () => {
               return (
                 <button
                   key={tab}
-                  className={`whitespace-nowrap border-b-2 py-2 font-medium ${
+                  className={`whitespace-nowrap border-b-2 py-2 font-semibold ${
                     isActive
                       ? "border-blue-600 text-blue-600"
                       : "border-transparent  hover:"
