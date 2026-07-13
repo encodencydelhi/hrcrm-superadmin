@@ -416,7 +416,7 @@ const STEP_ROUTES: Record<number, string> = {
     2: '/super-admin/step-2',
     3: '/super-admin/step-3',
     4: '/super-admin/system-configuration',
-    5: '/super-admin/step-5',
+    5: '/super-admin/review-confirm',
 };
 
 function StepIndicator({ current }: { current: number }) {
