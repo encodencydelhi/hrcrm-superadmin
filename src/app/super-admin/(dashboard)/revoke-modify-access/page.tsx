@@ -132,7 +132,7 @@ const TABS = [
 ];
 
 const Tabs = () => (
-  <div className="flex items-center gap-2 border-b border-gray-200 px-2 mt-2 bg-white rounded-md overflow-x-auto">
+  <div className="flex items-center gap-4 border-b border-gray-200 px-2 mt-2 bg-white rounded-md overflow-x-auto overflow-y-hidden">
     {TABS.map((tab) => {
       const active = tab === "Revoke / Modify Access";
       return (
@@ -519,30 +519,33 @@ const Footer = () => (
 const RevokeModifyAccessPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-2">
-      <Breadcrumb />
-      <PageHeader />
-      <InfoBar />
-      <Tabs />
+  <Breadcrumb />
+  <PageHeader />
+  <InfoBar />
+  <Tabs />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 py-2">
-        <div className="lg:col-span-1 h-full">
-          <RevokeAccessSection />
-        </div>
-        <div className="lg:col-span-1">
-          <ModifyAccessSection />
-        </div>
-        <div className="lg:col-span-1 flex flex-col gap-2">
-          <ImpactPreview />
-          <WhoWillBeNotified />
-          <PolicyReminder />
-        </div>
+  <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 py-2">
+    {/* Left Content */}
+    <div className="lg:col-span-4 flex flex-col gap-2">
+      {/* Top */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+        <RevokeAccessSection />
+        <ModifyAccessSection />
       </div>
-{/* <div className="lg:col-span-2 flex flex-col gap-2"> */}
 
+      {/* Bottom */}
       <PreviousModifications />
       <Footer />
-{/* </div> */}
     </div>
+
+    {/* Right Sidebar */}
+    <div className="lg:col-span-1 flex flex-col gap-2">
+      <ImpactPreview />
+      <WhoWillBeNotified />
+      <PolicyReminder />
+    </div>
+  </div>
+</div>
   );
 };
 
