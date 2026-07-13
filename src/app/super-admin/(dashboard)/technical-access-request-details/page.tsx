@@ -288,7 +288,7 @@ const TechnicalAccessRequestDetailsPage = () => {
 
         {/* Tabs */}
         <div
-          className={`overflow-x-auto mb-2 flex  ${GAP} border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
+          className={`overflow-x-auto mb-2 flex  gap-4 border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
         >
           {tabs.map((tab) => (
             <button
