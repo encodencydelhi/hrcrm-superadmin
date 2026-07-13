@@ -445,7 +445,7 @@ const TechnicalAccessManagementPage = () => {
                     className={`bg-white ${CARD_BORDER} rounded-t-xl px-4 pt-4`}
                 >
                     <div className="flex flex-col gap-2 border-b border-gray-100 pb-0 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex gap-2 overflow-x-auto">
+                        <div className="flex gap-4 overflow-x-auto">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
@@ -459,7 +459,7 @@ const TechnicalAccessManagementPage = () => {
                                 </button>
                             ))}
                         </div>
-                        <div className="mb-3 flex items-center gap-2">
+                        <div className="mb-3 flex flex-wrap items-center gap-2">
                             <div className="relative">
                                 <input
                                     type="text"
@@ -494,7 +494,7 @@ const TechnicalAccessManagementPage = () => {
                                 <table className="w-full min-w-[900px] text-left text-[10px]">
                                     <thead>
                                         <tr className="border-b border-gray-100 text-[10px] font-semibold ">
-                                            <th className="px-2 py-3">Request ID</th>
+                                            <th className="pl-4 pr-2 py-3">Request ID</th>
                                             <th className="px-2 py-3">Company Name</th>
                                             <th className="px-2 py-3">Requested By (Crewcam)</th>
                                             <th className="px-2 py-3">Purpose</th>
@@ -510,7 +510,7 @@ const TechnicalAccessManagementPage = () => {
                                                 key={req.id}
                                                 className="border-b border-gray-100 last:border-0 hover:bg-gray-50"
                                             >
-                                                <td className="px-2 py-2">
+                                                <td className="pl-4 pr-2 py-2">
                                                     <span className="text-blue-600 font-medium bg-blue-200 p-1 rounded-sm">
                                                         {req.id}
                                                     </span>
