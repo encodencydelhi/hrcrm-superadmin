@@ -178,18 +178,18 @@ const RevokeAccessSection = () => (
       </p>
     </div>
 
-    <div className="grid grid-cols-3 gap-2 border border-gray-200 rounded-md p-2">
-      <div>
+    <div className="grid grid-cols-3 gap-2 border border-blue-200 bg-blue-200 rounded-md p-2">
+      <div className="border-r border-gray-400">
         <p className="text-[10px] ">Current Status</p>
         <span className="inline-block text-[10px] bg-green-100 text-green-700 rounded-full px-2 py-0.5 font-medium mt-1">
           Active
         </span>
       </div>
-      <div>
+      <div className="border-r border-gray-400">
         <p className="text-[10px] ">Active Sessions</p>
         <p className="text-sm font-semibold  mt-1">2</p>
       </div>
-      <div>
+      <div className="">
         <p className="text-[10px] ">Users with Access</p>
         <p className="text-sm font-semibold  mt-1">2</p>
       </div>
@@ -282,9 +282,9 @@ const ModifyAccessSection = () => (
 
     <div>
       <p className="text-[10px] font-medium  mb-2">Current Duration</p>
-      <div className="bg-blue-50 border border-blue-100 rounded-md px-2 py-2 text-[10px] ">
-        30 May 2025, 02:35 PM <span className="text-gray-400">to</span> 02 Jun 2025, 06:00 PM{" "}
-        <span className="">(3 Days)</span>
+      <div className="bg-blue-50 border border-blue-100 rounded-md px-2 py-2 text-[10px] font-semibold">
+        30 May 2025, 02:35 PM <span className="font-normal">to</span> 02 Jun 2025, 06:00 PM{" "}
+        <span className="font-normal">(3 Days)</span>
       </div>
     </div>
 
