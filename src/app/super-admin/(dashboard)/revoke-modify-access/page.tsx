@@ -24,7 +24,7 @@ const S = "gap-2 p-2"; // constant spacing unit used across the layout
 const GAP = "gap-2";
 const PAD = "p-2";
 const Breadcrumb = () => (
-  <div className="flex items-center gap-2 text-[10px]  px-2 py-2">
+  <div className="flex items-center gap-2 text-[10px]  px-0 py-0">
     <span className="hover:text-blue-600 text-blue-600 cursor-pointer font-semibold">Home</span>
     <ChevronRight className="w-3 h-3 hover:text-blue-600 text-blue-600" />
     <span className="hover:text-blue-600 text-blue-600 cursor-pointer font-semibold">
@@ -46,7 +46,7 @@ const Breadcrumb = () => (
 const PageHeader = () => (
   <div className="flex items-start justify-between px-2 py-2">
     <div>
-      <h1 className="text-xl font-bold ">Revoke / Modify Access</h1>
+      <h1 className="text-xl font-semibold ">Revoke / Modify Access</h1>
       <p className="text-[10px]  mt-1">
         Revoke all access or modify the scope and permissions of the granted access.
       </p>
@@ -81,7 +81,7 @@ const InfoBar = () => (
           <div className={`flex flex-col ${GAP} border-gray-200 pr-2 sm:border-r-0 lg:border-r`}>
             <span className="text-[10px] font-semibold">Company</span>
             <div className={`flex items-start ${GAP}`}>
-              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-blue-600 text-[10px] font-bold text-white">
+              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-blue-600 text-[10px] font-semibold text-white">
                 T
               </div>
               <span className="text-sm font-semibold ">TechVision Pvt. Ltd.</span>
@@ -518,7 +518,7 @@ const Footer = () => (
 
 const RevokeModifyAccessPage = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-2">
+    <div className="min-h-screen bg-gray-50 pb-2">
       <Breadcrumb />
       <PageHeader />
       <InfoBar />

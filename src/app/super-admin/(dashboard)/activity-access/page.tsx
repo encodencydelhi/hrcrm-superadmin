@@ -248,7 +248,7 @@ const ActiveAccessPage = () => {
     <div className="min-h-screen bg-gray-50 mb-2">
       <div className={`mx-auto flex max-w-[1400px] flex-col ${GAP}`}>
         {/* Breadcrumb */}
-        <div className="flex flex-wrap items-center gap-1 text-xs ">
+        <div className="flex flex-wrap items-center gap-1 text-[10px] font-semibold">
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={crumb}>
               {idx > 0 && <ChevronRight className="h-3 w-3 text-blue-700" />}
@@ -308,7 +308,7 @@ const ActiveAccessPage = () => {
           <div className={`flex flex-col ${GAP} border-gray-200 pr-2 sm:border-r-0 lg:border-r`}>
             <span className="text-[11px] font-semibold">Company</span>
             <div className={`flex items-start ${GAP}`}>
-              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-blue-600 text-xs font-bold text-white">
+              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-blue-600 text-xs font-semibold text-white">
                 T
               </div>
               <span className="text-sm font-semibold ">TechVision Pvt. Ltd.</span>

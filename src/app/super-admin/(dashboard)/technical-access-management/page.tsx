@@ -380,7 +380,7 @@ const TechnicalAccessManagementPage = () => {
                 </nav>
 
                 {/* Title */}
-                <h1 className="text-xl font-bold leading-tight text-gray-900">
+                <h1 className="text-xl font-semibold leading-tight text-gray-900">
                     Technical Access Management
                 </h1>
                 <p className="mb-5 text-xs">
@@ -430,7 +430,7 @@ const TechnicalAccessManagementPage = () => {
                                 </span>
                                 <div>
                                     <p className="text-xs">{stat.label}</p>
-                                    <p className="text-xl font-bold text-gray-900">
+                                    <p className="text-xl font-semibold text-gray-900">
                                         {stat.value}
                                     </p>
                                     <p className={`text-[10px] ${stat.captionColor}`}>

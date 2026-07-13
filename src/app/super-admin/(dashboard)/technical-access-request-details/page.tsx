@@ -168,7 +168,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     <div className="min-h-screen bg-gray-50">
       <PageLayout>
         {/* Breadcrumb */}
-        <nav className={`mb-2 flex items-center ${GAP} text-[10px]`}>
+        <nav className={`mb-2 flex items-center ${GAP} text-[10px] font-semibold`}>
           <a href="#" className="text-blue-600 hover:underline">
             Home
           </a>
@@ -183,7 +183,7 @@ const TechnicalAccessRequestDetailsPage = () => {
         {/* Title row */}
         <div className="mb-2 flex flex-col justify-between gap-2 lg:flex-row lg:items-start">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-xl font-semibold text-gray-900">
               Technical Access Request Details
             </h1>
             <p className="text-[10px] ">
@@ -225,7 +225,7 @@ const TechnicalAccessRequestDetailsPage = () => {
               <div>
                 <p className="text-[10px] ">Request ID</p>
                 <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900">
                     TAR-2025-028
                   </p>
                   <span className="rounded-md bg-orange-100 px-1.5 py-0.5 text-[10px] font-medium text-orange-600">
@@ -268,7 +268,7 @@ const TechnicalAccessRequestDetailsPage = () => {
             <div>
               <p className="mb-1 text-[10px] ">Company</p>
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-bold text-white">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-semibold text-white">
                   T
                 </span>
                 <p className="text-sm font-medium text-gray-800">
@@ -452,7 +452,7 @@ const TechnicalAccessRequestDetailsPage = () => {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="absolute text-lg font-bold text-gray-900">
+                <span className="absolute text-lg font-semibold text-gray-900">
                   1/2
                 </span>
               </div>
