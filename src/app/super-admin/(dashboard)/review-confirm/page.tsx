@@ -138,7 +138,7 @@ export default function ReviewConfirmPage() {
                                     </div>
                                     <div className="grid grid-cols-[120px_1fr] items-start gap-2">
                                         <span className="text-[12px] text-slate-500 font-medium">Website</span>
-                                        <span className="text-[12px] font-medium text-slate-700 truncate">https://www.techvision.com</span>
+                                        <span className="text-[12px] font-medium text-slate-700 break-all">https://www.techvision.com</span>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
@@ -229,7 +229,7 @@ export default function ReviewConfirmPage() {
                                     <span className="text-[11px] font-medium text-slate-700">HR Manager</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Email Address</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] truncate">rohit.mehta@techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">rohit.mehta@techvision.com</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Phone Number</span>
                                     <span className="text-[11px] font-medium text-slate-700">+91 98765 43210</span>
@@ -241,19 +241,19 @@ export default function ReviewConfirmPage() {
                                     <div className="col-span-2 text-[12px] text-[#1e293b] font-bold">Company Communication</div>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Official Email</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] truncate">info@techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">info@techvision.com</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Official Phone</span>
                                     <span className="text-[11px] font-medium text-slate-700">+91 0120 456 7890</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Support Email</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] truncate">support@techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">support@techvision.com</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Support Phone</span>
                                     <span className="text-[11px] font-medium text-slate-700">+91 0120 456 7891</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Company Website</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] truncate">https://www.techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">https://www.techvision.com</span>
                                 </div>
                             </div>
                         </div>
@@ -545,7 +545,7 @@ export default function ReviewConfirmPage() {
                             <ShieldCheck className="text-sky-600" size={18} />
                             <h4 className="text-[13px] font-bold">Your Data is Secure</h4>
                         </div>
-                        <p className="text-[11px] text-slate-500 leading-relaxed mb-4">
+                        <p className="text-[11px] text-slate-500 leading-relaxed mb-2">
                             We follow enterprise-grade security and data protection standards to keep your data safe.
                         </p>
                         <div className="flex flex-wrap gap-2">
