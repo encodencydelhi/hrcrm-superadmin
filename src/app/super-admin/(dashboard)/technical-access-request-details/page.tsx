@@ -168,22 +168,22 @@ const TechnicalAccessRequestDetailsPage = () => {
     <div className="min-h-screen bg-gray-50">
       <PageLayout>
         {/* Breadcrumb */}
-        <nav className={`mb-2 flex items-center ${GAP} text-[10px]`}>
+        <nav className={`flex flex-wrap items-center gap-1 text-[10px] font-semibold`}>
           <a href="#" className="text-blue-600 hover:underline">
             Home
           </a>
-          <ChevronRight className="h-3 w-3 " />
+          <ChevronRight className="h-3 w-3 text-blue-600" />
           <a href="#" className="text-blue-600 hover:underline">
             Technical Access Management
           </a>
-          <ChevronRight className="h-3 w-3 " />
+          <ChevronRight className="h-3 w-3 text-blue-600" />
           <span className="">Request Details</span>
         </nav>
 
         {/* Title row */}
-        <div className="mb-2 flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
+        <div className="mb-2 flex flex-col justify-between gap-2 lg:flex-row lg:items-start">
           <div>
-            <h1 className="text-xl font-bold text-gray-900">
+            <h1 className="text-xl font-semibold text-gray-900">
               Technical Access Request Details
             </h1>
             <p className="text-[10px] ">
@@ -225,7 +225,7 @@ const TechnicalAccessRequestDetailsPage = () => {
               <div>
                 <p className="text-[10px] ">Request ID</p>
                 <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className="text-sm font-semibold text-gray-900">
                     TAR-2025-028
                   </p>
                   <span className="rounded-md bg-orange-100 px-1.5 py-0.5 text-[10px] font-medium text-orange-600">
@@ -268,7 +268,7 @@ const TechnicalAccessRequestDetailsPage = () => {
             <div>
               <p className="mb-1 text-[10px] ">Company</p>
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-bold text-white">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-semibold text-white">
                   T
                 </span>
                 <p className="text-sm font-medium text-gray-800">
@@ -288,17 +288,17 @@ const TechnicalAccessRequestDetailsPage = () => {
 
         {/* Tabs */}
         <div
-          className={`mb-2 flex flex-wrap ${GAP} border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
+          className={`overflow-x-auto mb-2 flex  ${GAP} border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
         >
           {tabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`whitespace-nowrap border-b-2 px-1 pb-2 text-[10px] font-medium transition-colors ${activeTab === tab
-                ? "border-blue-600 text-blue-600"
+                    ? "border-blue-600 text-blue-600"
                 : "border-transparent  hover:"
                 }`}
-            >
+              >
               {tab}
             </button>
           ))}
@@ -311,7 +311,7 @@ const TechnicalAccessRequestDetailsPage = () => {
             <h3 className="mb-3 text-sm font-semibold text-gray-900">
               Request Information
             </h3>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {requestInfoRows.map((row) => (
                 <InfoRow key={row.label} {...row} />
               ))}
@@ -365,7 +365,7 @@ const TechnicalAccessRequestDetailsPage = () => {
             <h3 className="mb-3 text-sm font-semibold text-gray-900">
               Access Time &amp; Duration
             </h3>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               {accessTimeRows.map((row) => (
                 <InfoRow key={row.label} {...row} />
               ))}
@@ -400,9 +400,9 @@ const TechnicalAccessRequestDetailsPage = () => {
                     ? ""
                     : "text-gray-900";
                 return (
-                  <div key={step.step} className="relative flex gap-2 pb-4 last:pb-0">
+                  <div key={step.step} className="relative flex gap-2 pb-2 last:pb-0">
                     {!isLast && (
-                      <span className="absolute left-3 top-6 h-full w-px bg-gray-200" />
+                      <span className="absolute left-2.5 top-6 h-full w-px bg-gray-200" />
                     )}
                     <span
                       className={`relative z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${circleClass}`}
@@ -452,7 +452,7 @@ const TechnicalAccessRequestDetailsPage = () => {
                     strokeLinecap="round"
                   />
                 </svg>
-                <span className="absolute text-lg font-bold text-gray-900">
+                <span className="absolute text-lg font-semibold text-gray-900">
                   1/2
                 </span>
               </div>
@@ -525,9 +525,9 @@ const TechnicalAccessRequestDetailsPage = () => {
               {activityTimeline.map((item, idx) => {
                 const isLast = idx === activityTimeline.length - 1;
                 return (
-                  <div key={item.step} className="relative flex gap-2 pb-4 last:pb-0">
+                  <div key={item.step} className="relative flex gap-2 pb-2 last:pb-0">
                     {!isLast && (
-                      <span className="absolute left-3 top-6 h-full w-px bg-gray-200" />
+                      <span className="absolute left-2.5 top-6 h-full w-px bg-gray-200" />
                     )}
                     <span
                       className={`relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white ${item.color}`}
@@ -543,18 +543,16 @@ const TechnicalAccessRequestDetailsPage = () => {
                           {item.date}{" "}
                         </p>
                       </div>
-                       <div className="flex flex-col justify-between gap-0.5 sm:flex-row sm:items-start">
+                      <div className="flex flex-col justify-between gap-0.5 sm:flex-row sm:items-start">
                         <div>
-
-                      <p className="text-[10px] ">{item.desc}</p>
-                      {item.extra && (
-                        <p className="text-[10px]">
-                          · {item.extra}
-                        </p>
-                      )}
-                      </div>
-                          <span className="ml-1 text-[10px]">{item.time}</span>
-
+                          <p className="text-[10px] ">{item.desc}</p>
+                          {item.extra && (
+                            <p className="text-[10px]">
+                              · {item.extra}
+                            </p>
+                          )}
+                        </div>
+                        <span className="ml-1 text-[10px]">{item.time}</span>
                       </div>
                     </div>
                   </div>

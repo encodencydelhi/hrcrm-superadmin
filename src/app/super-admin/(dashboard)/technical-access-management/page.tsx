@@ -363,24 +363,24 @@ const TechnicalAccessManagementPage = () => {
         <div className="min-h-screen bg-gray-50">
             <PageLayout>
                 {/* Breadcrumb */}
-                <nav className="mb-2 flex items-center gap-1.5 text-sm">
+                <nav className="flex flex-wrap items-center gap-1 text-[10px] font-semibold">
                     <a href="#" className="text-blue-600 hover:underline">
                         Home
                     </a>
-                    <ChevronRight className="h-3.5 w-3.5 " />
+                    <ChevronRight className="h-3.5 w-3.5 text-blue-600" />
                     <a href="#" className="text-blue-600 hover:underline">
                         Companies
                     </a>
-                    <ChevronRight className="h-3.5 w-3.5 " />
+                    <ChevronRight className="h-3.5 w-3.5 text-blue-600" />
                     <a href="#" className="text-blue-600 hover:underline">
                         TechVision Pvt. Ltd.
                     </a>
-                    <ChevronRight className="h-3.5 w-3.5 " />
+                    <ChevronRight className="h-3.5 w-3.5 text-blue-600" />
                     <span className="">Technical Access Management</span>
                 </nav>
 
                 {/* Title */}
-                <h1 className="text-xl font-bold leading-tight text-gray-900">
+                <h1 className="text-xl font-semibold leading-tight text-gray-900">
                     Technical Access Management
                 </h1>
                 <p className="mb-5 text-xs">
@@ -430,7 +430,7 @@ const TechnicalAccessManagementPage = () => {
                                 </span>
                                 <div>
                                     <p className="text-xs">{stat.label}</p>
-                                    <p className="text-xl font-bold text-gray-900">
+                                    <p className="text-xl font-semibold text-gray-900">
                                         {stat.value}
                                     </p>
                                     <p className={`text-[10px] ${stat.captionColor}`}>
@@ -445,12 +445,12 @@ const TechnicalAccessManagementPage = () => {
                     className={`bg-white ${CARD_BORDER} rounded-t-xl px-4 pt-4`}
                 >
                     <div className="flex flex-col gap-2 border-b border-gray-100 pb-0 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex flex-wrap gap-6 overflow-x-auto">
+                        <div className="flex gap-2 overflow-x-auto">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`whitespace-nowrap border-b-2 pb-3 text-[10px] font-medium transition-colors ${activeTab === tab
+                                    className={`whitespace-nowrap border-b-2 pb-3 text-[10px] font-semibold transition-colors ${activeTab === tab
                                         ? "border-blue-600 text-blue-600"
                                         : "border-transparent  hover:text-gray-700"
                                         }`}
@@ -637,7 +637,7 @@ const TechnicalAccessManagementPage = () => {
                                     <ArrowRight className="h-3.5 w-3.5" />
                                 </a>
                             </div>
-                            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                                 {overviewStats.map((stat) => {
                                     const Icon = stat.icon;
                                     return (
