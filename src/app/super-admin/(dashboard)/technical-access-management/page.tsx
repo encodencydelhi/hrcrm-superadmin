@@ -363,19 +363,19 @@ const TechnicalAccessManagementPage = () => {
         <div className="min-h-screen bg-gray-50">
             <PageLayout>
                 {/* Breadcrumb */}
-                <nav className="mb-2 flex items-center gap-1.5 text-xs font-semibold">
+                <nav className="flex flex-wrap items-center gap-1 text-[10px] font-semibold">
                     <a href="#" className="text-blue-600 hover:underline">
                         Home
                     </a>
-                    <ChevronRight className="h-3.5 w-3.5 " />
+                    <ChevronRight className="h-3.5 w-3.5 text-blue-600" />
                     <a href="#" className="text-blue-600 hover:underline">
                         Companies
                     </a>
-                    <ChevronRight className="h-3.5 w-3.5 " />
+                    <ChevronRight className="h-3.5 w-3.5 text-blue-600" />
                     <a href="#" className="text-blue-600 hover:underline">
                         TechVision Pvt. Ltd.
                     </a>
-                    <ChevronRight className="h-3.5 w-3.5 " />
+                    <ChevronRight className="h-3.5 w-3.5 text-blue-600" />
                     <span className="">Technical Access Management</span>
                 </nav>
 
@@ -445,7 +445,7 @@ const TechnicalAccessManagementPage = () => {
                     className={`bg-white ${CARD_BORDER} rounded-t-xl px-4 pt-4`}
                 >
                     <div className="flex flex-col gap-2 border-b border-gray-100 pb-0 lg:flex-row lg:items-center lg:justify-between">
-                        <div className="flex flex-wrap gap-2 overflow-x-auto">
+                        <div className="flex gap-2 overflow-x-auto">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}

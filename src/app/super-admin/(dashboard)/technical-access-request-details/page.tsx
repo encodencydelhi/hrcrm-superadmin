@@ -168,15 +168,15 @@ const TechnicalAccessRequestDetailsPage = () => {
     <div className="min-h-screen bg-gray-50">
       <PageLayout>
         {/* Breadcrumb */}
-        <nav className={`mb-2 flex items-center ${GAP} text-[10px] font-semibold`}>
+        <nav className={`flex flex-wrap items-center gap-1 text-[10px] font-semibold`}>
           <a href="#" className="text-blue-600 hover:underline">
             Home
           </a>
-          <ChevronRight className="h-3 w-3 " />
+          <ChevronRight className="h-3 w-3 text-blue-600" />
           <a href="#" className="text-blue-600 hover:underline">
             Technical Access Management
           </a>
-          <ChevronRight className="h-3 w-3 " />
+          <ChevronRight className="h-3 w-3 text-blue-600" />
           <span className="">Request Details</span>
         </nav>
 
@@ -288,7 +288,7 @@ const TechnicalAccessRequestDetailsPage = () => {
 
         {/* Tabs */}
         <div
-          className={`mb-2 flex flex-wrap ${GAP} border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
+          className={`overflow-x-auto mb-2 flex  ${GAP} border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
         >
           {tabs.map((tab) => (
             <button

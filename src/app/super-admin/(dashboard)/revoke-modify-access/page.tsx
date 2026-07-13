@@ -24,7 +24,7 @@ const S = "gap-2 p-2"; // constant spacing unit used across the layout
 const GAP = "gap-2";
 const PAD = "p-2";
 const Breadcrumb = () => (
-  <div className="flex items-center gap-2 text-[10px]  px-0 py-0">
+  <div className="flex flex-wrap items-center gap-1 text-[10px] font-semibold">
     <span className="hover:text-blue-600 text-blue-600 cursor-pointer font-semibold">Home</span>
     <ChevronRight className="w-3 h-3 hover:text-blue-600 text-blue-600" />
     <span className="hover:text-blue-600 text-blue-600 cursor-pointer font-semibold">
@@ -132,7 +132,7 @@ const TABS = [
 ];
 
 const Tabs = () => (
-  <div className="flex items-center gap-2 border-b border-gray-200 px-2 mt-2 bg-white rounded-md">
+  <div className="flex items-center gap-2 border-b border-gray-200 px-2 mt-2 bg-white rounded-md overflow-x-auto">
     {TABS.map((tab) => {
       const active = tab === "Revoke / Modify Access";
       return (
@@ -467,8 +467,8 @@ const PreviousModifications = () => (
       <h3 className="text-sm font-semibold ">Previous Access Modifications</h3>
       <p className="text-[10px]  mt-1">History of changes made to this request.</p>
     </div>
-    <div className="">
-      <table className="w-full text-[10px]">
+    <div className="overflow-x-auto">
+      <table className="w-full text-[10px] ">
         <thead>
           <tr className="text-left text-[10px]  border-b border-gray-200">
             <th className="p-2 font-medium">Date & Time</th>
@@ -504,7 +504,7 @@ const PreviousModifications = () => (
 );
 
 const Footer = () => (
-  <div className="flex items-center justify-between px-2 py-2">
+  <div className="flex items-center justify-between px-2 py-2 gap-2">
     <button className="flex items-center gap-2 text-[10px] font-medium border border-gray-300 rounded-md px-3 py-1.5 hover:bg-gray-50">
       <ArrowLeft className="w-3.5 h-3.5" />
       Back to Active Access
