@@ -74,7 +74,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     { label: "Technical Access Management" },
     { label: "Request Details", isActive: true },
   ];
-  
+
   if (["Active Access", "Terms & Conditions", "Activity Log", "Download Report", "Revoke / Modify Access", "Data Access Scope", "Approvals", "Credentials & Instructions"].includes(activeTab)) {
     breadcrumbs = [
       { label: "Home" },
@@ -116,7 +116,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     title = "Download Access Report";
     subtitle = "Generate and download a detailed report of all activities performed during the access period.";
     headerButtons = (
-      <button 
+      <button
         onClick={() => setActiveTab("Active Access")}
         className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[10px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors shrink-0"
       >
@@ -127,7 +127,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     title = "Revoke / Modify Access";
     subtitle = "Revoke all access or modify the scope and permissions of the granted access.";
     headerButtons = (
-      <button 
+      <button
         onClick={() => setActiveTab("Active Access")}
         className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[10px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors shrink-0"
       >
@@ -139,7 +139,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     subtitle = "Please review and accept the terms and conditions before accessing the requested data.";
     headerButtons = (
       <div className="flex gap-2">
-         <button className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}>
+        <button className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}>
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Data Access Scope
         </button>
@@ -150,7 +150,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     subtitle = "Monitor and manage the current active access granted to the technical team.";
     headerButtons = (
       <button className="flex items-center gap-2 self-start rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-x"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-3 7-3s5 2 7 3a1 1 0 0 1 1 1v7z"/><path d="m9 9 6 6"/><path d="m15 9-6 6"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-x"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-3 7-3s5 2 7 3a1 1 0 0 1 1 1v7z" /><path d="m9 9 6 6" /><path d="m15 9-6 6" /></svg>
         Revoke All Access
       </button>
     );
@@ -159,7 +159,7 @@ const TechnicalAccessRequestDetailsPage = () => {
     subtitle = "Comprehensive log of all activities and access events for this request.";
     headerButtons = (
       <div className="flex items-center gap-2">
-        <button 
+        <button
           onClick={() => setActiveTab("Download Report")}
           className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-200 rounded text-[10px] font-bold text-zinc-700 bg-white hover:bg-zinc-50 transition-colors"
         >
@@ -211,7 +211,7 @@ const TechnicalAccessRequestDetailsPage = () => {
         {activeTab === 'Activity Log' && <ActivityLogTab />}
         {activeTab === 'Download Report' && <DownloadReportTab />}
         {activeTab === 'Revoke / Modify Access' && <RevokeModifyAccessTab />}
-        
+
         {/* Placeholder for others */}
         {!['Request Overview', 'Access Details', 'Access Granted', 'Active Access', 'Session Timeout', 'Terms & Conditions', 'Activity Log', 'Download Report', 'Revoke / Modify Access'].includes(activeTab) && (
           <div className="p-4 bg-white border border-gray-200 rounded-lg text-center text-gray-500 text-sm mt-4">

@@ -35,7 +35,7 @@ import PageLayout from "@/components/ui/pageLayout";
 
 const PAGE_PADDING = "px-4 sm:px-6 lg:px-8";
 const SECTION_GAP = "mb-6";
-const CARD_PADDING = "p-4";
+const CARD_PADDING = "p-2";
 const CARD_RADIUS = "rounded-xl";
 const CARD_BORDER = "border border-gray-200";
 
@@ -442,7 +442,7 @@ const TechnicalAccessManagementPage = () => {
                     })}
                 </div>
                 <div
-                    className={`bg-white ${CARD_BORDER} rounded-t-xl px-4 pt-4`}
+                    className={`bg-white ${CARD_BORDER} rounded-t-xl px-2 pt-2`}
                 >
                     <div className="flex flex-col gap-2 border-b border-gray-100 pb-0 lg:flex-row lg:items-center lg:justify-between">
                         <div className="flex gap-4 overflow-x-auto">
@@ -450,7 +450,7 @@ const TechnicalAccessManagementPage = () => {
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`whitespace-nowrap border-b-2 pb-3 text-[10px] font-semibold transition-colors ${activeTab === tab
+                                    className={`whitespace-nowrap border-b-2 pb-2 text-[10px] font-semibold transition-colors ${activeTab === tab
                                         ? "border-blue-600 text-blue-600"
                                         : "border-transparent  hover:text-gray-700"
                                         }`}
@@ -494,7 +494,7 @@ const TechnicalAccessManagementPage = () => {
                                 <table className="w-full min-w-[900px] text-left text-[10px]">
                                     <thead>
                                         <tr className="border-b border-gray-100 text-[10px] font-semibold ">
-                                            <th className="pl-4 pr-2 py-3">Request ID</th>
+                                            <th className="px-2 py-3">Request ID</th>
                                             <th className="px-2 py-3">Company Name</th>
                                             <th className="px-2 py-3">Requested By (Crewcam)</th>
                                             <th className="px-2 py-3">Purpose</th>
@@ -510,7 +510,7 @@ const TechnicalAccessManagementPage = () => {
                                                 key={req.id}
                                                 className="border-b border-gray-100 last:border-0 hover:bg-gray-50"
                                             >
-                                                <td className="pl-4 pr-2 py-2">
+                                                <td className="px-2 py-2">
                                                     <span className="text-blue-600 font-medium bg-blue-200 p-1 rounded-sm">
                                                         {req.id}
                                                     </span>
