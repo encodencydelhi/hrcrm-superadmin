@@ -235,11 +235,11 @@ const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
 
 const Breadcrumb = () => (
     <div className="flex items-center gap-2 text-[10px]  px-2 py-2">
-        <span className="hover:text-blue-600 cursor-pointer">Home</span>
+        <span className="text-blue-600 hover:text-blue-600 cursor-pointer">Home</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="hover:text-blue-600 cursor-pointer">Companies</span>
+        <span className="text-blue-600 hover:text-blue-600 cursor-pointer">Companies</span>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-blue-600 font-medium hover:underline cursor-pointer">
+        <span className="text-blue-600 hover:text-blue-600 font-medium hover:underline cursor-pointer">
             TechVision Pvt. Ltd.
         </span>
         <ChevronRight className="w-3 h-3" />
@@ -341,12 +341,12 @@ const HeadcountTrend = () => (
                 <LineChart data={headcountData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <XAxis
                         dataKey="month"
-                        tick={{ fontSize: 10, fill: "#9ca3af" }}
+                        tick={{ fontSize: 10, fill: "#000" }}
                         axisLine={false}
                         tickLine={false}
                     />
                     <YAxis
-                        tick={{ fontSize: 10, fill: "#9ca3af" }}
+                        tick={{ fontSize: 10, fill: "#000" }}
                         axisLine={false}
                         tickLine={false}
                         domain={[0, 400]}
