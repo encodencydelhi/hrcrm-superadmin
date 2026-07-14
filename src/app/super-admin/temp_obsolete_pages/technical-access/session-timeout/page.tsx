@@ -17,6 +17,9 @@ import {
   Info
 } from 'lucide-react';
 
+import TechnicalAccessLayout from '@/components/technical-access-management/TechnicalAccessLayout';
+import { RequestSummaryData } from '@/components/technical-access-management/types';
+
 export default function SessionTimeoutSettings() {
   const [isTimeoutEnabled, setIsTimeoutEnabled] = useState(true);
   const [idleDuration, setIdleDuration] = useState('30 Minutes');
@@ -33,6 +36,37 @@ export default function SessionTimeoutSettings() {
     api: true
   });
 
+  const requestData: RequestSummaryData = {
+    requestId: 'TAR-2025-028',
+    requestStatus: 'Active',
+    requestStatusColor: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    requestedOn: '30 May 2025',
+    companyInitial: 'T',
+    companyName: 'TechVision Pvt. Ltd.',
+    requestedByAvatar: 'https://i.pravatar.cc/150?u=rahul',
+    requestedByName: 'Rahul Verma',
+    requestedByRole: 'Sr. Support Engineer',
+    purposeTitle: 'System Maintenance',
+    purposeSubtitle: 'Server optimization',
+    accessType: 'Time-Bound Access',
+    accessDuration: '30 May 2025, 02:35 PM to 02 Jun 2025, 06:00 PM (3 Days)',
+  };
+
+  const breadcrumbsList = [
+    { label: 'Home' },
+    { label: 'Technical Access Management' },
+    { label: 'Request Details' },
+    { label: 'Access Details' },
+    { label: 'Session Timeout Settings', isActive: true },
+  ];
+
+  const headerButtons = (
+    <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 bg-white border border-zinc-200 rounded-md hover:bg-zinc-50 shadow-sm transition-colors">
+      <ArrowLeft className="h-3.5 w-3.5" />
+      Back to Active Access
+    </button>
+  );
+
   const tabs = [
     'Access Overview',
     'Access Granted',
@@ -46,120 +80,15 @@ export default function SessionTimeoutSettings() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-2 font-sans text-slate-800">
-      <div className="mx-auto w-full p-2 space-y-4">
-
-        {/* Breadcrumb */}
-        <div className="text-xs text-blue-600 font-medium mb-2 flex items-center gap-1.5 flex-wrap">
-          <span>Home</span>
-          <span className="text-slate-400">›</span>
-          <span>Technical Access Management</span>
-          <span className="text-slate-400">›</span>
-          <span>Request Details</span>
-          <span className="text-slate-400">›</span>
-          <span>Access Details</span>
-          <span className="text-slate-400">›</span>
-          <span className="text-slate-800">Session Timeout Settings</span>
-        </div>
-
-        {/* Page Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2">
-              <Shield className="text-zinc-900 dark:text-zinc-50 h-5 w-5" />
-              <h1 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">Session Timeout Settings</h1>
-            </div>
-            <p className="text-xs text-zinc-500">
-              Configure idle timeouts and automatic logout settings for this technical access.
-            </p>
-          </div>
-          <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 bg-white border border-zinc-200 rounded-md hover:bg-zinc-50 shadow-sm transition-colors">
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Active Access
-          </button>
-        </div>
-
-        {/* Summary Card */}
-        <div className="bg-white border border-slate-200 rounded-md shadow-sm mb-4 overflow-hidden">
-          <div className="flex w-full divide-x divide-slate-100 justify-between items-stretch">
-            {/* Request ID */}
-            <div className="p-3 xl:p-4 flex gap-3 items-center flex-1">
-              <div className="bg-blue-50 text-blue-600 rounded-xl p-2.5 h-fit border border-blue-100 shrink-0">
-                <FileText className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div className="flex flex-col justify-center min-w-0">
-                <p className="text-[11px] text-slate-500 font-medium mb-0.5 whitespace-nowrap">Request ID</p>
-                <div className="flex items-center gap-1.5 mb-1">
-                  <p className="text-slate-900 font-semibold text-[14px] tracking-tight whitespace-nowrap truncate">TAR-2025-028</p>
-                  <span className="bg-emerald-50 text-emerald-600 text-[9px] px-1.5 py-0.5 rounded border border-emerald-100 font-medium shrink-0">Active</span>
-                </div>
-                <p className="text-[10px] text-slate-400 whitespace-nowrap truncate">Requested on 30 May 2025</p>
-              </div>
-            </div>
-
-            {/* Company */}
-            <div className="p-3 xl:p-4 flex flex-col justify-center flex-1 min-w-0">
-              <p className="text-[11px] text-slate-500 font-medium mb-1 whitespace-nowrap">Company</p>
-              <div className="flex items-center gap-2">
-                <div className="bg-blue-600 text-white rounded h-5 w-5 shadow-sm flex items-center justify-center shrink-0">
-                  <span className="font-semibold text-[10px] leading-none block">T</span>
-                </div>
-                <p className="text-slate-900 font-semibold text-[13px] whitespace-nowrap truncate">TechVision Pvt. Ltd.</p>
-              </div>
-            </div>
-
-            {/* Purpose */}
-            <div className="p-3 xl:p-4 flex flex-col justify-center flex-1 min-w-0">
-              <p className="text-[11px] text-slate-500 font-medium mb-1.5 whitespace-nowrap">Purpose</p>
-              <p className="text-slate-900 font-semibold text-[13px] whitespace-nowrap truncate">System Maintenance</p>
-              <p className="text-[10px] text-blue-600 mt-0.5 font-medium whitespace-nowrap truncate">Server optimization</p>
-            </div>
-
-            {/* Access Type */}
-            <div className="p-3 xl:p-4 flex flex-col justify-center flex-1 min-w-0">
-              <p className="text-[11px] text-slate-500 font-medium mb-1.5 whitespace-nowrap">Access Type</p>
-              <div>
-                <span className="bg-purple-100/50 text-purple-700 text-[11px] px-2 py-0.5 rounded font-semibold whitespace-nowrap inline-block">
-                  Time-Bound Access
-                </span>
-              </div>
-            </div>
-
-            {/* Access Duration */}
-            <div className="p-3 xl:p-4 flex gap-3 items-center flex-1">
-              <div className="bg-emerald-50 text-emerald-600 rounded-xl p-2.5 h-fit border border-emerald-100 shrink-0">
-                <Calendar className="h-5 w-5" strokeWidth={1.5} />
-              </div>
-              <div className="flex flex-col justify-center min-w-0">
-                <p className="text-[11px] text-slate-500 font-medium mb-0.5 whitespace-nowrap">Access Duration</p>
-                <p className="text-slate-900 font-semibold text-[12px] whitespace-nowrap truncate">30 May 2025, 02:35 PM</p>
-                <p className="text-[10px] text-slate-400 my-px whitespace-nowrap">to</p>
-                <p className="text-slate-900 font-semibold text-[12px] flex items-center gap-1 whitespace-nowrap truncate">
-                  02 Jun 2025, 06:00 PM <span className="text-[10px] text-slate-500 font-normal shrink-0">(3 Days)</span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="mb-2 border-b border-slate-200">
-          {/* <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm"> */}
-          <div className="flex flex-wrap gap-x-4 gap-y-2 -mb-px">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                className={`pb-2 text-sm font-medium transition-colors border-b-2 ${tab === 'Session Timeout'
-                  ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
-                  }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-
+    <TechnicalAccessLayout
+      breadcrumbs={breadcrumbsList}
+      title="Session Timeout Settings"
+      subtitle="Configure idle timeouts and automatic logout settings for this technical access."
+      headerButtons={headerButtons}
+      requestData={requestData}
+      tabs={tabs}
+      activeTab="Session Timeout"
+    >
         {/* Main Content Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
 
@@ -520,17 +449,6 @@ export default function SessionTimeoutSettings() {
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-2 pt-2 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-4">
-          <div className="flex-1" />
-          <p className="text-center font-medium">© 2025 Crewcam HRMS. All Rights Reserved.</p>
-          <div className="flex-1 flex justify-end gap-6">
-            <a href="#" className="hover:text-slate-800 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-slate-800 transition-colors">Terms of Service</a>
-          </div>
-        </div>
-
-      </div>
-    </div>
+    </TechnicalAccessLayout>
   );
 }

@@ -8,109 +8,82 @@ import {
   X, Phone, Mail, MoreVertical, Plus, Save, AlertTriangle, Check
 } from 'lucide-react';
 
+import TechnicalAccessLayout from '@/components/technical-access-management/TechnicalAccessLayout';
+import { RequestSummaryData } from '@/components/technical-access-management/types';
+
 export default function AccessDetailsPage() {
+  const requestData: RequestSummaryData = {
+    requestId: 'TAR-2025-028',
+    requestStatus: 'Pending',
+    requestedOn: '30 May 2025, 11:20 AM',
+    companyInitial: 'T',
+    companyName: 'TechVision Pvt. Ltd.',
+    requestedByAvatar: 'https://i.pravatar.cc/150?u=rahul',
+    requestedByName: 'Rahul Verma',
+    requestedByRole: 'Sr. Support Engineer',
+    purposeTitle: 'System Maintenance',
+    purposeSubtitle: 'Server optimization',
+    accessType: 'Time-Bound Access',
+    accessDuration: 'Duration: 31 May - 02 Jun 2025 (3 Days)',
+  };
+
+  const breadcrumbs = [
+    { label: 'Home' },
+    { label: 'Technical Access Management' },
+    { label: 'Request Details' },
+    { label: 'Access Details', isActive: true },
+  ];
+
+  const headerButtons = (
+    <>
+      <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
+        <ArrowLeft size={13} /> Back to Request Details
+      </button>
+      <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
+        <Download size={13} /> Download
+      </button>
+      <button className="flex items-center gap-1.5 bg-blue-600 text-white text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-blue-700 transition-colors">
+        Next: Approvals <ArrowRight size={13} />
+      </button>
+    </>
+  );
+
+  const footerActions = (
+    <>
+      <button className="flex items-center gap-1.5 text-[12px] font-bold text-rose-600 hover:text-rose-700">
+        <div className="w-4 h-4 rounded-full border border-rose-600 flex items-center justify-center">
+          <X size={10} strokeWidth={3} />
+        </div>
+        Cancel Request
+      </button>
+      <div className="flex items-center gap-3">
+        <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[12px] font-bold px-4 py-2 rounded shadow-sm hover:bg-zinc-50 transition-colors">
+          <Save size={14} /> Save as Draft
+        </button>
+        <button className="flex items-center gap-1.5 bg-blue-600 text-white text-[12px] font-bold px-5 py-2 rounded shadow-sm hover:bg-blue-700 transition-colors">
+          Next: Data Access Scope <ArrowRight size={14} />
+        </button>
+      </div>
+    </>
+  );
+
   return (
-    <div className="w-full max-w-[1600px]  mx-auto space-y-2 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
-
-      {/* Breadcrumbs */}
-      <div className="flex items-center text-[10px] text-zinc-500 font-medium">
-        <span>Home</span>
-        <ChevronRight size={12} className="mx-1" />
-        <span>Technical Access Management</span>
-        <ChevronRight size={12} className="mx-1" />
-        <span>Request Details</span>
-        <ChevronRight size={12} className="mx-1" />
-        <span className="text-zinc-800">Access Details</span>
-      </div>
-
-      {/* Header */}
-      <div className="flex items-start justify-between pb-1">
-        <div>
-          <h1 className="text-[16px] font-bold text-[#020b22]">Access Details</h1>
-          <p className="text-[10px] text-zinc-500">Configure access level, data scope and permissions for the technical team</p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
-            <ArrowLeft size={13} /> Back to Request Details
-          </button>
-          <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
-            <Download size={13} /> Download
-          </button>
-          <button className="flex items-center gap-1.5 bg-blue-600 text-white text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-blue-700 transition-colors">
-            Next: Approvals <ArrowRight size={13} />
-          </button>
-        </div>
-      </div>
-
-      {/* Summary Header Card */}
-      <div className="bg-white rounded-lg shadow-sm border border-zinc-200 p-4 flex flex-wrap lg:flex-nowrap items-center justify-between gap-4">
-
-        <div className="flex items-start gap-3 w-full lg:w-auto">
-          <div className="p-2.5 bg-blue-50 rounded-lg border border-blue-100 shrink-0 mt-0.5">
-            <FileText size={20} className="text-blue-600" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-[10px] text-zinc-500 font-medium">Request ID</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-[15px] font-bold text-zinc-900">TAR-2025-028</h2>
-              <span className="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-100 px-1.5 py-0.5 rounded">Pending</span>
-            </div>
-            <p className="text-[10px] text-zinc-500 mt-1 flex items-center gap-1">Requested on 30 May 2025, 11:20 AM</p>
-          </div>
-        </div>
-
-        <div className="hidden lg:block w-px h-10 bg-zinc-200"></div>
-
-        <div className="flex flex-col w-full lg:w-auto">
-          <span className="text-[10px] text-zinc-500 font-medium mb-1">Company</span>
-          <div className="flex items-center gap-1.5">
-            <div className="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center text-[10px] font-bold">T</div>
-            <span className="text-[12px] font-bold text-zinc-900">TechVision Pvt. Ltd.</span>
-          </div>
-        </div>
-
-        <div className="hidden lg:block w-px h-10 bg-zinc-200"></div>
-
-        <div className="flex flex-col w-full lg:w-auto">
-          <span className="text-[10px] text-zinc-500 font-medium mb-1">Requested By (Crewcam)</span>
-          <div className="flex items-center gap-2">
-            <img src="https://i.pravatar.cc/150?u=rahul" alt="Rahul Verma" className="w-6 h-6 rounded-full border border-zinc-200" />
-            <div className="flex flex-col">
-              <span className="text-[11px] font-bold text-zinc-900">Rahul Verma</span>
-              <span className="text-[9px] text-zinc-500">Sr. Support Engineer</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="hidden lg:block w-px h-10 bg-zinc-200"></div>
-
-        <div className="flex flex-col w-full lg:w-auto">
-          <span className="text-[10px] text-zinc-500 font-medium mb-1">Purpose</span>
-          <span className="text-[12px] font-bold text-zinc-900">System Maintenance</span>
-          <span className="text-[10px] text-zinc-500">Server optimization</span>
-        </div>
-
-        <div className="hidden lg:block w-px h-10 bg-zinc-200"></div>
-
-        <div className="flex flex-col w-full lg:w-auto">
-          <span className="text-[10px] text-zinc-500 font-medium mb-1">Access Type</span>
-          <span className="text-[10px] font-bold text-purple-700 bg-purple-50 border border-purple-100 px-2 py-0.5 rounded w-fit mb-1">Time-Bound Access</span>
-          <span className="text-[9px] text-zinc-500">Duration: 31 May - 02 Jun 2025 (3 Days)</span>
-        </div>
-
-      </div>
-
-      {/* Tabs */}
-      <div className="flex items-center gap-6 border-b border-zinc-200 px-2 mt-3">
-        <button className="pb-2 text-[12px] font-semibold text-zinc-500 hover:text-zinc-700 border-b-2 border-transparent">Request Overview</button>
-        <button className="pb-2 text-[12px] font-bold text-blue-700 border-b-2 border-blue-700">Access Details</button>
-        <button className="pb-2 text-[12px] font-semibold text-zinc-500 hover:text-zinc-700 border-b-2 border-transparent">Data Access Scope</button>
-        <button className="pb-2 text-[12px] font-semibold text-zinc-500 hover:text-zinc-700 border-b-2 border-transparent">Approvals</button>
-        <button className="pb-2 text-[12px] font-semibold text-zinc-500 hover:text-zinc-700 border-b-2 border-transparent">Activity Log</button>
-      </div>
-
+    <TechnicalAccessLayout
+      breadcrumbs={breadcrumbs}
+      title="Access Details"
+      subtitle="Configure access level, data scope and permissions for the technical team"
+      headerButtons={headerButtons}
+      requestData={requestData}
+      tabs={[
+        'Request Overview',
+        'Access Details',
+        'Data Access Scope',
+        'Approvals',
+        'Activity Log'
+      ]}
+      activeTab="Access Details"
+      footerActions={footerActions}
+    >
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-7 gap-2 mt-4">
 
@@ -359,24 +332,6 @@ export default function AccessDetailsPage() {
 
       </div>
 
-      {/* Footer Actions */}
-      <div className="flex items-center justify-between mt-2 pt-2 pb-2">
-        <button className="flex items-center gap-1.5 text-[12px] font-bold text-rose-600 hover:text-rose-700">
-          <div className="w-4 h-4 rounded-full border border-rose-600 flex items-center justify-center">
-            <X size={10} strokeWidth={3} />
-          </div>
-          Cancel Request
-        </button>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[12px] font-bold px-4 py-2 rounded shadow-sm hover:bg-zinc-50 transition-colors">
-            <Save size={14} /> Save as Draft
-          </button>
-          <button className="flex items-center gap-1.5 bg-blue-600 text-white text-[12px] font-bold px-5 py-2 rounded shadow-sm hover:bg-blue-700 transition-colors">
-            Next: Data Access Scope <ArrowRight size={14} />
-          </button>
-        </div>
-      </div>
-
-    </div>
+    </TechnicalAccessLayout>
   );
 }

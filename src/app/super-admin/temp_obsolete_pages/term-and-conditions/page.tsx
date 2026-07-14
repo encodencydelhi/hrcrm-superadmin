@@ -98,9 +98,8 @@ function Sidebar() {
         {NAV_ITEMS.map((item) => (
           <button
             key={item.label}
-            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12.5px] font-medium transition-colors ${
-              item.active ? 'bg-amber-500/90 text-zinc-900 font-semibold' : 'text-zinc-300 hover:bg-white/5'
-            }`}
+            className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12.5px] font-medium transition-colors ${item.active ? 'bg-amber-500/90 text-zinc-900 font-semibold' : 'text-zinc-300 hover:bg-white/5'
+              }`}
           >
             <item.icon size={15} />
             {item.label}
@@ -121,9 +120,8 @@ function Sidebar() {
           {QUICK_COMPANIES.map((c) => (
             <button
               key={c.name}
-              className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[11.5px] transition-colors ${
-                c.active ? 'bg-amber-500/15 text-amber-400 font-semibold' : 'text-zinc-300 hover:bg-white/5'
-              }`}
+              className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[11.5px] transition-colors ${c.active ? 'bg-amber-500/15 text-amber-400 font-semibold' : 'text-zinc-300 hover:bg-white/5'
+                }`}
             >
               <span className={`grid h-4.5 w-4.5 h-[18px] w-[18px] shrink-0 place-items-center rounded ${c.color} text-[9px] font-bold`}>
                 {c.letter}
@@ -207,7 +205,7 @@ function PageHeading() {
           </React.Fragment>
         ))}
       </div>
-      
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-zinc-900 leading-tight">Terms &amp; Conditions</h1>
@@ -309,9 +307,8 @@ function Tabs({ active }: { active: string }) {
         {TABS.map((tab) => (
           <button
             key={tab}
-            className={`shrink-0 whitespace-nowrap border-b-2 px-1 py-3 text-[12.5px] font-semibold transition-colors ${
-              tab === active ? 'border-indigo-700 text-indigo-700' : 'border-transparent text-zinc-500 hover:text-zinc-700'
-            }`}
+            className={`shrink-0 whitespace-nowrap border-b-2 px-1 py-3 text-[12.5px] font-semibold transition-colors ${tab === active ? 'border-indigo-700 text-indigo-700' : 'border-transparent text-zinc-500 hover:text-zinc-700'
+              }`}
           >
             {tab}
           </button>
@@ -451,31 +448,31 @@ export default function TermsConditionsAccessPage() {
 
   return (
     <div className="space-y-2">
-        <PageHeading />
-        <RequestInfoBar />
-        <Tabs active="Terms & Conditions" />
+      <PageHeading />
+      <RequestInfoBar />
+      <Tabs active="Terms & Conditions" />
 
-        <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-4 items-start">
-          <div className="min-w-0">
-            <TermsContent />
-          </div>
-          <div className="space-y-2 min-w-0 xl:sticky xl:top-4">
-            <AcceptanceStatusCard
-              accepted={accepted}
-              onAccept={() => setAccepted(true)}
-              onDecline={() => setAccepted(false)}
-            />
-            <WhatsNextCard />
-          </div>
+      <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-4 items-start">
+        <div className="min-w-0">
+          <TermsContent />
         </div>
+        <div className="space-y-2 min-w-0 xl:sticky xl:top-4">
+          <AcceptanceStatusCard
+            accepted={accepted}
+            onAccept={() => setAccepted(true)}
+            onDecline={() => setAccepted(false)}
+          />
+          <WhatsNextCard />
+        </div>
+      </div>
 
-        <FooterActions />
+      <FooterActions />
 
-        <footer className="text-center text-[11px] text-zinc-400 py-3 flex items-center justify-center gap-4 flex-wrap">
-          <span>© 2025 Crewcam HRMS. All Rights Reserved.</span>
-          <span className="text-indigo-600 hover:underline cursor-pointer">Privacy Policy</span>
-          <span className="text-indigo-600 hover:underline cursor-pointer">Terms of Service</span>
-        </footer>
+      <footer className="text-center text-[11px] text-zinc-400 py-3 flex items-center justify-center gap-4 flex-wrap">
+        <span>© 2025 Crewcam HRMS. All Rights Reserved.</span>
+        <span className="text-indigo-600 hover:underline cursor-pointer">Privacy Policy</span>
+        <span className="text-indigo-600 hover:underline cursor-pointer">Terms of Service</span>
+      </footer>
     </div>
   );
 }

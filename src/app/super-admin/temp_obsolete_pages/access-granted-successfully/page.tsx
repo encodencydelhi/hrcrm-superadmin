@@ -277,21 +277,64 @@ function ActivityTimelineCard() {
     );
 }
 
+import TechnicalAccessLayout from '@/components/technical-access-management/TechnicalAccessLayout';
+import { RequestSummaryData } from '@/components/technical-access-management/types';
+
 // Page (content only — sidebar & top bar come from the parent layout)
 
 export default function AccessGrantedPage() {
     const [tab, setTab] = useState('Access Granted');
 
+    const requestData: RequestSummaryData = {
+        requestId: 'TAR-2025-028',
+        requestStatus: 'Approved',
+        requestStatusColor: 'text-emerald-600 bg-emerald-50',
+        requestedOn: '30 May 2025, 02:35 PM',
+        companyInitial: 'T',
+        companyName: 'TechVision Pvt. Ltd.',
+        requestedByAvatar: 'https://i.pravatar.cc/150?u=anjali',
+        requestedByName: 'Anjali Sharma',
+        requestedByRole: 'HR Manager',
+        purposeTitle: 'System Maintenance',
+        purposeSubtitle: 'Server optimization',
+        accessType: 'Time-Bound Access',
+        accessDuration: '3 Days',
+    };
+
+    const breadcrumbs = [
+        { label: 'Home' },
+        { label: 'Technical Access Management' },
+        { label: 'Request Details' },
+        { label: 'Access Details' },
+        { label: 'Access Granted', isActive: true },
+    ];
+
+    const headerButtons = (
+        <>
+            <button className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3.5 py-2 text-[12px] font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50">
+                <Download size={13} /> Download Access Letter
+            </button>
+            <button className="flex items-center gap-2 rounded-lg bg-indigo-600 px-3.5 py-2 text-[12px] font-semibold text-white shadow-sm hover:bg-indigo-700">
+                Go to Active Access <ArrowRight size={13} />
+            </button>
+        </>
+    );
+
     return (
-        <div className="w-full bg-zinc-50 text-zinc-900  space-y-2">
-            <Breadcrumb />
-            <HeaderBanner />
-            <MetaCard />
+        <TechnicalAccessLayout
+            breadcrumbs={breadcrumbs}
+            title="Access Granted Successfully"
+            subtitle="Technical access has been granted to the Crewcam team for the requested purpose."
+            headerButtons={headerButtons}
+            requestData={requestData}
+            tabs={TABS}
+            activeTab={tab}
+            onTabChange={setTab}
+        >
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_260px] gap-3 items-start">
                 <div className="min-w-0 space-y-3">
                     <div className="rounded-sm border border-zinc-200 bg-white shadow-sm overflow-hidden">
-                        <Tabs active={tab} onChange={setTab} />
                         <GrantedPanel />
                     </div>
                     <div className="rounded-sm border border-zinc-200 bg-white p-3 shadow-sm space-y-4">
@@ -310,6 +353,6 @@ export default function AccessGrantedPage() {
             <p className="text-center text-[11px] text-zinc-400 pt-1">
                 © 2025 Crewcam HRMS. All Rights Reserved. &nbsp;·&nbsp; Privacy Policy &nbsp;·&nbsp; Terms of Service
             </p>
-        </div>
+        </TechnicalAccessLayout>
     );
 }

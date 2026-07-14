@@ -2,33 +2,29 @@
 
 import React, { useState } from "react";
 import {
-  ChevronRight,
   ArrowLeft,
   Download,
-  ChevronDown,
-  FileText,
-  Building2,
-  Briefcase,
-  Calendar,
-  User,
-  Phone,
-  Info,
-  CheckCircle2,
-  FileDown,
-  FileSpreadsheet,
+  ChevronDown
 } from "lucide-react";
-import PageLayout from "@/components/ui/pageLayout";
+
+import TechnicalAccessLayout from '@/components/technical-access-management/TechnicalAccessLayout';
+import { RequestSummaryData } from '@/components/technical-access-management/types';
+
+import RequestOverviewTab from '@/components/technical-access-management/tabs/RequestOverviewTab';
+import AccessDetailsTab from '@/components/technical-access-management/tabs/AccessDetailsTab';
+import AccessGrantedTab from '@/components/technical-access-management/tabs/AccessGrantedTab';
+import ActiveAccessTab from '@/components/technical-access-management/tabs/ActiveAccessTab';
+import SessionTimeoutTab from '@/components/technical-access-management/tabs/SessionTimeoutTab';
+import TermsAndConditionsTab from '@/components/technical-access-management/tabs/TermsAndConditionsTab';
+import ActivityLogTab from '@/components/technical-access-management/tabs/ActivityLogTab';
+import DownloadReportTab from '@/components/technical-access-management/tabs/DownloadReportTab';
+import RevokeModifyAccessTab from '@/components/technical-access-management/tabs/RevokeModifyAccessTab';
 
 /* -------------------------------------------------------------------------- */
 /*  Spacing constants — kept tight everywhere per design spec                 */
 /* -------------------------------------------------------------------------- */
 
 const GAP = "gap-2";
-const PAD = "p-2";
-const CARD_PAD = "p-4";
-const CARD_RADIUS = "rounded-lg";
-const CARD_BORDER = "border border-gray-200";
-const PAGE_PADDING = "px-4 sm:px-6 lg:px-8";
 
 /* -------------------------------------------------------------------------- */
 /*  Types & data                                                              */
@@ -37,125 +33,18 @@ const PAGE_PADDING = "px-4 sm:px-6 lg:px-8";
 const tabs = [
   "Request Overview",
   "Access Details",
+  "Access Granted",
+  "Active Access",
+  "Session Timeout",
   "Data Access Scope",
   "Approvals",
   "Activity Log",
+  "Credentials & Instructions",
+  "Terms & Conditions",
+  "Download Report",
+  "Revoke / Modify Access",
+  "Notifications"
 ];
-
-const requestInfoRows = [
-  { icon: FileText, label: "Request ID", value: "TAR-2025-028" },
-  { icon: Building2, label: "Company Name", value: "TechVision Pvt. Ltd." },
-  {
-    icon: Briefcase,
-    label: "Purpose",
-    value: "System Maintenance",
-    sub: "Server optimization",
-  },
-  { icon: Calendar, label: "Requested On", value: "30 May 2025, 11:20 AM" },
-];
-
-const accessTimeRows = [
-  {
-    icon: Calendar,
-    label: "Requested Start Date",
-    value: "31 May 2025, 09:00 AM",
-  },
-  {
-    icon: Calendar,
-    label: "Requested End Date",
-    value: "02 Jun 2025, 06:00 PM",
-  },
-  { icon: Calendar, label: "Total Duration", value: "3 Days" },
-  { icon: FileText, label: "Access Type", value: "Time-Bound Access" },
-];
-
-const requestStatusSteps = [
-  {
-    step: 1,
-    title: "Request Initiated",
-    desc: "30 May 2025, 11:20 AM",
-    sub: "Rahul Verma (Crewcam)",
-    state: "done",
-  },
-  {
-    step: 2,
-    title: "Pending HR Approval",
-    desc: "Awaiting approval from company HR",
-    state: "current",
-  },
-  {
-    step: 3,
-    title: "Access Granted",
-    desc: "Pending",
-    state: "upcoming",
-  },
-  {
-    step: 4,
-    title: "Access Completed",
-    desc: "Pending",
-    state: "upcoming",
-  },
-];
-
-const activityTimeline = [
-  {
-    step: 1,
-    color: "bg-blue-600",
-    title: "Request Initiated",
-    date: "30 May 2025",
-    time: "11:20 AM",
-    desc: "Rahul Verma (Crewcam) submitted the technical access request.",
-  },
-  {
-    step: 2,
-    color: "bg-green-600",
-    title: "Reviewed by IT Head",
-    date: "30 May 2025",
-    time: "11:45 AM",
-    desc: "Request reviewed and recommended for HR approval.",
-    extra: "Reviewed by: Sandeep Rao (IT Head)",
-  },
-  {
-    step: 3,
-    color: "bg-orange-500",
-    title: "Pending HR Approval",
-    date: "30 May 2025",
-    time: "11:45 AM",
-    desc: "Awaiting approval from HR Manager.",
-  },
-];
-
-/* -------------------------------------------------------------------------- */
-/*  Small components                                                          */
-/* -------------------------------------------------------------------------- */
-
-function InfoRow({
-  icon: Icon,
-  label,
-  value,
-  sub,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  sub?: string;
-}) {
-  return (
-    <div className={`flex items-center ${GAP}`}>
-      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gray-100 text-blue-600">
-        <Icon className="h-3.5 w-3.5" />
-      </span>
-      <div className="flex justify-between w-full">
-
-        <span className="text-[10px] flex-1">{label}</span>
-        <div className="flex-1">
-          <p className="text-[10px] font-medium text-gray-800">{value}</p>
-          {sub && <p className="text-[10px] ">{sub}</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 /* -------------------------------------------------------------------------- */
 /*  Main Page                                                                 */
@@ -164,473 +53,186 @@ function InfoRow({
 const TechnicalAccessRequestDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("Request Overview");
 
+  const requestData: RequestSummaryData = {
+    requestId: "TAR-2025-028",
+    requestStatus: "Pending",
+    requestStatusColor: "text-orange-600 bg-orange-100",
+    requestedOn: "30 May 2025, 11:20 AM",
+    companyInitial: "T",
+    companyName: "TechVision Pvt. Ltd.",
+    requestedByAvatar: "https://i.pravatar.cc/64?img=12",
+    requestedByName: "Rahul Verma",
+    requestedByRole: "Sr. Support Engineer",
+    purposeTitle: "System Maintenance",
+    purposeSubtitle: "Server optimization",
+    accessType: "Time-Bound Access",
+    accessDuration: "Duration: 31 May - 02 Jun 2025 (3 Days)",
+  };
+
+  let breadcrumbs = [
+    { label: "Home" },
+    { label: "Technical Access Management" },
+    { label: "Request Details", isActive: true },
+  ];
+  
+  if (["Active Access", "Terms & Conditions", "Activity Log", "Download Report", "Revoke / Modify Access", "Data Access Scope", "Approvals", "Credentials & Instructions"].includes(activeTab)) {
+    breadcrumbs = [
+      { label: "Home" },
+      { label: "Technical Access Management" },
+      { label: "Request Details" },
+      { label: "Access Details" },
+      { label: activeTab, isActive: true },
+    ];
+  } else if (activeTab !== "Request Overview") {
+    breadcrumbs = [
+      { label: "Home" },
+      { label: "Technical Access Management" },
+      { label: "Request Details" },
+      { label: activeTab, isActive: true },
+    ];
+  }
+
+  let headerButtons = (
+    <>
+      <button className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}>
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Back to Requests
+      </button>
+      <button className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}>
+        <Download className="h-3.5 w-3.5" />
+        Download
+      </button>
+      <button className={`flex items-center ${GAP} rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-medium text-white hover:bg-blue-700`}>
+        More Actions
+        <ChevronDown className="h-3.5 w-3.5" />
+      </button>
+    </>
+  );
+
+  let title = "Technical Access Request Details";
+  let subtitle = "View request information, approval status and access configuration";
+
+  if (activeTab === "Download Report") {
+    title = "Download Access Report";
+    subtitle = "Generate and download a detailed report of all activities performed during the access period.";
+    headerButtons = (
+      <button 
+        onClick={() => setActiveTab("Active Access")}
+        className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[10px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors shrink-0"
+      >
+        <ArrowLeft size={12} /> Back to Active Access
+      </button>
+    );
+  } else if (activeTab === "Revoke / Modify Access") {
+    title = "Revoke / Modify Access";
+    subtitle = "Revoke all access or modify the scope and permissions of the granted access.";
+    headerButtons = (
+      <button 
+        onClick={() => setActiveTab("Active Access")}
+        className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[10px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors shrink-0"
+      >
+        <ArrowLeft size={12} /> Back to Active Access
+      </button>
+    );
+  } else if (activeTab === "Terms & Conditions") {
+    title = "Terms & Conditions";
+    subtitle = "Please review and accept the terms and conditions before accessing the requested data.";
+    headerButtons = (
+      <div className="flex gap-2">
+         <button className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}>
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back to Data Access Scope
+        </button>
+      </div>
+    );
+  } else if (activeTab === "Active Access") {
+    title = "Active Access";
+    subtitle = "Monitor and manage the current active access granted to the technical team.";
+    headerButtons = (
+      <button className="flex items-center gap-2 self-start rounded-lg border border-red-200 bg-white px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shield-x"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2-1 4-3 7-3s5 2 7 3a1 1 0 0 1 1 1v7z"/><path d="m9 9 6 6"/><path d="m15 9-6 6"/></svg>
+        Revoke All Access
+      </button>
+    );
+  } else if (activeTab === "Activity Log") {
+    title = "Activity Log";
+    subtitle = "Comprehensive log of all activities and access events for this request.";
+    headerButtons = (
+      <div className="flex items-center gap-2">
+        <button 
+          onClick={() => setActiveTab("Download Report")}
+          className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-200 rounded text-[10px] font-bold text-zinc-700 bg-white hover:bg-zinc-50 transition-colors"
+        >
+          <Download size={12} /> Export CSV
+        </button>
+      </div>
+    );
+  } else if (activeTab === "Access Details") {
+    title = "Access Details";
+    subtitle = "Configure access level, data scope and permissions for the technical team";
+  } else if (activeTab === "Access Granted") {
+    title = "Access Granted Successfully";
+    subtitle = "Technical access has been configured and granted.";
+  } else if (activeTab === "Session Timeout") {
+    title = "Session Timeout Options";
+    subtitle = "Configure session duration and automatic timeout policies";
+  } else if (activeTab === "Data Access Scope") {
+    title = "Data Access Scope";
+    subtitle = "Define boundaries and data limitations for this access";
+  } else if (activeTab === "Approvals") {
+    title = "Approvals";
+    subtitle = "Manage approval workflows for this technical access request";
+  } else if (activeTab === "Credentials & Instructions") {
+    title = "Credentials & Instructions";
+    subtitle = "Provide technical team with temporary credentials and access guidelines";
+  } else if (activeTab === "Notifications") {
+    title = "Notifications";
+    subtitle = "Configure alert preferences and notification rules";
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageLayout>
-        {/* Breadcrumb */}
-        <nav className={`flex flex-wrap items-center gap-1 text-[10px] font-semibold`}>
-          <a href="#" className="text-blue-600 hover:underline">
-            Home
+    <TechnicalAccessLayout
+      breadcrumbs={breadcrumbs}
+      title={title}
+      subtitle={subtitle}
+      headerButtons={headerButtons}
+      requestData={requestData}
+      tabs={tabs}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      <div className="w-full">
+        {activeTab === 'Request Overview' && <RequestOverviewTab />}
+        {activeTab === 'Access Details' && <AccessDetailsTab />}
+        {activeTab === 'Access Granted' && <AccessGrantedTab />}
+        {activeTab === 'Active Access' && <ActiveAccessTab />}
+        {activeTab === 'Session Timeout' && <SessionTimeoutTab />}
+        {activeTab === 'Terms & Conditions' && <TermsAndConditionsTab />}
+        {activeTab === 'Activity Log' && <ActivityLogTab />}
+        {activeTab === 'Download Report' && <DownloadReportTab />}
+        {activeTab === 'Revoke / Modify Access' && <RevokeModifyAccessTab />}
+        
+        {/* Placeholder for others */}
+        {!['Request Overview', 'Access Details', 'Access Granted', 'Active Access', 'Session Timeout', 'Terms & Conditions', 'Activity Log', 'Download Report', 'Revoke / Modify Access'].includes(activeTab) && (
+          <div className="p-4 bg-white border border-gray-200 rounded-lg text-center text-gray-500 text-sm mt-4">
+            Content for <span className="font-semibold text-gray-700">{activeTab}</span> is currently under construction.
+          </div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-gray-100 pt-4 text-[10px] sm:flex-row">
+        <p>© 2025 Crewcam HRMS. All Rights Reserved.</p>
+        <div className="flex items-center gap-4">
+          <a href="#" className="hover:underline">
+            Privacy Policy
           </a>
-          <ChevronRight className="h-3 w-3 text-blue-600" />
-          <a href="#" className="text-blue-600 hover:underline">
-            Technical Access Management
+          <a href="#" className="hover:underline">
+            Terms of Service
           </a>
-          <ChevronRight className="h-3 w-3 text-blue-600" />
-          <span className="">Request Details</span>
-        </nav>
-
-        {/* Title row */}
-        <div className="mb-2 flex flex-col justify-between gap-2 lg:flex-row lg:items-start">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Technical Access Request Details
-            </h1>
-            <p className="text-[10px] ">
-              View request information, approval status and access
-              configuration
-            </p>
-          </div>
-          <div className={`flex flex-wrap items-center ${GAP}`}>
-            <button
-              className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Back to Requests
-            </button>
-            <button
-              className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}
-            >
-              <Download className="h-3.5 w-3.5" />
-              Download
-            </button>
-            <button
-              className={`flex items-center ${GAP} rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-medium text-white hover:bg-blue-700`}
-            >
-              More Actions
-              <ChevronDown className="h-3.5 w-3.5" />
-            </button>
-          </div>
         </div>
-
-        {/* Summary card */}
-        <div
-          className={`mb-2 bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}
-        >
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="flex items-start gap-2 lg:col-span-1">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100">
-                <FileText className="h-5 w-5 text-blue-600" />
-              </span>
-              <div>
-                <p className="text-[10px] ">Request ID</p>
-                <div className="flex items-center gap-1.5">
-                  <p className="text-sm font-semibold text-gray-900">
-                    TAR-2025-028
-                  </p>
-                  <span className="rounded-md bg-orange-100 px-1.5 py-0.5 text-[10px] font-medium text-orange-600">
-                    Pending
-                  </span>
-                </div>
-                <p className="text-[10px]">
-                  Requested on 30 May 2025, 11:20 AM
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-[10px] ">Purpose</p>
-              <p className="text-sm font-semibold text-gray-800">
-                System Maintenance
-              </p>
-              <p className="text-[10px] ">Server optimization</p>
-            </div>
-
-            <div>
-              <p className="mb-1 text-[10px] ">
-                Requested By (Crewcam)
-              </p>
-              <div className="flex items-center gap-2">
-                <img
-                  src="https://i.pravatar.cc/64?img=12"
-                  alt="Rahul Verma"
-                  className="h-7 w-7 rounded-full object-cover"
-                />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">
-                    Rahul Verma
-                  </p>
-                  <p className="text-[10px] ">Sr. Support Engineer</p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <p className="mb-1 text-[10px] ">Company</p>
-              <div className="flex items-center gap-2">
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-semibold text-white">
-                  T
-                </span>
-                <p className="text-sm font-medium text-gray-800">
-                  TechVision Pvt. Ltd.
-                </p>
-              </div>
-            </div>
-
-            <div>
-              <p className="mb-1 text-[10px] ">Access Type</p>
-              <span className="inline-block rounded-md bg-purple-100 px-2 py-1 text-[10px] font-medium text-purple-600">
-                Time-Bound Access
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div
-          className={`overflow-x-auto mb-2 flex  gap-4 border-b border-gray-200 bg-white ${CARD_BORDER} ${CARD_RADIUS} px-4 pt-2`}
-        >
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap border-b-2 px-1 pb-2 text-[10px] font-medium transition-colors ${activeTab === tab
-                    ? "border-blue-600 text-blue-600"
-                : "border-transparent  hover:"
-                }`}
-              >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Main grid */}
-        <div className={`grid grid-cols-1 ${GAP} lg:grid-cols-4`}>
-          {/* Request Information */}
-          <div className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}>
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">
-              Request Information
-            </h3>
-            <div className="flex flex-col gap-2">
-              {requestInfoRows.map((row) => (
-                <InfoRow key={row.label} {...row} />
-              ))}
-              <div className={`flex items-start ${GAP}`}>
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gray-100 ">
-                  <User className="h-3.5 w-3.5 text-blue-600" />
-                </span>
-                <div className="flex justify-between w-full">
-                  <span className="text-[10px] flex-1">
-                    Requested By (Crewcam)
-                  </span>
-                  <div className="mt-0.5 flex items-center gap-2 flex-1">
-                    <img
-                      src="https://i.pravatar.cc/64?img=12"
-                      alt="Rahul Verma"
-                      className="h-6 w-6 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="text-[10px] font-medium text-gray-800">
-                        Rahul Verma
-                      </p>
-                      <p className="text-[10px] ">
-                        Sr. Support Engineer
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className={`flex items-start ${GAP}`}>
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-gray-100 ">
-                  <Phone className="h-3.5 w-3.5 text-blue-600" />
-                </span>
-                <div className="flex justify-between w-full">
-                  <p className="text-[10px] flex-1">Contact</p>
-                  <div className="flex-1">
-
-                    <p className="text-[10px] font-medium text-gray-800 break-all">
-                      rahul.verma@crewcam.com
-                    </p>
-                    <p className="text-[10px] font-medium text-gray-800">
-                      +91 98765 43210
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Access Time & Duration */}
-          <div className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}>
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">
-              Access Time &amp; Duration
-            </h3>
-            <div className="flex flex-col gap-2">
-              {accessTimeRows.map((row) => (
-                <InfoRow key={row.label} {...row} />
-              ))}
-            </div>
-            <div className="mt-3 flex items-center gap-2 rounded-lg border border-orange-100 bg-orange-50 p-2">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-orange-500" />
-              <p className="text-[10px] ">
-                Access will be automatically revoked on{" "}
-                <span className="block font-semibold text-orange-600">
-                  02 Jun 2025, 06:00 PM
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* Request Status */}
-          <div className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}>
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">
-              Request Status
-            </h3>
-            <div className="flex flex-col">
-              {requestStatusSteps.map((step, idx) => {
-                const isLast = idx === requestStatusSteps.length - 1;
-                const circleClass =
-                  step.state === "done"
-                    ? "bg-blue-600 text-white"
-                    : step.state === "current"
-                      ? "bg-orange-500 text-white"
-                      : "bg-gray-600 text-white";
-                const titleClass =
-                  step.state === "upcoming"
-                    ? ""
-                    : "text-gray-900";
-                return (
-                  <div key={step.step} className="relative flex gap-2 pb-2 last:pb-0">
-                    {!isLast && (
-                      <span className="absolute left-2.5 top-6 h-full w-px bg-gray-200" />
-                    )}
-                    <span
-                      className={`relative z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold ${circleClass}`}
-                    >
-                      {step.step}
-                    </span>
-                    <div>
-                      <p className={`text-[10px] font-semibold ${titleClass}`}>
-                        {step.title}
-                      </p>
-                      <p className="text-[10px] ">{step.desc}</p>
-                      {step.sub && (
-                        <p className="text-[10px] ">{step.sub}</p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Approval Progress */}
-          <div className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}>
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">
-              Approval Progress
-            </h3>
-            <div className="mb-2 flex flex-col items-center justify-center">
-              <div className="relative flex h-24 w-24 items-center justify-center">
-                <svg className="h-24 w-24 -rotate-90" viewBox="0 0 100 100">
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke="#E5E7EB"
-                    strokeWidth="10"
-                  />
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="42"
-                    fill="none"
-                    stroke="#2563EB"
-                    strokeWidth="10"
-                    strokeDasharray={2 * Math.PI * 42}
-                    strokeDashoffset={2 * Math.PI * 42 * 0.5}
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <span className="absolute text-lg font-semibold text-gray-900">
-                  1/2
-                </span>
-              </div>
-              <p className="mt-2 text-[10px] ">
-                Approvals Completed
-              </p>
-            </div>
-
-            <p className="mb-2 text-[10px] font-semibold ">
-              Pending Approvals (1)
-            </p>
-            <div className="mb-2 flex items-center gap-2">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-300 text-[10px] font-semibold text-white">
-                A
-              </span>
-              <div>
-                <p className="text-[10px] font-medium text-gray-800">
-                  Anjali Sharma
-                </p>
-                <p className="text-[10px] ">HR Manager</p>
-                <p className="text-[10px] ">TechVision Pvt. Ltd.</p>
-              </div>
-            </div>
-
-            <p className="mb-2 text-[10px] font-semibold ">
-              Completed Approvals (1)
-            </p>
-            <div className="flex items-center gap-2">
-              <img
-                src="https://i.pravatar.cc/64?img=51"
-                alt="Sandeep Rao"
-                className="h-7 w-7 shrink-0 rounded-full object-cover"
-              />
-              <div className="flex-1">
-                <p className="text-[10px] font-medium text-gray-800">
-                  Sandeep Rao
-                </p>
-                <p className="text-[10px] ">IT Head</p>
-                <p className="text-[10px] ">TechVision Pvt. Ltd.</p>
-              </div>
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-500" />
-            </div>
-          </div>
-
-          {/* Request Justification (spans 2 cols) */}
-          <div
-            className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD} lg:col-span-2`}
-          >
-            <h3 className="mb-2 text-sm font-semibold text-gray-900">
-              Request Justification
-            </h3>
-            <p className="mb-2 text-[10px] ">
-              We need to perform server optimization and clean up redundant
-              data to improve system performance.
-            </p>
-            <p className="text-[10px] ">
-              This includes database maintenance, log cleanup, and
-              configuration tuning.
-            </p>
-          </div>
-
-          {/* Request Activity Timeline (spans 2 cols, 2 rows) */}
-          <div
-            className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD} lg:col-span-2 lg:row-span-2`}
-          >
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">
-              Request Activity Timeline
-            </h3>
-            <div className="flex flex-col">
-              {activityTimeline.map((item, idx) => {
-                const isLast = idx === activityTimeline.length - 1;
-                return (
-                  <div key={item.step} className="relative flex gap-2 pb-2 last:pb-0">
-                    {!isLast && (
-                      <span className="absolute left-2.5 top-6 h-full w-px bg-gray-200" />
-                    )}
-                    <span
-                      className={`relative z-10 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white ${item.color}`}
-                    >
-                      {item.step}
-                    </span>
-                    <div className="flex-1">
-                      <div className="flex flex-col justify-between gap-0.5 sm:flex-row sm:items-start">
-                        <p className="text-[10px] font-semibold text-gray-900">
-                          {item.title}
-                        </p>
-                        <p className="whitespace-nowrap text-[10px] ">
-                          {item.date}{" "}
-                        </p>
-                      </div>
-                      <div className="flex flex-col justify-between gap-0.5 sm:flex-row sm:items-start">
-                        <div>
-                          <p className="text-[10px] ">{item.desc}</p>
-                          {item.extra && (
-                            <p className="text-[10px]">
-                              · {item.extra}
-                            </p>
-                          )}
-                        </div>
-                        <span className="ml-1 text-[10px]">{item.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Attachments (spans 2 cols) */}
-          <div
-            className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD} lg:col-span-2`}
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-900">
-                Attachments (2)
-              </h3>
-              <a
-                href="#"
-                className="text-[10px] font-medium text-blue-600 hover:underline"
-              >
-                View All
-              </a>
-            </div>
-            <div className={`grid grid-cols-1 ${GAP} sm:grid-cols-2`}>
-              <div
-                className={`flex items-center justify-between rounded-lg border border-gray-200 ${PAD} px-3`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-red-100">
-                    <FileText className="h-4 w-4 text-red-500" />
-                  </span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-800">
-                      Maintenance_Plan.pdf
-                    </p>
-                    <p className="text-[10px] ">PDF · 1.2 MB</p>
-                  </div>
-                </div>
-                <button className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-gray-200  hover:bg-gray-50">
-                  <FileDown className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              <div
-                className={`flex items-center justify-between rounded-lg border border-gray-200 ${PAD} px-3`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-green-100">
-                    <FileSpreadsheet className="h-4 w-4 text-green-600" />
-                  </span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-800">
-                      Access_Scope_Details.xlsx
-                    </p>
-                    <p className="text-[10px] ">XLSX · 245 KB</p>
-                  </div>
-                </div>
-                <button className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-gray-200  hover:bg-gray-50">
-                  <FileDown className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-gray-100 pt-4 text-[10px]  sm:flex-row">
-          <p>© 2025 Crewcam HRMS. All Rights Reserved.</p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="hover:">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:">
-              Terms of Service
-            </a>
-          </div>
-        </div>
-      </PageLayout>
-    </div>
+      </div>
+    </TechnicalAccessLayout>
   );
 };
 
