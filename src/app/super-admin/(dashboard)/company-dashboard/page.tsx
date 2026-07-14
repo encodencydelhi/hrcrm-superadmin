@@ -188,6 +188,11 @@ const ATTENDANCE = [
     { label: "Absent Days", value: "3.42", color: "bg-red-500" },
     { label: "Leave Days", value: "1.00", color: "bg-amber-400" },
 ];
+const attendanceDonutData: DonutSegment[] = [
+  { label: "Present Days", value: 17.58, color: "#3B82F6" },
+  { label: "Absent Days", value: 3.42, color: "#EF4444" },
+  { label: "Leave Days", value: 1.0, color: "#FBBF24" },
+];
 
 const LEAVE = [
     { label: "Casual Leave", value: "12 (37.5%)", color: "bg-green-500" },
@@ -234,21 +239,21 @@ const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
 );
 
 const Breadcrumb = () => (
-    <div className="flex items-center gap-2 text-[10px]  px-2 py-2">
-        <span className="hover:text-blue-600 cursor-pointer">Home</span>
-        <ChevronRight className="w-3 h-3" />
-        <span className="hover:text-blue-600 cursor-pointer">Companies</span>
-        <ChevronRight className="w-3 h-3" />
-        <span className="text-blue-600 font-medium hover:underline cursor-pointer">
+    <div className="flex items-center gap-2 text-[10px]  px-0 py-0 mb-2">
+        <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Home</span>
+        <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
+        <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Companies</span>
+        <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
+        <span className="text-blue-600 hover:text-blue-600 hover:underline cursor-pointer font-semibold">
             TechVision Pvt. Ltd.
         </span>
-        <ChevronRight className="w-3 h-3" />
-        <span className=" font-medium">Dashboard</span>
+        <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
+        <span className=" font-semibold">Dashboard</span>
     </div>
 );
 
 const PageHeader = () => (
-    <div className="flex items-start justify-between px-2 py-2 flex-wrap gap-2">
+    <div className="flex items-start justify-between px-0 py-0 flex-wrap gap-2">
         <div>
             <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold ">TechVision Pvt. Ltd.</h1>
@@ -256,7 +261,7 @@ const PageHeader = () => (
                     Active
                 </span>
             </div>
-            <p className="text-[10px]  mt-1">
+            <p className="text-[10px] mb-2">
                 Company Dashboard - Overview of your organization
             </p>
         </div>
@@ -279,7 +284,7 @@ const PageHeader = () => (
 );
 
 const Tabs = () => (
-    <div className="flex items-center gap-2 border-b border-gray-200 px-2 overflow-x-auto overflow-y-hidden">
+    <Card className="flex items-center justify-between gap-2 border-b border-gray-200 px-2 overflow-x-auto overflow-y-hidden">
         {TABS.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -300,11 +305,11 @@ const Tabs = () => (
             More
             <ChevronDown className="w-3.5 h-3.5" />
         </button>
-    </div>
+    </Card>
 );
 
 const StatsGrid = () => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-2 py-2">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-0 py-2">
         {STATS.map((s) => {
             const Icon = s.icon;
             return (
@@ -341,12 +346,12 @@ const HeadcountTrend = () => (
                 <LineChart data={headcountData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <XAxis
                         dataKey="month"
-                        tick={{ fontSize: 10, fill: "#9ca3af" }}
+                        tick={{ fontSize: 10, fill: "#000" }}
                         axisLine={false}
                         tickLine={false}
                     />
                     <YAxis
-                        tick={{ fontSize: 10, fill: "#9ca3af" }}
+                        tick={{ fontSize: 10, fill: "#000" }}
                         axisLine={false}
                         tickLine={false}
                         domain={[0, 400]}
@@ -373,7 +378,7 @@ const DepartmentDistribution = () => (
             <h3 className="text-xs font-semibold ">Department Wise Distribution</h3>
             <button className="text-[10px] text-blue-600 font-medium">View All</button>
         </div>
-        <div className="flex items-center gap-2 py-2">
+        <div className="flex items-center flex-col md:flex-row gap-2 py-2">
             <div className="relative w-[130px] h-[130px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -444,46 +449,49 @@ const RecentActivity = () => (
 );
 
 
-interface DonutMiniProps {
-  pct: number;
+interface DonutSegment {
+  label: string;
+  value: number;
   color: string;
 }
 
+interface DonutMiniProps {
+  total: number;
+  data: DonutSegment[];
+}
 
-
-
-const DonutMini: React.FC<DonutMiniProps> = ({ pct, color }) => {
-  const data = [
-    { value: pct },
-    { value: 100 - pct },
-  ];
-
+const DonutMini: React.FC<DonutMiniProps> = ({ total, data }) => {
   return (
-    <div className="relative w-[60px] h-[60px] shrink-0">
+    <div className="relative w-[90px] h-[90px] shrink-0">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
+            nameKey="label"
             cx="50%"
             cy="50%"
-            innerRadius={24}
-            outerRadius={28}
+            innerRadius={36}
+            outerRadius={42}
             startAngle={90}
             endAngle={-270}
             stroke="none"
-            paddingAngle={0}
+            paddingAngle={1}
             isAnimationActive={false}
           >
-            <Cell fill={color} />
-            <Cell fill="#E5E7EB" />
+            {data.map((segment) => (
+              <Cell key={segment.label} fill={segment.color} />
+            ))}
           </Pie>
         </PieChart>
       </ResponsiveContainer>
 
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[9px] font-semibold text-gray-800">
-          {pct}%
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-sm font-bold text-gray-900 leading-none">
+          {total}
+        </span>
+        <span className="text-[9px] leading-none mt-0.5">
+          Average Attendence
         </span>
       </div>
     </div>
@@ -491,18 +499,25 @@ const DonutMini: React.FC<DonutMiniProps> = ({ pct, color }) => {
 };
 
 
+interface SummaryCardRow {
+  label: string;
+  value: string;
+  color: string;
+}
 
-const SummaryCard: React.FC<{
+interface SummaryCardProps {
   title: string;
   filter: string;
   totalLabel?: string;
-  totalValue?: any;
+  totalValue?: React.ReactNode;
   totalSub?: string;
-  rows: { label: string; value: string; color: string }[];
+  rows: SummaryCardRow[];
   linkLabel: string;
-  donutPct?: number;
-  donutColor?: string;
-}> = ({
+  donutTotal?: number;
+  donutData?: DonutSegment[];
+}
+
+const SummaryCard: React.FC<SummaryCardProps> = ({
   title,
   filter,
   totalLabel,
@@ -510,8 +525,8 @@ const SummaryCard: React.FC<{
   totalSub,
   rows,
   linkLabel,
-  donutPct,
-  donutColor,
+  donutTotal,
+  donutData,
 }) => (
   <Card className="flex flex-col gap-3 h-full p-4">
     {/* Header */}
@@ -525,18 +540,16 @@ const SummaryCard: React.FC<{
     </div>
 
     {/* Body */}
-    <div className="flex items-start gap-4">
+    <div className="flex items-start flex-col md:flex-row gap-4">
       {/* Left Section */}
       <div className="w-[90px] shrink-0 flex flex-col items-center text-center">
-        {donutPct !== undefined && donutColor && (
-          <DonutMini pct={donutPct} color={donutColor} />
+        {donutTotal !== undefined && donutData && donutData.length > 0 && (
+          <DonutMini total={donutTotal} data={donutData} />
         )}
 
         {totalValue && (
           <div className="mt-2">
-            <p className="text-base font-bold leading-none">
-              {totalValue}
-            </p>
+            <p className="text-base font-bold leading-none">{totalValue}</p>
 
             {totalSub && (
               <p className="text-[9px] text-gray-500 mt-1 leading-tight">
@@ -565,9 +578,7 @@ const SummaryCard: React.FC<{
               {r.label}
             </span>
 
-            <span className="font-semibold text-gray-900">
-              {r.value}
-            </span>
+            <span className="font-semibold text-gray-900">{r.value}</span>
           </div>
         ))}
       </div>
@@ -581,9 +592,9 @@ const SummaryCard: React.FC<{
   </Card>
 );
 const ModuleUsageStatus: React.FC<{ noMargin?: boolean }> = ({ noMargin }) => (
-    <Card className={`flex flex-col gap-2 ${noMargin ? "" : "mx-2"}`}>
+    <Card className={`flex flex-col gap-1 ${noMargin ? "" : "mx-2"}`}>
         <h3 className="text-xs font-semibold ">Module Usage Status</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-1">
             {MODULES.map((m) => {
                 const Icon = m.icon;
                 return (
@@ -591,11 +602,11 @@ const ModuleUsageStatus: React.FC<{ noMargin?: boolean }> = ({ noMargin }) => (
                         <div className="bg-purple-50 rounded-md p-2">
                             <Icon className="w-4 h-4 text-purple-600" />
                         </div>
-                        <p className="text-[10px] font-medium ">{m.label}</p>
+                        <p className="text-[8px] font-semibold">{m.label}</p>
                         <span className="text-[10px] bg-green-100 text-green-700 rounded-full px-2 py-0.5 font-medium">
                             Active
                         </span>
-                        <p className="text-[10px] ">{m.usage}</p>
+                        <p className="text-[8px] font-medium ">{m.usage}</p>
                     </div>
                 );
             })}
@@ -648,14 +659,14 @@ const NeedHelp = () => (
 
 const CompanyDashboard = () => {
     return (
-        <div className="min-h-screen bg-gray-50 py-2">
+        <div className="min-h-screen bg-gray-50 py-0">
             <Breadcrumb />
             <PageHeader />
             <Tabs />
             <StatsGrid />
 
             {/* Left content area is 3/4 of the row width, right sidebar is 1/4 — matches the 955px:315px split in the design */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 px-2 py-2">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 px-0 pb-2">
                 <div className="lg:col-span-3 flex flex-col gap-2">
                     {/* Headcount Trend is ~60% width, Department Distribution ~40% */}
                     <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
@@ -667,16 +678,16 @@ const CompanyDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <SummaryCard
-                            title="Attendance Overview"
-                            filter="This Month"
-                            totalSub="Average Attendance"
-                            rows={ATTENDANCE}
-                            linkLabel=""
-                            donutPct={80}
-                            donutColor="#16a34a"
-                        />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      <SummaryCard
+  title="Attendance Overview"
+  filter="This Month"
+  totalSub="Average Attendance"
+  rows={ATTENDANCE}
+  linkLabel=""
+  donutTotal={79.89}
+  donutData={attendanceDonutData}
+/>
                         <SummaryCard
                             title="Leave Overview"
                             filter="This Month"
