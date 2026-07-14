@@ -2,7 +2,8 @@
 import React from 'react';
 import {
     Check, Info, X, Users, Clock, CalendarDays, Wallet, FileCode,
-    BarChart3, Settings, ChevronRight, LayoutGrid, Eye, Database, Lock
+    BarChart3, Settings, ChevronRight, LayoutGrid, Eye, Database, Lock,
+    ArrowLeft, Save, ArrowRight
 } from 'lucide-react';
 
 const MODULES_SCOPE = [
@@ -339,6 +340,24 @@ function DatabaseAccess() {
     );
 }
 
+function FooterActions() {
+    return (
+        <div className="flex items-center justify-between pt-1 mt-4 mb-2">
+            <button className="flex items-center gap-1.5 rounded bg-white border border-zinc-300 px-4 py-1.5 text-[11px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                <ArrowLeft size={13} /> Back to Access Details
+            </button>
+            <div className="flex items-center gap-2">
+                <button className="flex items-center gap-1.5 rounded bg-white border border-zinc-300 px-4 py-1.5 text-[11px] font-bold text-blue-600 shadow-sm hover:bg-blue-50 transition-colors">
+                    <Save size={13} /> Save as Draft
+                </button>
+                <button className="flex items-center gap-1.5 rounded bg-[#024efc] px-5 py-1.5 text-[11px] font-bold text-white shadow-sm hover:bg-blue-700 transition-colors">
+                    Next: Terms &amp; Conditions <ArrowRight size={13} className="text-white" />
+                </button>
+            </div>
+        </div>
+    );
+}
+
 export default function DataAccessScopeTab() {
     return (
         <div className="mt-2">
@@ -359,6 +378,7 @@ export default function DataAccessScopeTab() {
                     <RightColumn />
                 </div>
             </div>
+            <FooterActions />
         </div>
     );
 }

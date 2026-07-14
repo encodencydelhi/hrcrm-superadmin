@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -24,6 +25,7 @@ import {
   KeyRound,
 } from 'lucide-react';
 import { CrewcamLogo } from '@/components/branding/CrewcamLogo';
+import logo from '@/assets/logo2.png';
 import { LEAD_STAGE_GROUPS, stageGroupQuery } from '@/lib/leadStages';
 
 const LEADS_HREF = '/super-admin/leads';
@@ -104,11 +106,14 @@ export default function SuperAdminSidebar() {
       >
         <div className="h-16 flex items-center px-5" style={{ borderBottom: '1px solid rgba(245,196,81,0.15)' }}>
           <div className="flex items-center gap-2.5">
+            <Image src={logo} alt="Logo" className="w-[180px] h-auto object-contain" />
+            {/* 
             <CrewcamLogo size={34} className="shrink-0" />
             <div className="leading-tight">
               <p className="text-sm font-semibold text-white tracking-tight">Crewcam <span style={{ color: 'var(--brand-secondary, #f5c451)' }}>HRMS</span></p>
               <p className="text-[8px] text-white/40 uppercase tracking-widest">Insight &bull; Innovation &bull; Impact</p>
             </div>
+            */}
           </div>
         </div>
 

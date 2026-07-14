@@ -1,6 +1,10 @@
 "use client";
 import React, { useState } from 'react';
-import { Eye, EyeOff, Copy, MoreVertical, CheckCircle2, XCircle, Wifi, KeyRound, BookOpen, ShieldAlert, Ticket, MessageCircle, Info, ShieldCheck, ChevronRight } from 'lucide-react';
+import {
+    Copy, ExternalLink, KeySquare, ShieldCheck, Mail, Database,
+    Server, Terminal, Shield, Lock, FileKey, Info, ChevronRight,
+    Ticket, MessageCircle, ArrowLeft, CheckCircle2, Eye, EyeOff, MoreVertical, XCircle, Wifi, KeyRound, BookOpen, ShieldAlert
+} from 'lucide-react';
 
 interface Credential {
     system: string;
@@ -213,6 +217,19 @@ function NeedHelpCard() {
     );
 }
 
+function FooterActions() {
+    return (
+        <div className="flex items-center justify-between gap-2 flex-wrap pt-4">
+            <button className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-[12px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+                <ArrowLeft size={14} /> Back to Active Access
+            </button>
+            <button className="flex items-center gap-1.5 rounded-md bg-indigo-700 px-4 py-2.5 text-[12px] font-semibold text-white shadow-sm hover:bg-indigo-800 transition-colors">
+                <CheckCircle2 size={14} /> I&apos;ve Saved My Credentials
+            </button>
+        </div>
+    );
+}
+
 export default function CredentialsAndInstructionsTab() {
     return (
         <div className="mt-2 space-y-2">
@@ -227,6 +244,7 @@ export default function CredentialsAndInstructionsTab() {
                     <NeedHelpCard />
                 </div>
             </div>
+            <FooterActions />
         </div>
     );
 }
