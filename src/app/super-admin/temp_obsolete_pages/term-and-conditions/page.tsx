@@ -1,6 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import { Home, ChevronRight, Search, Download, Printer, Building2, Calendar, ShieldCheck, Clock, CheckCircle2, XCircle, ArrowLeft, Save, Send, Info, LayoutGrid, Users, DollarSign, Receipt, CreditCard, BarChart3, BrainCircuit, LifeBuoy, Wrench, Layers, Plug, FileBarChart, Settings } from 'lucide-react';
+import { Home, ChevronRight, Search, Download, Printer, Building2, Calendar, ShieldCheck, Clock, CheckCircle2, XCircle, ArrowLeft, Save, Send, Info, LayoutGrid, Users, DollarSign, Receipt, CreditCard, BarChart3, BrainCircuit, LifeBuoy, Wrench, Layers, Plug, FileBarChart, Settings, Sparkles, Bell, Headphones, ChevronDown } from 'lucide-react';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const NAV_ITEMS = [

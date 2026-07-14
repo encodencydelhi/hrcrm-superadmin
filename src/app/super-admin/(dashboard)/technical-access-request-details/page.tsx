@@ -14,7 +14,9 @@ import RequestOverviewTab from '@/components/technical-access-management/tabs/Re
 import AccessDetailsTab from '@/components/technical-access-management/tabs/AccessDetailsTab';
 import AccessGrantedTab from '@/components/technical-access-management/tabs/AccessGrantedTab';
 import ActiveAccessTab from '@/components/technical-access-management/tabs/ActiveAccessTab';
-import SessionTimeoutTab from '@/components/technical-access-management/tabs/SessionTimeoutTab';
+import SessionTimeoutTab from "@/components/technical-access-management/tabs/SessionTimeoutTab";
+import DataAccessScopeTab from "@/components/technical-access-management/tabs/DataAccessScopeTab";
+import CredentialsAndInstructionsTab from "@/components/technical-access-management/tabs/CredentialsAndInstructionsTab";
 import TermsAndConditionsTab from '@/components/technical-access-management/tabs/TermsAndConditionsTab';
 import ActivityLogTab from '@/components/technical-access-management/tabs/ActivityLogTab';
 import DownloadReportTab from '@/components/technical-access-management/tabs/DownloadReportTab';
@@ -211,9 +213,11 @@ const TechnicalAccessRequestDetailsPage = () => {
         {activeTab === 'Activity Log' && <ActivityLogTab />}
         {activeTab === 'Download Report' && <DownloadReportTab />}
         {activeTab === 'Revoke / Modify Access' && <RevokeModifyAccessTab />}
+        {activeTab === 'Data Access Scope' && <DataAccessScopeTab />}
+        {activeTab === 'Credentials & Instructions' && <CredentialsAndInstructionsTab />}
 
         {/* Placeholder for others */}
-        {!['Request Overview', 'Access Details', 'Access Granted', 'Active Access', 'Session Timeout', 'Terms & Conditions', 'Activity Log', 'Download Report', 'Revoke / Modify Access'].includes(activeTab) && (
+        {!['Request Overview', 'Access Details', 'Access Granted', 'Active Access', 'Session Timeout', 'Terms & Conditions', 'Activity Log', 'Download Report', 'Revoke / Modify Access', 'Data Access Scope', 'Credentials & Instructions'].includes(activeTab) && (
           <div className="p-4 bg-white border border-gray-200 rounded-lg text-center text-gray-500 text-sm mt-4">
             Content for <span className="font-semibold text-gray-700">{activeTab}</span> is currently under construction.
           </div>
