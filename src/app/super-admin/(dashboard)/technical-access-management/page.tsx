@@ -671,8 +671,8 @@ const TechnicalAccessManagementPage = () => {
                         >
                             <div className="flex gap-2">
 
-                                <div className="mb-3 flex h-11 min-w-11 items-center justify-center rounded-lg bg-blue-100">
-                                    <UserPlus className="h-5 w-5 text-blue-600" />
+                                <div className="mb-3 flex h-9 min-w-9 items-center justify-center rounded-lg bg-blue-100">
+                                    <UserPlus className="h-8 w-8 text-blue-600" />
                                 </div>
                                 <div>
 
