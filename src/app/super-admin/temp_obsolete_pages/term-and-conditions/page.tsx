@@ -1,13 +1,6 @@
 'use client';
-
 import React, { useState } from 'react';
-import {
-  Home, ChevronRight, Search, Sparkles, Bell, Headphones, ChevronDown,
-  Download, Printer, Building2, Calendar, ShieldCheck, Clock, CheckCircle2,
-  XCircle, ArrowLeft, Save, Send, Info, LayoutGrid, Users, DollarSign,
-  Receipt, CreditCard, BarChart3, BrainCircuit, LifeBuoy, Wrench, Layers,
-  Plug, FileBarChart, Settings, ChevronsUpDown,
-} from 'lucide-react';
+import { Home, ChevronRight, Search, Download, Printer, Building2, Calendar, ShieldCheck, Clock, CheckCircle2, XCircle, ArrowLeft, Save, Send, Info, LayoutGrid, Users, DollarSign, Receipt, CreditCard, BarChart3, BrainCircuit, LifeBuoy, Wrench, Layers, Plug, FileBarChart, Settings } from 'lucide-react';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
@@ -36,7 +29,6 @@ const QUICK_COMPANIES = [
 ];
 
 const BREADCRUMB = ['Home', 'Technical Access Management', 'Request Details', 'Access Details', 'Terms & Conditions'];
-
 const TABS = ['Access Overview', 'Access Granted', 'Credentials & Instructions', 'Data Access Scope', 'Terms & Conditions', 'Activity Log', 'Active Access'];
 
 const TERMS = [
