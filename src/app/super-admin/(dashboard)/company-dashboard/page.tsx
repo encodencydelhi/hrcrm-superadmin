@@ -239,7 +239,7 @@ const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
 );
 
 const Breadcrumb = () => (
-    <div className="flex items-center gap-2 text-[10px]  px-2 py-2">
+    <div className="flex items-center gap-2 text-[10px]  px-0 py-0">
         <span className="text-blue-600 hover:text-blue-600 cursor-pointer">Home</span>
         <ChevronRight className="w-3 h-3" />
         <span className="text-blue-600 hover:text-blue-600 cursor-pointer">Companies</span>
@@ -253,7 +253,7 @@ const Breadcrumb = () => (
 );
 
 const PageHeader = () => (
-    <div className="flex items-start justify-between px-2 py-2 flex-wrap gap-2">
+    <div className="flex items-start justify-between px-0 py-2 flex-wrap gap-2">
         <div>
             <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold ">TechVision Pvt. Ltd.</h1>
