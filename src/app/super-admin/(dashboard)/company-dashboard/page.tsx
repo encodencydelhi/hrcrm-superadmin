@@ -378,7 +378,7 @@ const DepartmentDistribution = () => (
             <h3 className="text-xs font-semibold ">Department Wise Distribution</h3>
             <button className="text-[10px] text-blue-600 font-medium">View All</button>
         </div>
-        <div className="flex items-center gap-2 py-2">
+        <div className="flex items-center flex-col md:flex-row gap-2 py-2">
             <div className="relative w-[130px] h-[130px] shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -540,7 +540,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
     </div>
 
     {/* Body */}
-    <div className="flex items-start gap-4">
+    <div className="flex items-start flex-col md:flex-row gap-4">
       {/* Left Section */}
       <div className="w-[90px] shrink-0 flex flex-col items-center text-center">
         {donutTotal !== undefined && donutData && donutData.length > 0 && (
@@ -678,7 +678,7 @@ const CompanyDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                       <SummaryCard
   title="Attendance Overview"
   filter="This Month"
