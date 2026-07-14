@@ -55,11 +55,11 @@ const AI_HEALTH_ALERTS = [
 ];
 
 const TOP_PERFORMERS = [
-  { name: 'TechVision Pvt. Ltd.', score: 98, delta: 12 },
-  { name: 'Greenfield Retail', score: 96, delta: 8 },
-  { name: 'Sunrise Hospital', score: 94, delta: 15 },
-  { name: 'Nova Agencies', score: 93, delta: 10 },
-  { name: 'Abc Infotech Ltd.', score: 92, delta: 7 },
+  { name: 'TechVision Pvt. Ltd.', score: 98, delta: 12, href: '/super-admin/company-dashboard' },
+  { name: 'Greenfield Retail', score: 96, delta: 8, href: '#' },
+  { name: 'Sunrise Hospital', score: 94, delta: 15, href: '#' },
+  { name: 'Nova Agencies', score: 93, delta: 10, href: '#' },
+  { name: 'Abc Infotech Ltd.', score: 92, delta: 7, href: '#' },
 ];
 
 const EMPTY_FORM = {
@@ -689,12 +689,12 @@ function SuperAdminCompaniesPageInner() {
             </CardHeader>
             <CardContent className="p-0 divide-y divide-white/10">
               {TOP_PERFORMERS.map((p, i) => (
-                <div key={p.name} className="flex items-center gap-2 px-3.5 py-1">
+                <Link key={p.name} href={p.href} className="flex items-center gap-2 px-3.5 py-1">
                   <span className="h-5 w-5 rounded-full bg-white/10 text-white/70 text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                   <span className="text-[11px] font-medium text-white truncate flex-1">{p.name}</span>
                   <span className="text-[11px] font-semibold text-white/80">{p.score}</span>
                   <span className="text-[9px] font-medium text-emerald-400 flex items-center"><ArrowUpRight size={10} />{p.delta}</span>
-                </div>
+                </Link>
               ))}
               <div className="p-2 text-center">
                 <Link href="#" className="text-[10px] font-medium" style={{ color: 'var(--brand-secondary)' }}>View All Rankings →</Link>

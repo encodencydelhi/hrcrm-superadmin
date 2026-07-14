@@ -43,6 +43,7 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: '/super-admin', icon: LayoutDashboard, label: 'Control Center' },
   { href: '/super-admin/companies', icon: Building2, label: 'Companies' },
+  { href: '/super-admin/technical-access-request-details', icon: FileText, label: 'Technical Access Details' },
   // { href: '/super-admin/term-and-conditions', icon: FileText, label: 'Terms & Conditions' },
   // { href: '/super-admin/credentials-and-instructions', icon: KeyRound, label: 'Credentials & Instructions' },
   { href: '/super-admin/coming-soon?feature=Workforce', icon: Users2, label: 'Workforce' },

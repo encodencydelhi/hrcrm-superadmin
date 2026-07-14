@@ -8,7 +8,7 @@ interface Props {
 
 export default function TechnicalAccessTabs({ tabs, activeTab, onTabChange }: Props) {
   return (
-    <div className="flex items-center gap-6 border-b border-zinc-200 px-2 mt-3 overflow-x-auto">
+    <div className="flex items-center gap-6 border-b border-zinc-200 px-2 mt-3 overflow-x-auto custom-scrollbar">
       {tabs.map((tab) => {
         const isActive = activeTab === tab;
         return (
