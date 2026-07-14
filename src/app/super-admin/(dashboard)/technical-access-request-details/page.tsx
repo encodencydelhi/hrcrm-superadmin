@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import {
   ArrowLeft,
   Download,
-  ChevronDown
+  ChevronDown,
+  Printer
 } from "lucide-react";
 
 import TechnicalAccessLayout from '@/components/technical-access-management/TechnicalAccessLayout';
@@ -141,9 +142,11 @@ const TechnicalAccessRequestDetailsPage = () => {
     subtitle = "Please review and accept the terms and conditions before accessing the requested data.";
     headerButtons = (
       <div className="flex gap-2">
-        <button className={`flex items-center ${GAP} rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium  hover:bg-gray-50`}>
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Data Access Scope
+        <button className={`flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-[10px] font-medium hover:bg-gray-50 transition-colors`}>
+          <Download size={14} /> Download Terms & Conditions
+        </button>
+        <button className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-[10px] font-medium text-white hover:bg-blue-700 transition-colors">
+          <Printer size={14} /> Print Terms & Conditions
         </button>
       </div>
     );
