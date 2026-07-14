@@ -225,17 +225,15 @@ const TechnicalAccessRequestDetailsPage = () => {
       </div>
 
       {/* Footer */}
-      <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-gray-100 pt-4 text-[10px] sm:flex-row">
-        <p>© 2025 Crewcam HRMS. All Rights Reserved.</p>
-        <div className="flex items-center gap-4">
-          <a href="#" className="hover:underline">
-            Privacy Policy
-          </a>
-          <a href="#" className="hover:underline">
-            Terms of Service
-          </a>
-        </div>
-      </div>
+     <footer className="text-[11px] py-4 flex items-start md:items-center md:justify-between px-5 gap-2 flex-wrap">
+  <span className="w-0 hidden md:inline"></span>
+  <span>© 2025 Crewcam HRMS. All Rights Reserved.</span>
+  <div className="flex items-start md:items-center gap-2">
+    <span className="hover:underline cursor-pointer">Privacy Policy</span>
+    <span className="">|</span>
+    <span className="hover:underline cursor-pointer">Terms of Service</span>
+  </div>
+</footer>
     </TechnicalAccessLayout>
   );
 };
