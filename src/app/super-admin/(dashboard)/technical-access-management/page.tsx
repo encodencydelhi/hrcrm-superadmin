@@ -391,7 +391,7 @@ const TechnicalAccessManagementPage = () => {
                 {/* Info Banner */}
                 {showBanner && (
                     <div
-                        className={`${SECTION_GAP} flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50 px-4 py-2`}
+                        className={`${SECTION_GAP} flex items-center justify-between rounded-lg border border-blue-100 bg-blue-50 px-2 py-2`}
                     >
                         <div className="flex items-center gap-3">
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-600">
@@ -671,8 +671,8 @@ const TechnicalAccessManagementPage = () => {
                         >
                             <div className="flex gap-2">
 
-                                <div className="mb-3 flex h-11 min-w-11 items-center justify-center rounded-lg bg-blue-100">
-                                    <UserPlus className="h-5 w-5 text-blue-600" />
+                                <div className="mb-3 flex h-9 min-w-9 items-center justify-center rounded-lg bg-blue-100">
+                                    <UserPlus className="h-8 w-8 text-blue-600" />
                                 </div>
                                 <div>
 
