@@ -218,8 +218,8 @@ const TechnicalAccessRequestDetailsPage = () => {
           className={`mb-2 bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <div className="flex items-start gap-2 lg:col-span-1">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-100">
+            <div className="flex items-start gap-2 lg:col-span-1 border-gray-200 pr-2 sm:border-r-0 lg:border-r">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100 mt-1">
                 <FileText className="h-5 w-5 text-blue-600" />
               </span>
               <div>
@@ -238,7 +238,7 @@ const TechnicalAccessRequestDetailsPage = () => {
               </div>
             </div>
 
-            <div>
+            <div className="border-gray-200 pr-2 sm:border-r-0 lg:border-r">
               <p className="text-[10px] ">Purpose</p>
               <p className="text-sm font-semibold text-gray-800">
                 System Maintenance
@@ -246,7 +246,7 @@ const TechnicalAccessRequestDetailsPage = () => {
               <p className="text-[10px] ">Server optimization</p>
             </div>
 
-            <div>
+            <div className="border-gray-200 pr-2 sm:border-r-0 lg:border-r">
               <p className="mb-1 text-[10px] ">
                 Requested By (Crewcam)
               </p>
@@ -265,7 +265,7 @@ const TechnicalAccessRequestDetailsPage = () => {
               </div>
             </div>
 
-            <div>
+            <div className="border-gray-200 pr-2 sm:border-r-0 lg:border-r">
               <p className="mb-1 text-[10px] ">Company</p>
               <div className="flex items-center gap-2">
                 <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-md bg-blue-600 text-[10px] font-semibold text-white">
@@ -277,7 +277,7 @@ const TechnicalAccessRequestDetailsPage = () => {
               </div>
             </div>
 
-            <div>
+            <div className="border-gray-200 pr-2 sm:border-r-0 lg:border-r">
               <p className="mb-1 text-[10px] ">Access Type</p>
               <span className="inline-block rounded-md bg-purple-100 px-2 py-1 text-[10px] font-medium text-purple-600">
                 Time-Bound Access
