@@ -239,21 +239,21 @@ const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
 );
 
 const Breadcrumb = () => (
-    <div className="flex items-center gap-2 text-[10px]  px-0 py-0">
-        <span className="text-blue-600 hover:text-blue-600 cursor-pointer">Home</span>
-        <ChevronRight className="w-3 h-3" />
-        <span className="text-blue-600 hover:text-blue-600 cursor-pointer">Companies</span>
-        <ChevronRight className="w-3 h-3" />
-        <span className="text-blue-600 hover:text-blue-600 font-medium hover:underline cursor-pointer">
+    <div className="flex items-center gap-2 text-[10px]  px-0 py-0 mb-2">
+        <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Home</span>
+        <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
+        <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Companies</span>
+        <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
+        <span className="text-blue-600 hover:text-blue-600 hover:underline cursor-pointer font-semibold">
             TechVision Pvt. Ltd.
         </span>
-        <ChevronRight className="w-3 h-3" />
-        <span className=" font-medium">Dashboard</span>
+        <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
+        <span className=" font-semibold">Dashboard</span>
     </div>
 );
 
 const PageHeader = () => (
-    <div className="flex items-start justify-between px-0 py-2 flex-wrap gap-2">
+    <div className="flex items-start justify-between px-0 py-0 flex-wrap gap-2">
         <div>
             <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold ">TechVision Pvt. Ltd.</h1>
@@ -261,7 +261,7 @@ const PageHeader = () => (
                     Active
                 </span>
             </div>
-            <p className="text-[10px]  mt-1">
+            <p className="text-[10px] mb-2">
                 Company Dashboard - Overview of your organization
             </p>
         </div>
@@ -659,14 +659,14 @@ const NeedHelp = () => (
 
 const CompanyDashboard = () => {
     return (
-        <div className="min-h-screen bg-gray-50 py-2">
+        <div className="min-h-screen bg-gray-50 py-0">
             <Breadcrumb />
             <PageHeader />
             <Tabs />
             <StatsGrid />
 
             {/* Left content area is 3/4 of the row width, right sidebar is 1/4 — matches the 955px:315px split in the design */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 px-0 py-2">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 px-0 pb-2">
                 <div className="lg:col-span-3 flex flex-col gap-2">
                     {/* Headcount Trend is ~60% width, Department Distribution ~40% */}
                     <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
