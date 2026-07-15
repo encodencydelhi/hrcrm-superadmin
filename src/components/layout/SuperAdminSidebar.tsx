@@ -22,6 +22,7 @@ import {
   CheckCircle2,
   FileText,
   KeyRound,
+  FilePlus,
 } from 'lucide-react';
 import { CrewcamLogo } from '@/components/branding/CrewcamLogo';
 import { LEAD_STAGE_GROUPS, stageGroupQuery } from '@/lib/leadStages';
@@ -45,6 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/super-admin/companies', icon: Building2, label: 'Companies' },
   { href: '/super-admin/term-and-conditions', icon: FileText, label: 'Terms & Conditions' },
   { href: '/super-admin/credentials-and-instructions', icon: KeyRound, label: 'Credentials & Instructions' },
+  { href: '/super-admin/create-new-plan-step2', icon: FilePlus, label: 'Create New Plan' },
   { href: '/super-admin/coming-soon?feature=Workforce', icon: Users2, label: 'Workforce' },
   { href: '/super-admin/setup-fees', icon: Landmark, label: 'Revenue & Finance' },
   { href: '/super-admin/invoices', icon: Receipt, label: 'Billing & Invoices' },
