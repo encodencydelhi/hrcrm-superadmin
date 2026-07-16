@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
+import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
 import {
     ChevronRight, Check, ArrowRight,
@@ -41,59 +42,13 @@ function PageHeading() {
     );
 }
 
-// ─── Progress Bar ───────────────────────────────────────────────────────────
-function ProgressBar() {
-    const router = useRouter();
-    return (
-        <div className="bg-white rounded-lg shadow-sm border border-zinc-200 px-6 py-4 flex items-center justify-between mt-2">
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <span className="text-[12px] font-bold">1</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#020b22]">Plan Details</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
-
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200">
-                    <span className="text-[12px] font-bold">2</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Features & Limits</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
-
-            <div onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-3 cursor-pointer">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200 ">
-                    <span className="text-[12px] font-bold">3</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Add-on Modules</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
-
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200">
-                    <span className="text-[12px] font-bold">4</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Billing & Pricing</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
-
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200">
-                    <span className="text-[12px] font-bold">5</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Review & Create</span>
-            </div>
-        </div>
-    );
-}
-
 // ─── Main Content ───────────────────────────────────────────────────────────
 export default function PlanDetailsPage() {
+    const router = useRouter();
     return (
         <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-1.5 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
             <PageHeading />
-            <ProgressBar />
+            <PlanProgressBar current={1} />
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-1.5 mt-3 items-start">
 
@@ -261,7 +216,7 @@ export default function PlanDetailsPage() {
                         <button className="flex items-center justify-center gap-1.5 rounded-lg bg-white border border-zinc-200 px-6 py-2 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                             Cancel
                         </button>
-                        <button className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+                        <button onClick={() => router.push('/super-admin/subscriptions/features-limits')} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
                             Next: Features & Limits <ArrowRight size={14} className="text-white" />
                         </button>
                     </div>
@@ -333,3 +288,4 @@ export default function PlanDetailsPage() {
         </div>
     );
 }
+
