@@ -153,7 +153,10 @@ export const useCompanyWizardStore = create<CompanyWizardState>()(
         set({
           ...initialState,
           editingTenantId: tenantId,
-          maxStepReached: 5,
+          // Edit still walks step-by-step like create — steps unlock only as the user
+          // clicks "Save & Next" through each one, they can't jump ahead via the stepper
+          // or a direct URL just because the data already exists.
+          maxStepReached: 1,
 
           name: tenant.name || '',
           corporateId: company.corporateId || '',

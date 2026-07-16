@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -9,6 +9,7 @@ import {
     Settings, Search, Bell, Headphones, ChevronDown, ChevronRight, Home,
     Check, Crown, UploadCloud, Info, MapPin, Building, Menu,
 } from 'lucide-react';
+import { Country, State, City } from 'country-state-city';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCompanyWizardStore } from '@/store/companyWizardStore';
 import api from '@/lib/axios';
@@ -75,7 +76,8 @@ const PLAN_FEATURES = [
 const INDUSTRIES = ['Select Industry', 'Information Technology', 'Manufacturing', 'Retail', 'Healthcare', 'Finance & Banking', 'Education'];
 const COMPANY_SIZES = ['Select Company Size', '1 - 50 Employees', '51 - 200 Employees', '201 - 500 Employees', '500+ Employees'];
 const CURRENCIES = ['INR (₹) - Indian Rupee', 'USD ($) - US Dollar', 'EUR (€) - Euro', 'GBP (£) - British Pound'];
-const COUNTRIES = ['India', 'United States', 'United Kingdom', 'United Arab Emirates'];
+
+const allCountries = Country.getAllCountries().slice().sort((a, b) => a.name.localeCompare(b.name));
 
 // ─── Small building blocks ─────────────────────────────────────────────────
 function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
@@ -121,6 +123,27 @@ function SelectField({ label, options, required, value, onChange }: { label: str
                     className="w-full h-8 appearance-none rounded-lg border border-zinc-200 bg-white px-3 pr-8 text-[12.5px] font-medium text-zinc-700 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                     {options.map((opt) => <option key={opt}>{opt}</option>)}
+                </select>
+                <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+            </div>
+        </div>
+    );
+}
+
+function DynamicSelectField({ label, options, placeholder, required, disabled, value, onChange }: { label: string; options: { value: string; label: string }[]; placeholder: string; required?: boolean; disabled?: boolean; value: string; onChange: (v: string) => void }) {
+    return (
+        <div className="flex flex-col gap-0.5 min-w-0">
+            <FieldLabel required={required}>{label}</FieldLabel>
+            <div className="relative">
+                <select
+                    required={required}
+                    disabled={disabled}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className={`w-full h-8 appearance-none rounded-lg border border-zinc-200 bg-white px-3 pr-8 text-[12.5px] font-medium text-zinc-700 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${disabled ? 'cursor-not-allowed bg-zinc-50 text-zinc-400' : 'cursor-pointer'}`}
+                >
+                    <option value="">{placeholder}</option>
+                    {options.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
                 </select>
                 <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             </div>
@@ -227,8 +250,31 @@ function BasicInformationForm() {
     const isEditing = !!searchParams.get('edit');
     const [uploading, setUploading] = useState(false);
     const [generatingId, setGeneratingId] = useState(false);
+    
+    // Master data states
+    const [industries, setIndustries] = useState<string[]>(INDUSTRIES);
+    const [companySizes, setCompanySizes] = useState<string[]>(COMPANY_SIZES);
+    const [timeZones, setTimeZones] = useState<string[]>(['(UTC +05:30) Asia/Kolkata', '(UTC +00:00) UTC']);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const idRequestedRef = useRef(false);
+
+    useEffect(() => {
+        // Fetch master data for dropdowns
+        Promise.all([
+            api.get('/super-admin/industries'),
+            api.get('/super-admin/company-sizes'),
+            api.get('/super-admin/time-zones')
+        ]).then(([indRes, sizeRes, tzRes]) => {
+            const activeIndustries = indRes.data.data.filter((i: any) => i.isActive).map((i: any) => i.name);
+            const activeSizes = sizeRes.data.data.filter((i: any) => i.isActive).map((i: any) => i.name);
+            const activeTzs = tzRes.data.data.filter((i: any) => i.isActive).map((i: any) => `(${i.offset}) ${i.identifier}`);
+            
+            if (activeIndustries.length > 0) setIndustries(activeIndustries);
+            if (activeSizes.length > 0) setCompanySizes(activeSizes);
+            if (activeTzs.length > 0) setTimeZones(activeTzs);
+        }).catch(err => console.error('Failed to fetch master data:', err));
+    }, []);
 
     useEffect(() => {
         // Editing an existing company keeps its real corporateId (loaded by the page-level
@@ -309,10 +355,10 @@ function BasicInformationForm() {
 
                     {/* Row 2 */}
                     <div className="xl:col-start-1 xl:row-start-2">
-                        <SelectField label="Industry" options={INDUSTRIES} required value={w.industry || INDUSTRIES[0]} onChange={(v) => w.update({ industry: v })} />
+                        <SelectField label="Industry" options={industries} required value={w.industry || industries[0]} onChange={(v) => w.update({ industry: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-2">
-                        <SelectField label="Company Size" options={COMPANY_SIZES} required value={w.companySize || COMPANY_SIZES[0]} onChange={(v) => w.update({ companySize: v })} />
+                        <SelectField label="Company Size" options={companySizes} required value={w.companySize || companySizes[0]} onChange={(v) => w.update({ companySize: v })} />
                     </div>
 
                     {/* Row 3 */}
@@ -351,7 +397,7 @@ function BasicInformationForm() {
                         <SelectField label="Currency" options={CURRENCIES} value={w.baseCurrency} onChange={(v) => w.update({ baseCurrency: v })} />
                     </div>
                     <div className="xl:col-start-3 xl:col-span-2 xl:row-start-5">
-                        <SelectField label="Time Zone" options={['(GMT+05:30) Asia/Kolkata', '(GMT+00:00) UTC', '(GMT-05:00) America/New_York']} value={w.timezone} onChange={(v) => w.update({ timezone: v })} />
+                        <SelectField label="Time Zone" options={timeZones} value={w.timezone || timeZones[0]} onChange={(v) => w.update({ timezone: v })} />
                     </div>
                 </div>
             </CardContent>
@@ -362,6 +408,49 @@ function BasicInformationForm() {
 // ─── Registered Address form ────────────────────────────────────────────────
 function RegisteredAddressForm() {
     const w = useCompanyWizardStore();
+    const [countryIso, setCountryIso] = useState(() => allCountries.find((c) => c.name === w.country)?.isoCode || '');
+    const [stateIso, setStateIso] = useState('');
+
+    // Re-derive the ISO codes whenever the store's country/state names change from
+    // outside a manual select (e.g. loadFromExisting resolving an edit-mode fetch
+    // after this component has already mounted).
+    useEffect(() => {
+        setCountryIso((prev) => {
+            const match = allCountries.find((c) => c.name === w.country)?.isoCode || '';
+            return match || prev;
+        });
+    }, [w.country]);
+
+    useEffect(() => {
+        if (!countryIso) { setStateIso(''); return; }
+        setStateIso((prev) => {
+            const match = State.getStatesOfCountry(countryIso).find((s) => s.name === w.state)?.isoCode || '';
+            return match || prev;
+        });
+    }, [countryIso, w.state]);
+
+    const states = useMemo(
+        () => (countryIso ? State.getStatesOfCountry(countryIso).slice().sort((a, b) => a.name.localeCompare(b.name)) : []),
+        [countryIso],
+    );
+    const cities = useMemo(
+        () => (countryIso && stateIso ? City.getCitiesOfState(countryIso, stateIso).slice().sort((a, b) => a.name.localeCompare(b.name)) : []),
+        [countryIso, stateIso],
+    );
+
+    const handleCountrySelect = (isoCode: string) => {
+        const country = allCountries.find((c) => c.isoCode === isoCode);
+        setCountryIso(isoCode);
+        setStateIso('');
+        w.update({ country: country?.name || '', state: '', city: '' });
+    };
+
+    const handleStateSelect = (isoCode: string) => {
+        const state = states.find((s) => s.isoCode === isoCode);
+        setStateIso(isoCode);
+        w.update({ state: state?.name || '', city: '' });
+    };
+
     return (
         <Card className="rounded-sm border-zinc-200/80 shadow-sm">
             <CardContent className="p-2 space-y-2">
@@ -381,9 +470,21 @@ function RegisteredAddressForm() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-1.5 gap-y-1.5">
-                    <SelectField label="Country" options={COUNTRIES} required value={w.country} onChange={(v) => w.update({ country: v })} />
-                    <TextField label="State" placeholder="Enter state" required value={w.state} onChange={(v) => w.update({ state: v })} />
-                    <TextField label="City" placeholder="Enter city" required value={w.city} onChange={(v) => w.update({ city: v })} />
+                    <DynamicSelectField
+                        label="Country" placeholder="Select Country" required
+                        value={countryIso} onChange={handleCountrySelect}
+                        options={allCountries.map((c) => ({ value: c.isoCode, label: c.name }))}
+                    />
+                    <DynamicSelectField
+                        label="State" placeholder={countryIso ? 'Select State' : 'Select Country first'} required
+                        disabled={!countryIso} value={stateIso} onChange={handleStateSelect}
+                        options={states.map((s) => ({ value: s.isoCode, label: s.name }))}
+                    />
+                    <DynamicSelectField
+                        label="City" placeholder={stateIso ? 'Select City' : 'Select State first'} required
+                        disabled={!stateIso} value={w.city} onChange={(v) => w.update({ city: v })}
+                        options={cities.map((c) => ({ value: c.name, label: c.name }))}
+                    />
                     <TextField label="PIN Code" placeholder="Enter PIN code" required value={w.postalCode} onChange={(v) => w.update({ postalCode: v })} />
                 </div>
             </CardContent>
