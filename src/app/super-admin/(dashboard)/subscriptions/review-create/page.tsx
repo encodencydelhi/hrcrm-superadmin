@@ -1,5 +1,7 @@
 'use client';
 import React from 'react';
+import { useRouter } from 'next/navigation';
+import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
 import {
   Home, ChevronRight, ArrowLeft, ArrowRight, Check, Pencil, Rocket,
@@ -116,13 +118,12 @@ function StepIndicator({ current }: { current: number }) {
             <React.Fragment key={step.id}>
               <Link href={href} className="flex items-center gap-2 shrink-0 group">
                 <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${
-                    step.id === current
-                      ? 'bg-[#16234A] text-white'
-                      : step.id < current
-                        ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
-                        : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
-                  }`}
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${step.id === current
+                    ? 'bg-[#16234A] text-white'
+                    : step.id < current
+                      ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
+                      : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
+                    }`}
                 >
                   {step.id < current ? <Check size={15} /> : step.id}
                 </span>
@@ -355,10 +356,11 @@ function WhatsNextCard() {
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function CreateNewPlanStep5() {
+  const router = useRouter();
   return (
     <div className="space-y-4 font-sans text-zinc-900">
       <PageHeading />
-      <StepIndicator current={5} />
+      <PlanProgressBar current={5} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-4 items-start">
         <div className="min-w-0 space-y-4">
@@ -393,3 +395,4 @@ export default function CreateNewPlanStep5() {
     </div>
   );
 }
+

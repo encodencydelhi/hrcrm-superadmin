@@ -1,10 +1,12 @@
 'use client';
 import React, { useState } from 'react';
+import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
 import {
   Home, ChevronRight, ArrowLeft, ArrowRight, Check, Rocket,
   User, FileText, Info, Headphones, ExternalLink,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const STEPS = [
@@ -78,13 +80,12 @@ function StepIndicator({ current }: { current: number }) {
             <React.Fragment key={step.id}>
               <Link href={href} className="flex items-center gap-2 shrink-0 group">
                 <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${
-                    step.id === current
-                      ? 'bg-[#16234A] text-white'
-                      : step.id < current
-                        ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
-                        : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
-                  }`}
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${step.id === current
+                    ? 'bg-[#16234A] text-white'
+                    : step.id < current
+                      ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
+                      : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
+                    }`}
                 >
                   {step.id < current ? <Check size={15} /> : step.id}
                 </span>
@@ -145,9 +146,8 @@ function PricingModelSelector({ value, onChange }: { value: string; onChange: (v
               key={opt.id}
               type="button"
               onClick={() => onChange(opt.id)}
-              className={`relative flex items-start gap-2 rounded-md border p-1.5 text-left transition-colors ${
-                active ? 'border-indigo-300 bg-indigo-50/60' : 'border-zinc-200 bg-white hover:bg-zinc-50'
-              }`}
+              className={`relative flex items-start gap-2 rounded-md border p-1.5 text-left transition-colors ${active ? 'border-indigo-300 bg-indigo-50/60' : 'border-zinc-200 bg-white hover:bg-zinc-50'
+                }`}
             >
               {active && (
                 <span className="absolute top-2 right-2.5 grid h-4 w-4 place-items-center rounded-full bg-indigo-600 text-white">
@@ -181,9 +181,8 @@ function BillingCycleToggle({ value, onChange }: { value: string; onChange: (v: 
               key={c.id}
               type="button"
               onClick={() => onChange(c.id)}
-              className={`shrink-0 rounded-lg px-4 py-1.5 text-[12px] font-semibold transition-colors ${
-                value === c.id ? 'bg-indigo-600 text-white shadow-sm' : 'border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50'
-              }`}
+              className={`shrink-0 rounded-lg px-4 py-1.5 text-[12px] font-semibold transition-colors ${value === c.id ? 'bg-indigo-600 text-white shadow-sm' : 'border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50'
+                }`}
             >
               {c.label}
             </button>
@@ -192,9 +191,8 @@ function BillingCycleToggle({ value, onChange }: { value: string; onChange: (v: 
               key={c.id}
               type="button"
               onClick={() => onChange(c.id)}
-              className={`shrink-0 flex items-center gap-1 px-1.5 py-1.5 text-[12px] font-semibold whitespace-nowrap transition-colors ${
-                value === c.id ? 'text-indigo-600' : 'text-zinc-600 hover:text-zinc-900'
-              }`}
+              className={`shrink-0 flex items-center gap-1 px-1.5 py-1.5 text-[12px] font-semibold whitespace-nowrap transition-colors ${value === c.id ? 'text-indigo-600' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
             >
               {c.label}
               {c.save && <span className="text-[10px] font-bold text-emerald-600">{c.save}</span>}
@@ -327,11 +325,11 @@ function NeedHelpCard() {
 export default function CreateNewPlanStep4() {
   const [pricingModel, setPricingModel] = useState('per_employee');
   const [billingCycle, setBillingCycle] = useState('monthly');
-
+  const router = useRouter();
   return (
     <div className="space-y-2 font-sans text-zinc-900">
       <PageHeading />
-      <StepIndicator current={4} />
+      <PlanProgressBar current={4} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] items-start">
         <div className="min-w-0 space-y-2">
@@ -409,12 +407,12 @@ export default function CreateNewPlanStep4() {
           </SectionCard>
 
           {/* Footer actions */}
-          <div className="flex items-center justify-between gap-2">
-            <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+            <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-2 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
               <ArrowLeft size={14} /> Back
             </button>
-            <button className="flex items-center gap-1.5 rounded-lg bg-[#16234A] px-6 py-2.5 text-[12.5px] font-semibold text-white shadow-sm hover:bg-[#1c2c5c] transition-colors">
-              Next: Review & Create <ArrowRight size={14} />
+            <button onClick={() => router.push("/super-admin/subscriptions/review-create")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+              Next: Review & Create <ArrowRight size={14} className="text-white" />
             </button>
           </div>
         </div>
@@ -434,3 +432,4 @@ export default function CreateNewPlanStep4() {
     </div>
   );
 }
+
