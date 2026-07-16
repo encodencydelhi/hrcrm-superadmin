@@ -20,7 +20,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (mounted && hydrated && !isAuthenticated) {
-      document.cookie = "has_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      document.cookie = "has_session_super_admin=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       router.replace(pathname?.startsWith('/super-admin') ? '/super-admin/login' : '/login');
     }
   }, [mounted, hydrated, isAuthenticated, router, pathname]);

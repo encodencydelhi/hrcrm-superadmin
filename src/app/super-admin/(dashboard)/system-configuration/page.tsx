@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCompanyWizardStore } from '@/store/companyWizardStore';
 import {
   ChevronRight,
   Check,
@@ -25,28 +27,24 @@ import {
 } from 'lucide-react';
 
 export default function SystemConfiguration() {
-  const [activeModules, setActiveModules] = useState<Record<string, boolean>>({
-    employee: true,
-    attendance: true,
-    leave: true,
-    payroll: true,
-    performance: true,
-    recruitment: true,
-    training: true,
-    assets: true,
-    documents: true,
-    helpdesk: true,
-    expense: false,
-    mobile: true,
-  });
+  const router = useRouter();
+  const w = useCompanyWizardStore();
+  const activeModules = w.selectedModules;
+  const preferences = w.notificationPreferences;
 
-  const [preferences, setPreferences] = useState({
-    biometric: true,
-    geo: true,
-    email: true,
-    sms: false,
-    whatsapp: true
-  });
+  useEffect(() => {
+    if (w.maxStepReached < 4) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    w.unlockStep(5);
+    router.push('/super-admin/review-confirm');
+  };
+
+  const enabledCount = Object.values(activeModules).filter(Boolean).length;
+  const totalModules = Object.keys(activeModules).length;
 
   return (
     <div className="w-full max-w-[1600px]  mx-auto space-y-2 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
@@ -69,9 +67,9 @@ export default function SystemConfiguration() {
       </div>
 
       {/* Stepper */}
-      <StepIndicator current={4} />
+      <StepIndicator current={4} maxStepReached={w.maxStepReached} />
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-2 mt-2">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-4 gap-2 mt-2">
 
         {/* Left Column (Main Form) */}
         <div className="xl:col-span-3 space-y-1">
@@ -179,8 +177,8 @@ export default function SystemConfiguration() {
                   <p className="text-[10px] text-zinc-500">Enable or disable modules for this company</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Select All</button>
-                  <button className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Deselect All</button>
+                  <button type="button" onClick={() => w.update({ selectedModules: Object.fromEntries(Object.keys(activeModules).map((k) => [k, true])) })} className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Select All</button>
+                  <button type="button" onClick={() => w.update({ selectedModules: Object.fromEntries(Object.keys(activeModules).map((k) => [k, false])) })} className="text-[10px] font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">Deselect All</button>
                 </div>
               </div>
 
@@ -208,7 +206,7 @@ export default function SystemConfiguration() {
                         <span className="text-[10.5px] font-bold text-zinc-900">{mod.title}</span>
                         {/* Toggle switch placeholder */}
                         <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${activeModules[mod.id] ? 'bg-emerald-500' : 'bg-zinc-300'}`}
-                          onClick={() => setActiveModules(prev => ({ ...prev, [mod.id]: !prev[mod.id] }))}>
+                          onClick={() => w.toggleModule(mod.id)}>
                           <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${activeModules[mod.id] ? 'right-0.5' : 'left-0.5'}`} />
                         </div>
                       </div>
@@ -230,7 +228,7 @@ export default function SystemConfiguration() {
                     <span className="text-[10.5px] font-bold text-zinc-800">Enable Biometric Integration</span>
                     <Info size={11} className="text-zinc-400" />
                   </div>
-                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.biometric ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => setPreferences(p => ({ ...p, biometric: !p.biometric }))}>
+                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.biometric ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => w.togglePreference('biometric')}>
                     <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.biometric ? 'right-0.5' : 'left-0.5'}`} />
                   </div>
                 </div>
@@ -240,8 +238,8 @@ export default function SystemConfiguration() {
                     <span className="text-[10.5px] font-bold text-zinc-800">Enable Single Sign-On (SSO)</span>
                     <Info size={11} className="text-zinc-400" />
                   </div>
-                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.geo ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => setPreferences(p => ({ ...p, geo: !p.geo }))}>
-                    <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.geo ? 'right-0.5' : 'left-0.5'}`} />
+                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.sso ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => w.togglePreference('sso')}>
+                    <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.sso ? 'right-0.5' : 'left-0.5'}`} />
                   </div>
                 </div>
 
@@ -250,7 +248,7 @@ export default function SystemConfiguration() {
                     <span className="text-[10.5px] font-bold text-zinc-800">Enable SMS Notifications</span>
                     <Info size={11} className="text-zinc-400" />
                   </div>
-                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.sms ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => setPreferences(p => ({ ...p, sms: !p.sms }))}>
+                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.sms ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => w.togglePreference('sms')}>
                     <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.sms ? 'right-0.5' : 'left-0.5'}`} />
                   </div>
                 </div>
@@ -260,8 +258,8 @@ export default function SystemConfiguration() {
                     <span className="text-[10.5px] font-bold text-zinc-800">Enable Geo Location Tracking</span>
                     <Info size={11} className="text-zinc-400" />
                   </div>
-                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.geo ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => setPreferences(p => ({ ...p, geo: !p.geo }))}>
-                    <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.geo ? 'right-0.5' : 'left-0.5'}`} />
+                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.geoTracking ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => w.togglePreference('geoTracking')}>
+                    <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.geoTracking ? 'right-0.5' : 'left-0.5'}`} />
                   </div>
                 </div>
 
@@ -270,7 +268,7 @@ export default function SystemConfiguration() {
                     <span className="text-[10.5px] font-bold text-zinc-800">Enable Email Notifications</span>
                     <Info size={11} className="text-zinc-400" />
                   </div>
-                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.email ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => setPreferences(p => ({ ...p, email: !p.email }))}>
+                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.email ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => w.togglePreference('email')}>
                     <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.email ? 'right-0.5' : 'left-0.5'}`} />
                   </div>
                 </div>
@@ -280,7 +278,7 @@ export default function SystemConfiguration() {
                     <span className="text-[10.5px] font-bold text-zinc-800">Enable WhatsApp Notifications</span>
                     <Info size={11} className="text-zinc-400" />
                   </div>
-                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.whatsapp ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => setPreferences(p => ({ ...p, whatsapp: !p.whatsapp }))}>
+                  <div className={`w-6 h-3.5 rounded-full relative cursor-pointer ${preferences.whatsapp ? 'bg-emerald-500' : 'bg-zinc-300'}`} onClick={() => w.togglePreference('whatsapp')}>
                     <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all ${preferences.whatsapp ? 'right-0.5' : 'left-0.5'}`} />
                   </div>
                 </div>
@@ -288,10 +286,10 @@ export default function SystemConfiguration() {
             </div>
 
             <div className="px-3 py-2 border-t border-zinc-100 flex items-center justify-between bg-zinc-50 rounded-b-lg">
-              <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
+              <button type="button" onClick={() => router.push('/super-admin/step-3')} className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
                 <ArrowLeft size={13} /> Back
               </button>
-              <button className="flex items-center gap-1.5 bg-[#020b22] text-white text-[11px] font-bold px-5 py-1.5 rounded shadow-sm hover:bg-zinc-800 transition-colors">
+              <button type="submit" className="flex items-center gap-1.5 bg-[#020b22] text-white text-[11px] font-bold px-5 py-1.5 rounded shadow-sm hover:bg-zinc-800 transition-colors">
                 Save & Next <ArrowRight size={13} className='text-[#bc9a4f]' />
               </button>
             </div>
@@ -334,27 +332,29 @@ export default function SystemConfiguration() {
             <div className="flex flex-col gap-3 text-[11px]">
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Company Name</span>
-                <span className="font-bold text-zinc-900">TechVision Pvt. Ltd.</span>
+                <span className="font-bold text-zinc-900">{w.name || '—'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Plan</span>
-                <span className="font-bold text-zinc-900">Professional</span>
+                <span className="font-bold text-zinc-900">{w.selectedPackage?.name || '—'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Billing</span>
-                <span className="font-bold text-zinc-900">₹ 150 / Employee / Month</span>
+                <span className="font-bold text-zinc-900">
+                  {w.selectedPackage ? `₹ ${w.billingCycle === 'YEARLY' ? w.selectedPackage.pricePerUserYearlyINR : w.selectedPackage.pricePerUserMonthlyINR} / Employee / Month` : '—'}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Employees (Estimated)</span>
-                <span className="font-bold text-zinc-900">100</span>
+                <span className="font-bold text-zinc-900">{w.estimatedEmployees}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Modules Enabled</span>
-                <span className="font-bold text-zinc-900">10 / 12</span>
+                <span className="font-bold text-zinc-900">{enabledCount} / {totalModules}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Admin User</span>
-                <span className="font-bold text-zinc-900">Rohit Mehta</span>
+                <span className="font-bold text-zinc-900">{w.adminFullName || '—'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Financial Year</span>
@@ -362,15 +362,15 @@ export default function SystemConfiguration() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Week Starts On</span>
-                <span className="font-bold text-zinc-900">Monday</span>
+                <span className="font-bold text-zinc-900">{w.weekStartsOn}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Currency</span>
-                <span className="font-bold text-zinc-900">INR (₹)</span>
+                <span className="font-bold text-zinc-900">{w.baseCurrency}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-zinc-500 font-medium">Timezone</span>
-                <span className="font-bold text-zinc-900">Asia/Kolkata</span>
+                <span className="font-bold text-zinc-900">{w.timezone}</span>
               </div>
             </div>
           </div>
@@ -405,7 +405,7 @@ export default function SystemConfiguration() {
           </div>
 
         </div>
-      </div>
+      </form>
 
     </div>
   );
@@ -419,7 +419,7 @@ const STEP_ROUTES: Record<number, string> = {
     5: '/super-admin/review-confirm',
 };
 
-function StepIndicator({ current }: { current: number }) {
+function StepIndicator({ current, maxStepReached }: { current: number; maxStepReached: number }) {
     const steps = [
         { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
         { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
@@ -434,36 +434,45 @@ function StepIndicator({ current }: { current: number }) {
                 const isCompleted = step.id < current;
                 const isActive = step.id === current;
                 const isPending = step.id > current;
+                const isUnlocked = step.id <= maxStepReached;
                 const stepLink = STEP_ROUTES[step.id];
+
+                const content = (
+                    <>
+                        {isCompleted && (
+                            <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                    <Check size={14} strokeWidth={3} />
+                                </div>
+                            </div>
+                        )}
+                        {isActive && (
+                            <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
+                                {step.id}
+                            </div>
+                        )}
+                        {isPending && (
+                            <div className={`h-10 w-10 rounded-full border flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm transition-colors ${isUnlocked ? 'bg-slate-100 border-slate-200 text-[#020b22] group-hover:bg-slate-200' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                                {step.id}
+                            </div>
+                        )}
+
+                        <div className="flex flex-col">
+                            <span className={`text-[12px] font-bold transition-colors ${isUnlocked ? 'text-[#020b22] group-hover:text-indigo-600' : 'text-slate-300'}`}>{step.title}</span>
+                            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                                {isCompleted ? 'Completed' : step.subtitle}
+                            </span>
+                        </div>
+                    </>
+                );
 
                 return (
                     <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
-                        <Link href={stepLink} className="flex items-center gap-3 group">
-                            {isCompleted && (
-                                <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                                        <Check size={14} strokeWidth={3} />
-                                    </div>
-                                </div>
-                            )}
-                            {isActive && (
-                                <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
-                                    {step.id}
-                                </div>
-                            )}
-                            {isPending && (
-                                <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 text-[#020b22] flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm group-hover:bg-slate-200 transition-colors">
-                                    {step.id}
-                                </div>
-                            )}
-
-                            <div className="flex flex-col">
-                                <span className="text-[12px] font-bold text-[#020b22] group-hover:text-indigo-600 transition-colors">{step.title}</span>
-                                <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
-                                    {isCompleted ? 'Completed' : step.subtitle}
-                                </span>
-                            </div>
-                        </Link>
+                        {isUnlocked ? (
+                            <Link href={stepLink} className="flex items-center gap-3 group">{content}</Link>
+                        ) : (
+                            <div className="flex items-center gap-3 cursor-not-allowed">{content}</div>
+                        )}
                         {index < steps.length - 1 && (
                             <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
                         )}

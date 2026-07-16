@@ -1,7 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
     ChevronRight,
     Check,
@@ -18,8 +19,73 @@ import {
     CreditCard,
     Files
 } from 'lucide-react';
+import { useCompanyWizardStore } from '@/store/companyWizardStore';
+import api from '@/lib/axios';
+
+type DocKey = 'incorporationCertUrl' | 'gstCertUrl' | 'panCardUrl' | 'otherDocumentUrl';
+
+function DocumentCard({ icon: Icon, title, url, onUpload, uploading }: { icon: React.ElementType; title: string; url: string; onUpload: (file: File) => void; uploading: boolean }) {
+    const inputRef = useRef<HTMLInputElement>(null);
+    return (
+        <div
+            onClick={() => inputRef.current?.click()}
+            className="border border-zinc-200 rounded-md p-2 flex flex-col items-center justify-center text-center gap-1.5 hover:border-indigo-300 transition-colors cursor-pointer group"
+        >
+            <input
+                ref={inputRef}
+                type="file"
+                accept="application/pdf,image/*"
+                className="hidden"
+                onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) onUpload(file);
+                }}
+            />
+            <div className="flex items-center gap-1.5">
+                <Icon size={20} className={url ? 'text-emerald-500' : 'text-zinc-500'} />
+                <h3 className="text-[10px] font-bold text-zinc-800">{title}</h3>
+            </div>
+            {url ? (
+                <span className="text-[9px] font-semibold text-emerald-600">Uploaded — click to replace</span>
+            ) : (
+                <span className="text-[9px] font-semibold text-indigo-600 group-hover:text-indigo-700">{uploading ? 'Uploading…' : 'Upload File'}</span>
+            )}
+            <span className="text-[8px] text-zinc-400">PDF, JPG (Max. 5MB)</span>
+        </div>
+    );
+}
 
 export default function AddNewCompany() {
+    const router = useRouter();
+    const w = useCompanyWizardStore();
+    const [uploadingDoc, setUploadingDoc] = useState<DocKey | null>(null);
+
+    useEffect(() => {
+        if (w.maxStepReached < 3) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const uploadDocument = async (key: DocKey, file: File) => {
+        const data = new FormData();
+        data.append('file', file);
+        setUploadingDoc(key);
+        try {
+            const res = await api.post('/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+            w.update({ [key]: res.data.url } as any);
+        } catch (err) {
+            console.error('Document upload failed', err);
+            alert('Failed to upload document. Max size 5MB.');
+        } finally {
+            setUploadingDoc(null);
+        }
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        w.unlockStep(4);
+        router.push('/super-admin/system-configuration');
+    };
+
     return (
         <div className="w-full max-w-[1600px] px-2 py-1 mx-auto space-y-2 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
 
@@ -41,9 +107,9 @@ export default function AddNewCompany() {
             </div>
 
             {/* Stepper */}
-            <StepIndicator current={3} />
+            <StepIndicator current={3} maxStepReached={w.maxStepReached} />
 
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-2 mt-2">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-4 gap-2 mt-2">
 
                 {/* Left Column (Main Form) */}
                 <div className="xl:col-span-3 space-y-2">
@@ -56,17 +122,17 @@ export default function AddNewCompany() {
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Full Name <span className="text-red-500">*</span></label>
-                                    <input type="text" defaultValue="Rohit Mehta" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                    <input type="text" required value={w.adminFullName} onChange={(e) => w.update({ adminFullName: e.target.value })} placeholder="Enter admin full name" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Designation <span className="text-red-500">*</span></label>
-                                    <input type="text" defaultValue="HR Manager" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                    <input type="text" required value={w.adminDesignation} onChange={(e) => w.update({ adminDesignation: e.target.value })} placeholder="e.g. HR Manager" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1 md:col-span-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Email Address <span className="text-red-500">*</span></label>
                                     <div className="relative">
-                                        <input type="email" defaultValue="rohit.mehta@techvision.com" className="h-8 pl-2 pr-6 border border-emerald-500 rounded-md text-[11px] text-zinc-900 focus:outline-none w-full" />
-                                        <Check size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-emerald-500" strokeWidth={3} />
+                                        <input type="email" required value={w.adminEmail} onChange={(e) => w.update({ adminEmail: e.target.value })} placeholder="admin@company.com" className="h-8 pl-2 pr-6 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                        {w.adminEmail && <Check size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-emerald-500" strokeWidth={3} />}
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1">
@@ -77,13 +143,13 @@ export default function AddNewCompany() {
                                             <span className="text-[10px] font-medium">+91</span>
                                             <ChevronDown size={10} className="text-zinc-500" />
                                         </div>
-                                        <input type="text" defaultValue="98765 43210" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
+                                        <input type="text" required value={w.adminPhone} onChange={(e) => w.update({ adminPhone: e.target.value })} placeholder="Enter phone number" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
                                     </div>
                                 </div>
 
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Alternate Email <span className="text-zinc-400 font-normal">(Optional)</span></label>
-                                    <input type="email" placeholder="Enter alternate email" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                    <input type="email" value={w.alternateEmail} onChange={(e) => w.update({ alternateEmail: e.target.value })} placeholder="Enter alternate email" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Alternate Phone <span className="text-zinc-400 font-normal">(Optional)</span></label>
@@ -93,7 +159,7 @@ export default function AddNewCompany() {
                                             <span className="text-[10px] font-medium">+91</span>
                                             <ChevronDown size={10} className="text-zinc-500" />
                                         </div>
-                                        <input type="text" placeholder="Enter alternate phone" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
+                                        <input type="text" value={w.alternatePhone} onChange={(e) => w.update({ alternatePhone: e.target.value })} placeholder="Enter alternate phone" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1">
@@ -104,13 +170,13 @@ export default function AddNewCompany() {
                                             <span className="text-[10px] font-medium">+91</span>
                                             <ChevronDown size={10} className="text-zinc-500" />
                                         </div>
-                                        <input type="text" defaultValue="98765 43210" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
+                                        <input type="text" value={w.whatsappNumber} onChange={(e) => w.update({ whatsappNumber: e.target.value })} placeholder="Enter WhatsApp number" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Preferred Language</label>
                                     <div className="relative">
-                                        <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
+                                        <select value={w.preferredLanguage} onChange={(e) => w.update({ preferredLanguage: e.target.value })} className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                                             <option>English</option>
                                         </select>
                                         <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
@@ -131,7 +197,7 @@ export default function AddNewCompany() {
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Official Email <span className="text-red-500">*</span></label>
-                                    <input type="email" defaultValue="info@techvision.com" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                    <input type="email" required value={w.email} onChange={(e) => w.update({ email: e.target.value })} placeholder="info@company.com" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Official Phone <span className="text-red-500">*</span></label>
@@ -141,12 +207,12 @@ export default function AddNewCompany() {
                                             <span className="text-[10px] font-medium">+91</span>
                                             <ChevronDown size={10} className="text-zinc-500" />
                                         </div>
-                                        <input type="text" defaultValue="0120 456 7890" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
+                                        <input type="text" required value={w.phone} onChange={(e) => w.update({ phone: e.target.value })} placeholder="Enter official phone" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Support Email</label>
-                                    <input type="email" defaultValue="support@techvision.com" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                    <input type="email" value={w.supportEmail} onChange={(e) => w.update({ supportEmail: e.target.value })} placeholder="support@company.com" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Support Phone</label>
@@ -156,7 +222,7 @@ export default function AddNewCompany() {
                                             <span className="text-[10px] font-medium">+91</span>
                                             <ChevronDown size={10} className="text-zinc-500" />
                                         </div>
-                                        <input type="text" defaultValue="0120 456 7891" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
+                                        <input type="text" value={w.supportPhone} onChange={(e) => w.update({ supportPhone: e.target.value })} placeholder="Enter support phone" className="flex-1 px-2 text-[11px] text-zinc-900 focus:outline-none" />
                                     </div>
                                 </div>
                             </div>
@@ -164,20 +230,23 @@ export default function AddNewCompany() {
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">Company Website</label>
-                                    <input type="url" defaultValue="https://www.techvision.com" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                    <input type="url" value={w.website} onChange={(e) => w.update({ website: e.target.value })} placeholder="https://example.com" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[10px] font-semibold text-zinc-700">LinkedIn Profile <span className="text-zinc-400 font-normal">(Optional)</span></label>
-                                    <input type="url" defaultValue="https://linkedin.com/company/techvision" className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
+                                    <input type="url" value={w.linkedInUrl} onChange={(e) => w.update({ linkedInUrl: e.target.value })} placeholder="https://linkedin.com/company/..." className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1 md:col-span-2">
                                     <label className="text-[10px] font-semibold text-zinc-700">Company Description <span className="text-zinc-400 font-normal">(Optional)</span></label>
                                     <div className="relative">
                                         <textarea
-                                            defaultValue="TechVision Pvt. Ltd. is a leading IT solutions provider specializing in digital transformation, cloud solutions and enterprise software development."
+                                            value={w.description}
+                                            onChange={(e) => w.update({ description: e.target.value.slice(0, 300) })}
+                                            maxLength={300}
+                                            placeholder="Briefly describe the company..."
                                             className="h-14 px-2 py-1.5 border border-zinc-300 rounded-md text-[10px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full leading-snug"
                                         />
-                                        <span className="absolute bottom-3 right-2  text-[9px] text-zinc-400 bg-white px-1">120/300</span>
+                                        <span className="absolute bottom-3 right-2  text-[9px] text-zinc-400 bg-white px-1">{w.description.length}/300</span>
                                     </div>
                                 </div>
                             </div>
@@ -188,55 +257,18 @@ export default function AddNewCompany() {
                             <p className="text-[10px] text-zinc-500 mb-3">Upload any relevant documents for verification and reference</p>
 
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
-
-                                {/* Document Card 1 */}
-                                <div className="border border-zinc-200 rounded-md p-2 flex flex-col items-center justify-center text-center gap-1.5 hover:border-indigo-300 transition-colors cursor-pointer group">
-                                    <div className="flex items-center gap-1.5">
-                                        <FileBadge size={20} className="text-zinc-500" />
-                                        <h3 className="text-[10px] font-bold text-zinc-800">Incorporation</h3>
-                                    </div>
-                                    <span className="text-[9px] font-semibold text-indigo-600 group-hover:text-indigo-700">Upload File</span>
-                                    <span className="text-[8px] text-zinc-400">PDF, JPG (Max. 5MB)</span>
-                                </div>
-
-                                {/* Document Card 2 */}
-                                <div className="border border-zinc-200 rounded-md p-2 flex flex-col items-center justify-center text-center gap-1.5 hover:border-indigo-300 transition-colors cursor-pointer group">
-                                    <div className="flex items-center gap-1.5">
-                                        <FileText size={20} className="text-zinc-500" />
-                                        <h3 className="text-[10px] font-bold text-zinc-800">GST Certificate</h3>
-                                    </div>
-                                    <span className="text-[9px] font-semibold text-indigo-600 group-hover:text-indigo-700">Upload File</span>
-                                    <span className="text-[8px] text-zinc-400">PDF, JPG (Max. 5MB)</span>
-                                </div>
-
-                                {/* Document Card 3 */}
-                                <div className="border border-zinc-200 rounded-md p-2 flex flex-col items-center justify-center text-center gap-1.5 hover:border-indigo-300 transition-colors cursor-pointer group">
-                                    <div className="flex items-center gap-1.5">
-                                        <CreditCard size={20} className="text-zinc-500" />
-                                        <h3 className="text-[10px] font-bold text-zinc-800">PAN Card</h3>
-                                    </div>
-                                    <span className="text-[9px] font-semibold text-indigo-600 group-hover:text-indigo-700">Upload File</span>
-                                    <span className="text-[8px] text-zinc-400">PDF, JPG (Max. 5MB)</span>
-                                </div>
-
-                                {/* Document Card 4 */}
-                                <div className="border border-zinc-200 rounded-md p-2 flex flex-col items-center justify-center text-center gap-1.5 hover:border-indigo-300 transition-colors cursor-pointer group">
-                                    <div className="flex items-center gap-1.5">
-                                        <Files size={20} className="text-zinc-500" />
-                                        <h3 className="text-[10px] font-bold text-zinc-800">Other Document</h3>
-                                    </div>
-                                    <span className="text-[9px] font-semibold text-indigo-600 group-hover:text-indigo-700">Upload File</span>
-                                    <span className="text-[8px] text-zinc-400">PDF, JPG (Max. 5MB)</span>
-                                </div>
-
+                                <DocumentCard icon={FileBadge} title="Incorporation" url={w.incorporationCertUrl} uploading={uploadingDoc === 'incorporationCertUrl'} onUpload={(f) => uploadDocument('incorporationCertUrl', f)} />
+                                <DocumentCard icon={FileText} title="GST Certificate" url={w.gstCertUrl} uploading={uploadingDoc === 'gstCertUrl'} onUpload={(f) => uploadDocument('gstCertUrl', f)} />
+                                <DocumentCard icon={CreditCard} title="PAN Card" url={w.panCardUrl} uploading={uploadingDoc === 'panCardUrl'} onUpload={(f) => uploadDocument('panCardUrl', f)} />
+                                <DocumentCard icon={Files} title="Other Document" url={w.otherDocumentUrl} uploading={uploadingDoc === 'otherDocumentUrl'} onUpload={(f) => uploadDocument('otherDocumentUrl', f)} />
                             </div>
                         </div>
 
                         <div className="px-2 py-1.5 border-t border-zinc-100 flex items-center justify-between bg-zinc-50 rounded-b-lg">
-                            <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
+                            <button type="button" onClick={() => router.push('/super-admin/step-2')} className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
                                 <ArrowLeft size={13} /> Back
                             </button>
-                            <button className="flex items-center gap-1.5 bg-[#020b22] text-white text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-zinc-800 transition-colors">
+                            <button type="submit" className="flex items-center gap-1.5 bg-[#020b22] text-white text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-zinc-800 transition-colors">
                                 Save & Next <ArrowRight size={13} className='text-[#bc9a4f]' />
                             </button>
                         </div>
@@ -279,37 +311,38 @@ export default function AddNewCompany() {
                         <div className="flex flex-col gap-2 text-[10px]">
                             <div className="flex items-center justify-between">
                                 <span className="text-zinc-900 font-bold">Company Name</span>
-                                <span className="font-bold text-zinc-900">TechVision Pvt. Ltd.</span>
+                                <span className="font-bold text-zinc-900">{w.name || '—'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-zinc-900 font-bold">Corporate ID</span>
-                                <span className="font-bold text-zinc-900">TECHVISION_001</span>
+                                <span className="font-bold text-zinc-900">{w.corporateId || '—'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-zinc-900 font-bold">Industry</span>
-                                <span className="font-bold text-zinc-900">Information Technology</span>
+                                <span className="font-bold text-zinc-900">{w.industry || '—'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-zinc-900 font-bold">Company Size</span>
-                                <span className="font-bold text-zinc-900">201 - 500 Employees</span>
+                                <span className="font-bold text-zinc-900">{w.companySize || '—'}</span>
                             </div>
                             <div className="flex items-center justify-between mt-1 pt-2 border-t border-zinc-100">
                                 <span className="text-zinc-900 font-bold">Selected Plan</span>
                                 <div className="flex flex-col items-end">
-                                    <span className="font-bold text-zinc-900">Professional</span>
-                                    <span className="bg-indigo-50 text-indigo-700 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-100 mt-0.5">₹ 150 / Emp / Mo</span>
+                                    <span className="font-bold text-zinc-900">{w.selectedPackage?.name || '—'}</span>
+                                    {w.selectedPackage && (
+                                        <span className="bg-indigo-50 text-indigo-700 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-100 mt-0.5">
+                                            ₹ {w.billingCycle === 'YEARLY' ? w.selectedPackage.pricePerUserYearlyINR : w.selectedPackage.pricePerUserMonthlyINR} / Emp / Mo
+                                        </span>
+                                    )}
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-zinc-900 font-bold">Billing Cycle</span>
-                                <span className="font-bold text-zinc-900">Monthly</span>
+                                <span className="font-bold text-zinc-900">{w.billingCycle === 'YEARLY' ? 'Yearly' : 'Monthly'}</span>
                             </div>
                             <div className="flex items-center justify-between mt-1 pt-2 border-t border-zinc-100">
                                 <span className="text-zinc-900 font-bold">Add-on Modules</span>
-                                <div className="flex flex-col items-end">
-                                    <span className="font-bold text-zinc-900">Advanced Recruitment</span>
-                                    <span className="bg-indigo-50 text-indigo-700 text-[8px] font-bold px-1.5 py-0.5 rounded border border-indigo-100 mt-0.5">₹ 15 / Emp / Mo</span>
-                                </div>
+                                <span className="font-bold text-zinc-900">{w.addonModules.length ? `${w.addonModules.length} Selected` : 'None'}</span>
                             </div>
                         </div>
                     </div>
@@ -344,7 +377,7 @@ export default function AddNewCompany() {
                     </div>
 
                 </div>
-            </div>
+            </form>
 
             {/* <div className="pt-3 pb-2 mt-2 flex items-center justify-between text-[9px] text-zinc-500 font-medium">
         <span>© 2025 Crewcam HRMS. All Rights Reserved.</span>
@@ -366,7 +399,7 @@ const STEP_ROUTES: Record<number, string> = {
     5: '/super-admin/review-confirm',
 };
 
-function StepIndicator({ current }: { current: number }) {
+function StepIndicator({ current, maxStepReached }: { current: number; maxStepReached: number }) {
     const steps = [
         { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
         { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
@@ -381,36 +414,45 @@ function StepIndicator({ current }: { current: number }) {
                 const isCompleted = step.id < current;
                 const isActive = step.id === current;
                 const isPending = step.id > current;
+                const isUnlocked = step.id <= maxStepReached;
                 const stepLink = STEP_ROUTES[step.id];
+
+                const content = (
+                    <>
+                        {isCompleted && (
+                            <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                    <Check size={14} strokeWidth={3} />
+                                </div>
+                            </div>
+                        )}
+                        {isActive && (
+                            <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
+                                {step.id}
+                            </div>
+                        )}
+                        {isPending && (
+                            <div className={`h-10 w-10 rounded-full border flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm transition-colors ${isUnlocked ? 'bg-slate-100 border-slate-200 text-[#020b22] group-hover:bg-slate-200' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                                {step.id}
+                            </div>
+                        )}
+
+                        <div className="flex flex-col">
+                            <span className={`text-[12px] font-bold transition-colors ${isUnlocked ? 'text-[#020b22] group-hover:text-indigo-600' : 'text-slate-300'}`}>{step.title}</span>
+                            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                                {isCompleted ? 'Completed' : step.subtitle}
+                            </span>
+                        </div>
+                    </>
+                );
 
                 return (
                     <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
-                        <Link href={stepLink} className="flex items-center gap-3 group">
-                            {isCompleted && (
-                                <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                                        <Check size={14} strokeWidth={3} />
-                                    </div>
-                                </div>
-                            )}
-                            {isActive && (
-                                <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
-                                    {step.id}
-                                </div>
-                            )}
-                            {isPending && (
-                                <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 text-[#020b22] flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm group-hover:bg-slate-200 transition-colors">
-                                    {step.id}
-                                </div>
-                            )}
-
-                            <div className="flex flex-col">
-                                <span className="text-[12px] font-bold text-[#020b22] group-hover:text-indigo-600 transition-colors">{step.title}</span>
-                                <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
-                                    {isCompleted ? 'Completed' : step.subtitle}
-                                </span>
-                            </div>
-                        </Link>
+                        {isUnlocked ? (
+                            <Link href={stepLink} className="flex items-center gap-3 group">{content}</Link>
+                        ) : (
+                            <div className="flex items-center gap-3 cursor-not-allowed">{content}</div>
+                        )}
                         {index < steps.length - 1 && (
                             <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
                         )}

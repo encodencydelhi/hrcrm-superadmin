@@ -18,7 +18,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
   const handleSignOut = async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post('/auth/logout', { portal: 'super-admin' });
     } catch {
       // Best-effort server-side revoke; clear local session regardless.
     }

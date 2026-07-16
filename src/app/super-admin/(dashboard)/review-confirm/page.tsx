@@ -1,7 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCompanyWizardStore } from '@/store/companyWizardStore';
+import { generateTempPassword } from '@/lib/generatePassword';
+import api from '@/lib/axios';
 import {
     ChevronRight,
     Check,
@@ -17,6 +21,7 @@ import {
     AlertCircle,
     ShieldCheck,
     CheckCircle2,
+    XCircle,
     Building,
     Users,
     CreditCard,
@@ -81,7 +86,139 @@ function StepIndicator({ current }: { current: number }) {
     );
 }
 
+const MODULE_LABELS: Record<string, string> = {
+    employee: 'Employee Management', attendance: 'Attendance Management', leave: 'Leave Management',
+    payroll: 'Payroll Management', performance: 'Performance Management', recruitment: 'Recruitment & Onboarding',
+    training: 'Training & Development', assets: 'Assets Management', documents: 'Documents Management',
+    helpdesk: 'Helpdesk & Tickets', expense: 'Expense Management', mobile: 'Mobile App Access',
+};
+
+const ADDON_LABELS: Record<string, { name: string; priceINR: number }> = {
+    'ai-analytics': { name: 'AI & Predictive Analytics', priceINR: 20 },
+    'advanced-recruitment': { name: 'Advanced Recruitment', priceINR: 15 },
+    'learning-management': { name: 'Learning Management', priceINR: 15 },
+    'expense-management': { name: 'Expense Management', priceINR: 10 },
+    'helpdesk-tickets': { name: 'Helpdesk & Tickets', priceINR: 10 },
+};
+
 export default function ReviewConfirmPage() {
+    const router = useRouter();
+    const w = useCompanyWizardStore();
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState('');
+    const [draftSaved, setDraftSaved] = useState(false);
+
+    useEffect(() => {
+        if (w.maxStepReached < 5) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const [adminFirstName, ...adminLastNameParts] = w.adminFullName.trim().split(' ');
+    const adminLastName = adminLastNameParts.join(' ') || adminFirstName || 'Admin';
+
+    const pkg = w.selectedPackage;
+    const planPricePerUser = pkg ? (w.billingCycle === 'YEARLY' ? pkg.pricePerUserYearlyINR : pkg.pricePerUserMonthlyINR) : 0;
+    const subscriptionAmount = pkg ? planPricePerUser * w.estimatedEmployees : 0;
+
+    const isEditing = !!w.editingTenantId;
+
+    const handleConfirm = async () => {
+        if (!pkg) {
+            setError('No subscription package selected — go back to Step 2.');
+            return;
+        }
+        setError('');
+        setSubmitting(true);
+        const payload: Record<string, any> = {
+            name: w.name,
+            packageId: pkg._id,
+            adminFirstName: adminFirstName || 'Admin',
+            adminLastName,
+            adminEmail: w.adminEmail,
+            adminDesignation: w.adminDesignation,
+            adminPhone: w.adminPhone,
+            country: w.country,
+            tradeName: w.tradeName,
+            industry: w.industry,
+            website: w.website,
+            email: w.email,
+            phone: w.phone,
+            addressLine1: w.addressLine1,
+            addressLine2: w.addressLine2,
+            city: w.city,
+            state: w.state,
+            postalCode: w.postalCode,
+            timezone: w.timezone,
+            baseCurrency: w.baseCurrency,
+            financialYearStartMonth: w.financialYearStartMonth,
+            panNumber: w.panNumber,
+            gstin: w.gstin,
+            cin: w.cin,
+            logoUrl: w.logoUrl,
+            billingCycle: w.billingCycle,
+            subscriptionAmount,
+            subscriptionCurrency: 'INR',
+            estimatedEmployees: w.estimatedEmployees,
+            corporateId: w.corporateId,
+            companySize: w.companySize,
+            description: w.description,
+            incorporationDate: w.incorporationYear ? `${w.incorporationYear}-01-01` : undefined,
+            alternateEmail: w.alternateEmail,
+            whatsappNumber: w.whatsappNumber,
+            preferredLanguage: w.preferredLanguage,
+            supportEmail: w.supportEmail,
+            supportPhone: w.supportPhone,
+            linkedInUrl: w.linkedInUrl,
+            selectedModules: Object.keys(w.selectedModules).filter((k) => w.selectedModules[k]),
+            addonModules: w.addonModules,
+            documents: {
+                incorporationCertUrl: w.incorporationCertUrl,
+                gstCertUrl: w.gstCertUrl,
+                panCardUrl: w.panCardUrl,
+                otherDocumentUrl: w.otherDocumentUrl,
+            },
+            notificationPreferences: w.notificationPreferences,
+            weekStartsOn: w.weekStartsOn,
+            dateFormat: w.dateFormat,
+            timeFormat: w.timeFormat,
+            numberFormat: w.numberFormat,
+            leaveYearStartMonth: w.leaveYearStartMonth,
+        };
+
+        try {
+            if (isEditing) {
+                await api.put(`/super-admin/tenants/${w.editingTenantId}`, payload);
+                w.reset();
+                router.push('/super-admin/companies');
+                return;
+            }
+
+            const res = await api.post('/super-admin/tenants', { ...payload, adminPassword: generateTempPassword() });
+            const created = res.data;
+            w.reset();
+            const params = new URLSearchParams({
+                companyId: created._id,
+                name: payload.name,
+                corporateId: payload.corporateId,
+                industry: payload.industry,
+                companySize: payload.companySize,
+                adminName: `${payload.adminFirstName} ${payload.adminLastName}`,
+                adminEmail: payload.adminEmail,
+                adminDesignation: payload.adminDesignation,
+                planName: pkg.name,
+                pricePerUser: String(planPricePerUser),
+                estimatedEmployees: String(payload.estimatedEmployees),
+                modulesEnabled: String(payload.selectedModules.length),
+                modulesTotal: String(Object.keys(w.selectedModules).length),
+                credentialsEmailSent: String(!!created.credentialsEmailSent),
+            });
+            router.push(`/super-admin/company-created-successfully?${params.toString()}`);
+        } catch (e: any) {
+            setError(e?.response?.data?.message || `Something went wrong while ${isEditing ? 'saving changes' : 'creating the company'}. Please review the details and try again.`);
+            setSubmitting(false);
+        }
+    };
+
     return (
         <div className="w-full max-w-[1600px] mx-auto font-sans text-zinc-900 min-h-screen bg-zinc-50/50 space-y-2">
             {/* Breadcrumbs */}
@@ -95,8 +232,8 @@ export default function ReviewConfirmPage() {
 
             {/* Header */}
             <div className="pb-1">
-                <h1 className="text-[16px] font-bold text-[#020b22]">Add New Company</h1>
-                <p className="text-[10px] text-zinc-500 mt-0.5">Review all details and confirm to create the company</p>
+                <h1 className="text-[16px] font-bold text-[#020b22]">{isEditing ? 'Edit Company' : 'Add New Company'}</h1>
+                <p className="text-[10px] text-zinc-500 mt-0.5">Review all details and confirm to {isEditing ? 'save changes' : 'create the company'}</p>
             </div>
 
             {/* Stepper */}
@@ -122,45 +259,45 @@ export default function ReviewConfirmPage() {
                                 <div className="space-y-5">
                                     <div className="grid grid-cols-[120px_1fr] items-start gap-2">
                                         <span className="text-[12px] text-slate-500 font-medium">Company Name</span>
-                                        <span className="text-[12px] font-medium text-slate-700">TechVision Pvt. Ltd.</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.name || '—'}</span>
                                     </div>
                                     <div className="grid grid-cols-[120px_1fr] items-start gap-2">
                                         <span className="text-[12px] text-slate-500 font-medium">Corporate ID</span>
-                                        <span className="text-[12px] font-medium text-slate-700">TECHVISION_001</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.corporateId || '—'}</span>
                                     </div>
                                     <div className="grid grid-cols-[120px_1fr] items-start gap-2">
                                         <span className="text-[12px] text-slate-500 font-medium">Industry</span>
-                                        <span className="text-[12px] font-medium text-slate-700">Information Technology</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.industry || '—'}</span>
                                     </div>
                                     <div className="grid grid-cols-[120px_1fr] items-start gap-2">
                                         <span className="text-[12px] text-slate-500 font-medium">Company Size</span>
-                                        <span className="text-[12px] font-medium text-slate-700">201 - 500 Employees</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.companySize || '—'}</span>
                                     </div>
                                     <div className="grid grid-cols-[120px_1fr] items-start gap-2">
                                         <span className="text-[12px] text-slate-500 font-medium">Website</span>
-                                        <span className="text-[12px] font-medium text-slate-700 break-all">https://www.techvision.com</span>
+                                        <span className="text-[12px] font-medium text-slate-700 break-all">{w.website || '—'}</span>
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[12px] text-slate-500 font-medium">GSTIN / Tax ID</span>
-                                        <span className="text-[12px] font-medium text-slate-700">27AAGCT1234A1Z5</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.gstin || '—'}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[12px] text-slate-500 font-medium">PAN</span>
-                                        <span className="text-[12px] font-medium text-slate-700">AAGCT1234A</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.panNumber || '—'}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[12px] text-slate-500 font-medium">Registration Number</span>
-                                        <span className="text-[12px] font-medium text-slate-700 truncate">U72900MH2020PTC123456</span>
+                                        <span className="text-[12px] font-medium text-slate-700 truncate">{w.cin || '—'}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[12px] text-slate-500 font-medium">Year of Establishment</span>
-                                        <span className="text-[12px] font-medium text-slate-700">2020</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.incorporationYear || '—'}</span>
                                     </div>
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[12px] text-slate-500 font-medium">Currency</span>
-                                        <span className="text-[12px] font-medium text-slate-700">INR (₹) - Indian Rupee</span>
+                                        <span className="text-[12px] font-medium text-slate-700">{w.baseCurrency}</span>
                                     </div>
                                 </div>
                             </div>
@@ -180,31 +317,35 @@ export default function ReviewConfirmPage() {
                             <div className="border-t border-slate-100 pt-4 space-y-2">
                                 <div className="grid grid-cols-[180px_1fr] items-start gap-2">
                                     <span className="text-[12px] text-slate-500 font-medium">Selected Plan</span>
-                                    <span className="text-[12px] font-medium text-slate-700">Professional</span>
+                                    <span className="text-[12px] font-medium text-slate-700">{pkg?.name || '—'}</span>
                                 </div>
                                 <div className="grid grid-cols-[180px_1fr] items-start gap-2">
                                     <span className="text-[12px] text-slate-500 font-medium">Billing</span>
-                                    <span className="text-[12px] font-medium text-slate-700">₹ 150 / Employee / Month</span>
+                                    <span className="text-[12px] font-medium text-slate-700">{pkg ? `₹ ${planPricePerUser} / Employee / Month` : '—'}</span>
                                 </div>
                                 <div className="grid grid-cols-[180px_1fr] items-start gap-2">
                                     <span className="text-[12px] text-slate-500 font-medium">Employees (Estimated)</span>
-                                    <span className="text-[12px] font-medium text-slate-700">100</span>
+                                    <span className="text-[12px] font-medium text-slate-700">{w.estimatedEmployees}</span>
                                 </div>
                                 <div className="grid grid-cols-[180px_1fr] items-start gap-2">
                                     <span className="text-[12px] text-slate-500 font-medium">Add-on Modules</span>
-                                    <span className="text-[12px] font-medium text-slate-700">Advanced Recruitment (₹ 15 / Employee / Month)</span>
+                                    <span className="text-[12px] font-medium text-slate-700">
+                                        {w.addonModules.length
+                                            ? w.addonModules.map((id) => ADDON_LABELS[id]?.name || id).join(', ')
+                                            : 'None'}
+                                    </span>
                                 </div>
                                 <div className="grid grid-cols-[180px_1fr] items-start gap-2">
                                     <span className="text-[12px] text-slate-500 font-medium">Billing Cycle</span>
-                                    <span className="text-[12px] font-medium text-slate-700">Monthly</span>
+                                    <span className="text-[12px] font-medium text-slate-700">{w.billingCycle === 'YEARLY' ? 'Yearly' : 'Monthly'}</span>
                                 </div>
                                 <div className="grid grid-cols-[180px_1fr] items-start gap-2">
                                     <span className="text-[12px] text-slate-500 font-medium">Invoice Currency</span>
-                                    <span className="text-[12px] font-medium text-slate-700">INR (₹) - Indian Rupee</span>
+                                    <span className="text-[12px] font-medium text-slate-700">{w.invoiceCurrency}</span>
                                 </div>
                                 <div className="grid grid-cols-[180px_1fr] items-start gap-2">
                                     <span className="text-[12px] text-slate-500 font-medium">GST Treatment</span>
-                                    <span className="text-[12px] font-medium text-slate-700">Exclusive of GST</span>
+                                    <span className="text-[12px] font-medium text-slate-700">{w.gstTreatment}</span>
                                 </div>
                             </div>
                         </div>
@@ -223,37 +364,37 @@ export default function ReviewConfirmPage() {
                             <div className="border-t border-slate-100 pt-2 grid grid-cols-1 lg:grid-cols-2 gap-y-4 gap-x-6">
                                 <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 items-start">
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Admin Name</span>
-                                    <span className="text-[11px] font-medium text-slate-700">Rohit Mehta</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.adminFullName || '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Designation</span>
-                                    <span className="text-[11px] font-medium text-slate-700">HR Manager</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.adminDesignation || '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Email Address</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">rohit.mehta@techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">{w.adminEmail || '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Phone Number</span>
-                                    <span className="text-[11px] font-medium text-slate-700">+91 98765 43210</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.adminPhone ? `+91 ${w.adminPhone}` : '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Preferred Language</span>
-                                    <span className="text-[11px] font-medium text-slate-700">English</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.preferredLanguage}</span>
                                 </div>
                                 <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 items-start">
                                     <div className="col-span-2 text-[12px] text-[#1e293b] font-bold">Company Communication</div>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Official Email</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">info@techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">{w.email || '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Official Phone</span>
-                                    <span className="text-[11px] font-medium text-slate-700">+91 0120 456 7890</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.phone ? `+91 ${w.phone}` : '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Support Email</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">support@techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">{w.supportEmail || '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Support Phone</span>
-                                    <span className="text-[11px] font-medium text-slate-700">+91 0120 456 7891</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.supportPhone ? `+91 ${w.supportPhone}` : '—'}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Company Website</span>
-                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">https://www.techvision.com</span>
+                                    <span className="text-[11px] font-medium text-[#3b82f6] break-all">{w.website || '—'}</span>
                                 </div>
                             </div>
                         </div>
@@ -272,26 +413,26 @@ export default function ReviewConfirmPage() {
                             <div className="border-t border-slate-100 pt-2 grid grid-cols-1 lg:grid-cols-2 gap-y-4 gap-x-6">
                                 <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 items-start">
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Financial Year</span>
-                                    <span className="text-[11px] font-medium text-slate-700">Apr - Mar (FY 2025-26)</span>
+                                    <span className="text-[11px] font-medium text-slate-700">Apr - Mar (FY {new Date().getFullYear()}-{String(new Date().getFullYear() + 1).slice(2)})</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Week Starts On</span>
-                                    <span className="text-[11px] font-medium text-slate-700">Monday</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.weekStartsOn}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Timezone</span>
-                                    <span className="text-[11px] font-medium text-slate-700 truncate">(GMT+05:30) Asia/Kolkata</span>
+                                    <span className="text-[11px] font-medium text-slate-700 truncate">{w.timezone}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Date Format</span>
-                                    <span className="text-[11px] font-medium text-slate-700">DD MMM YYYY</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.dateFormat}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Time Format</span>
-                                    <span className="text-[11px] font-medium text-slate-700">12 Hours (01:30 PM)</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.timeFormat}</span>
                                 </div>
                                 <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-2 items-start">
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Default Currency</span>
-                                    <span className="text-[11px] font-medium text-slate-700">INR (₹) - Indian Rupee</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.baseCurrency}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">Number Format</span>
-                                    <span className="text-[11px] font-medium text-slate-700">1,23,456.78</span>
+                                    <span className="text-[11px] font-medium text-slate-700">{w.numberFormat}</span>
 
                                     <span className="text-[11px] text-slate-500 font-medium whitespace-nowrap">First Day of Month</span>
                                     <span className="text-[11px] font-medium text-slate-700">1st</span>
@@ -310,125 +451,67 @@ export default function ReviewConfirmPage() {
                             <h2 className="text-[15px] font-bold">Modules & Preferences</h2>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-4 gap-x-6">
-                            {/* Col 1 */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Employee Management
+                            {[0, 1, 2].map((col) => {
+                                const entries = Object.entries(w.selectedModules);
+                                const chunkSize = Math.ceil(entries.length / 3) || 1;
+                                const chunk = entries.slice(col * chunkSize, (col + 1) * chunkSize);
+                                return (
+                                    <div key={col} className="space-y-4">
+                                        {chunk.map(([id, enabled]) => (
+                                            <div key={id} className="flex items-center justify-between">
+                                                <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
+                                                    {enabled ? <CheckCircle2 size={14} className="text-emerald-500" /> : <XCircle className="text-zinc-300" size={14} />} {MODULE_LABELS[id] || id}
+                                                </div>
+                                                <span className={`text-[11px] font-semibold ${enabled ? 'text-emerald-600' : 'text-zinc-400'}`}>{enabled ? 'Enabled' : 'Disabled'}</span>
+                                            </div>
+                                        ))}
                                     </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Attendance Management
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Leave Management
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Payroll Management
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                            </div>
-                            {/* Col 2 */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Performance Management
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Recruitment & Onboarding
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Training & Development
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Assets Management
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                            </div>
-                            {/* Col 3 */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Documents Management
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Helpdesk & Tickets
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Expense Management
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-1.5 text-[12px] text-zinc-700 font-medium">
-                                        <CheckCircle2 size={14} className="text-emerald-500" /> Mobile App Access
-                                    </div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                            </div>
+                                );
+                            })}
                             {/* Col 4 (Additional Preferences) */}
                             <div className="space-y-4 pt-4 md:pt-0">
                                 <h3 className="text-[12px] font-bold text-zinc-800 mb-3 border-b border-zinc-100 pb-1">Additional Preferences</h3>
-                                <div className="flex items-center justify-between">
-                                    <div className="text-[12px] text-zinc-700 font-medium">Biometric Integration</div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="text-[12px] text-zinc-700 font-medium">Geo Location Tracking</div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="text-[12px] text-zinc-700 font-medium">Email Notifications</div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="text-[12px] text-zinc-700 font-medium">WhatsApp Notifications</div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <div className="text-[12px] text-zinc-700 font-medium">SMS Notifications</div>
-                                    <span className="text-[11px] font-semibold text-emerald-600">Enabled</span>
-                                </div>
+                                {([
+                                    ['Biometric Integration', w.notificationPreferences.biometric],
+                                    ['Single Sign-On (SSO)', w.notificationPreferences.sso],
+                                    ['Geo Location Tracking', w.notificationPreferences.geoTracking],
+                                    ['Email Notifications', w.notificationPreferences.email],
+                                    ['WhatsApp Notifications', w.notificationPreferences.whatsapp],
+                                    ['SMS Notifications', w.notificationPreferences.sms],
+                                ] as [string, boolean][]).map(([label, enabled]) => (
+                                    <div key={label} className="flex items-center justify-between">
+                                        <div className="text-[12px] text-zinc-700 font-medium">{label}</div>
+                                        <span className={`text-[11px] font-semibold ${enabled ? 'text-emerald-600' : 'text-zinc-400'}`}>{enabled ? 'Enabled' : 'Disabled'}</span>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>
 
+                    {error && (
+                        <div className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-[12px] text-rose-700 font-medium">{error}</div>
+                    )}
+
                     {/* Bottom Action Bar */}
                     <div className="flex items-center justify-between pt-2 pb-2">
-                        <Link href="/super-admin/system-configuration" className="flex items-center gap-1.5 px-4 py-2 border border-zinc-200 bg-white rounded-lg text-zinc-700 text-[13px] font-semibold hover:bg-zinc-50 transition-colors shadow-sm">
+                        <button type="button" onClick={() => router.push('/super-admin/system-configuration')} className="flex items-center gap-1.5 px-4 py-2 border border-zinc-200 bg-white rounded-lg text-zinc-700 text-[13px] font-semibold hover:bg-zinc-50 transition-colors shadow-sm">
                             <ArrowLeft size={16} /> Back
-                        </Link>
+                        </button>
                         <div className="flex items-center gap-3">
-                            <button className="px-5 py-2 border border-zinc-200 bg-white rounded-lg text-zinc-700 text-[13px] font-semibold hover:bg-zinc-50 transition-colors shadow-sm">
-                                Save as Draft
+                            <button
+                                type="button"
+                                onClick={() => { setDraftSaved(true); setTimeout(() => setDraftSaved(false), 2000); }}
+                                className="px-5 py-2 border border-zinc-200 bg-white rounded-lg text-zinc-700 text-[13px] font-semibold hover:bg-zinc-50 transition-colors shadow-sm"
+                            >
+                                {draftSaved ? 'Saved ✓' : 'Save as Draft'}
                             </button>
-                            <button className="flex items-center gap-1.5 px-5 py-2 bg-[#020b22] text-white rounded-lg text-[13px] font-semibold hover:bg-slate-800 transition-colors shadow-sm">
-                                Confirm & Create Company <ArrowRight size={16} />
+                            <button
+                                type="button"
+                                onClick={handleConfirm}
+                                disabled={submitting}
+                                className="flex items-center gap-1.5 px-5 py-2 bg-[#020b22] text-white rounded-lg text-[13px] font-semibold hover:bg-slate-800 transition-colors shadow-sm disabled:opacity-50"
+                            >
+                                {submitting ? (isEditing ? 'Saving…' : 'Creating…') : (isEditing ? 'Save Changes' : 'Confirm & Create Company')} <ArrowRight size={16} />
                             </button>
                         </div>
                     </div>
@@ -481,42 +564,42 @@ export default function ReviewConfirmPage() {
                                     <Building size={14} />
                                     <span className="text-[12px]">Company Name</span>
                                 </div>
-                                <span className="text-[12px] font-semibold text-zinc-900">TechVision Pvt. Ltd.</span>
+                                <span className="text-[12px] font-semibold text-zinc-900">{w.name || '—'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-zinc-500">
                                     <ShieldCheck size={14} />
                                     <span className="text-[12px]">Plan</span>
                                 </div>
-                                <span className="text-[12px] font-semibold text-zinc-900">Professional</span>
+                                <span className="text-[12px] font-semibold text-zinc-900">{pkg?.name || '—'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-zinc-500">
                                     <Users size={14} />
-                                    <span className="text-[12px]">Estimated Employees</span>
+                                    <span className="text-[12px]">Employees (Estimated)</span>
                                 </div>
-                                <span className="text-[12px] font-semibold text-zinc-900">100</span>
+                                <span className="text-[12px] font-semibold text-zinc-900">{w.estimatedEmployees}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-zinc-500">
                                     <CreditCard size={14} />
                                     <span className="text-[12px]">Billing</span>
                                 </div>
-                                <span className="text-[12px] font-semibold text-zinc-900">₹ 150 / Employee / Month</span>
+                                <span className="text-[12px] font-semibold text-zinc-900">{pkg ? `₹ ${planPricePerUser} / Employee / Month` : '—'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-zinc-500">
                                     <Cpu size={14} />
                                     <span className="text-[12px]">Add-on Modules</span>
                                 </div>
-                                <span className="text-[12px] font-semibold text-indigo-600">1 Selected</span>
+                                <span className="text-[12px] font-semibold text-indigo-600">{w.addonModules.length ? `${w.addonModules.length} Selected` : 'None'}</span>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 text-zinc-500">
                                     <UserCog size={14} />
                                     <span className="text-[12px]">Admin User</span>
                                 </div>
-                                <span className="text-[12px] font-semibold text-zinc-900">Rohit Mehta</span>
+                                <span className="text-[12px] font-semibold text-zinc-900">{w.adminFullName || '—'}</span>
                             </div>
                             <div className="flex items-center justify-between pt-1 border-t border-zinc-100">
                                 <div className="flex items-center gap-2 text-zinc-500">

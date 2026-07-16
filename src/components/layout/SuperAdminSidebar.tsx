@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   FileText,
   KeyRound,
+  FilePlus,
 } from 'lucide-react';
 import { CrewcamLogo } from '@/components/branding/CrewcamLogo';
 import logo from '@/assets/logo2.png';
@@ -48,10 +49,11 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/super-admin/technical-access-request-details', icon: FileText, label: 'Technical Access Details' },
   // { href: '/super-admin/term-and-conditions', icon: FileText, label: 'Terms & Conditions' },
   // { href: '/super-admin/credentials-and-instructions', icon: KeyRound, label: 'Credentials & Instructions' },
+  { href: '/super-admin/create-new-plan-step2', icon: FilePlus, label: 'Create New Plan' },
   { href: '/super-admin/coming-soon?feature=Workforce', icon: Users2, label: 'Workforce' },
   { href: '/super-admin/setup-fees', icon: Landmark, label: 'Revenue & Finance' },
   { href: '/super-admin/invoices', icon: Receipt, label: 'Billing & Invoices' },
-  { href: '/super-admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
+  { href: '/super-admin/subscriptions/subscription-plan', icon: CreditCard, label: 'Subscriptions' },
   { href: '/super-admin/analytics', icon: PieChart, label: 'Analytics' },
   { href: '/super-admin/ai-providers', icon: Bot, label: 'AI Insights' },
   { href: '/super-admin/support', icon: LifeBuoy, label: 'Support Center' },
