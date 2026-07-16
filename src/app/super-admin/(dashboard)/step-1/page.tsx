@@ -227,8 +227,31 @@ function BasicInformationForm() {
     const isEditing = !!searchParams.get('edit');
     const [uploading, setUploading] = useState(false);
     const [generatingId, setGeneratingId] = useState(false);
+    
+    // Master data states
+    const [industries, setIndustries] = useState<string[]>(INDUSTRIES);
+    const [companySizes, setCompanySizes] = useState<string[]>(COMPANY_SIZES);
+    const [timeZones, setTimeZones] = useState<string[]>(['(UTC +05:30) Asia/Kolkata', '(UTC +00:00) UTC']);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const idRequestedRef = useRef(false);
+
+    useEffect(() => {
+        // Fetch master data for dropdowns
+        Promise.all([
+            api.get('/super-admin/industries'),
+            api.get('/super-admin/company-sizes'),
+            api.get('/super-admin/time-zones')
+        ]).then(([indRes, sizeRes, tzRes]) => {
+            const activeIndustries = indRes.data.data.filter((i: any) => i.isActive).map((i: any) => i.name);
+            const activeSizes = sizeRes.data.data.filter((i: any) => i.isActive).map((i: any) => i.name);
+            const activeTzs = tzRes.data.data.filter((i: any) => i.isActive).map((i: any) => `(${i.offset}) ${i.identifier}`);
+            
+            if (activeIndustries.length > 0) setIndustries(activeIndustries);
+            if (activeSizes.length > 0) setCompanySizes(activeSizes);
+            if (activeTzs.length > 0) setTimeZones(activeTzs);
+        }).catch(err => console.error('Failed to fetch master data:', err));
+    }, []);
 
     useEffect(() => {
         // Editing an existing company keeps its real corporateId (loaded by the page-level
@@ -309,10 +332,10 @@ function BasicInformationForm() {
 
                     {/* Row 2 */}
                     <div className="xl:col-start-1 xl:row-start-2">
-                        <SelectField label="Industry" options={INDUSTRIES} required value={w.industry || INDUSTRIES[0]} onChange={(v) => w.update({ industry: v })} />
+                        <SelectField label="Industry" options={industries} required value={w.industry || industries[0]} onChange={(v) => w.update({ industry: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-2">
-                        <SelectField label="Company Size" options={COMPANY_SIZES} required value={w.companySize || COMPANY_SIZES[0]} onChange={(v) => w.update({ companySize: v })} />
+                        <SelectField label="Company Size" options={companySizes} required value={w.companySize || companySizes[0]} onChange={(v) => w.update({ companySize: v })} />
                     </div>
 
                     {/* Row 3 */}
@@ -351,7 +374,7 @@ function BasicInformationForm() {
                         <SelectField label="Currency" options={CURRENCIES} value={w.baseCurrency} onChange={(v) => w.update({ baseCurrency: v })} />
                     </div>
                     <div className="xl:col-start-3 xl:col-span-2 xl:row-start-5">
-                        <SelectField label="Time Zone" options={['(GMT+05:30) Asia/Kolkata', '(GMT+00:00) UTC', '(GMT-05:00) America/New_York']} value={w.timezone} onChange={(v) => w.update({ timezone: v })} />
+                        <SelectField label="Time Zone" options={timeZones} value={w.timezone || timeZones[0]} onChange={(v) => w.update({ timezone: v })} />
                     </div>
                 </div>
             </CardContent>
