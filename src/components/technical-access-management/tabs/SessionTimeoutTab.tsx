@@ -54,22 +54,22 @@ export default function SessionTimeoutTab() {
                 />
               </button>
               <div>
-                <p className="text-sm font-semibold text-slate-900">Enable Session Timeout</p>
-                <p className="text-sm text-slate-500">Automatically log out users after a period of inactivity.</p>
+                <p className="text-[11px] font-semibold text-slate-900">Enable Session Timeout</p>
+                <p className="text-[11px] text-slate-500">Automatically log out users after a period of inactivity.</p>
               </div>
             </div>
 
             {/* Dropdowns */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-900 mb-2">
+                <label className="block text-[10px] font-semibold text-slate-900 mb-2">
                   Idle Timeout Duration <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     value={idleDuration}
                     onChange={(e) => setIdleDuration(e.target.value)}
-                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-[11px] rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   >
                     <option>30 Minutes</option>
                     <option>1 Hour</option>
@@ -78,14 +78,14 @@ export default function SessionTimeoutTab() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-900 mb-2">
+                <label className="block text-[10px] font-semibold text-slate-900 mb-2">
                   Warning Before Logout <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     value={warningBefore}
                     onChange={(e) => setWarningBefore(e.target.value)}
-                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-[11px] rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   >
                     <option>5 Minutes</option>
                     <option>10 Minutes</option>
@@ -94,14 +94,14 @@ export default function SessionTimeoutTab() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-900 mb-2">
+                <label className="block text-[10px] font-semibold text-slate-900 mb-2">
                   Auto Logout After Warning <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     value={autoLogout}
                     onChange={(e) => setAutoLogout(e.target.value)}
-                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-[11px] rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   >
                     <option>Yes</option>
                     <option>No</option>
@@ -110,14 +110,14 @@ export default function SessionTimeoutTab() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-slate-900 mb-2">
+                <label className="block text-[10px] font-semibold text-slate-900 mb-2">
                   Max Session Duration <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
                     value={maxSession}
                     onChange={(e) => setMaxSession(e.target.value)}
-                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-[11px] rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   >
                     <option>8 Hours</option>
                     <option>12 Hours</option>
@@ -147,9 +147,9 @@ export default function SessionTimeoutTab() {
                 <div className={`flex items-center justify-center h-4 w-4 rounded-full border ${timeoutBehavior === 'automatic' ? 'border-blue-600 bg-blue-600' : 'border-slate-300'}`}>
                   {timeoutBehavior === 'automatic' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
                 </div>
-                <span className="font-semibold text-sm text-slate-900">Automatic Logout</span>
+                <span className="font-semibold text-[11px] text-slate-900">Automatic Logout</span>
               </div>
-              <p className="text-xs text-slate-500 ml-7 mb-3 leading-relaxed">User will be automatically logged out after the idle timeout.</p>
+              <p className="text-[10px] text-slate-500 ml-7 mb-3 leading-relaxed">User will be automatically logged out after the idle timeout.</p>
               <div className="ml-7 text-blue-600 bg-blue-50 h-8 w-8 rounded flex items-center justify-center border border-blue-100">
                 <LogOut className="h-4 w-4" />
               </div>
@@ -167,9 +167,9 @@ export default function SessionTimeoutTab() {
                 <div className={`flex items-center justify-center h-4 w-4 rounded-full border ${timeoutBehavior === 'warn-logout' ? 'border-blue-600 bg-blue-600' : 'border-slate-300'}`}>
                   {timeoutBehavior === 'warn-logout' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
                 </div>
-                <span className="font-semibold text-sm text-slate-900">Warn and Logout</span>
+                <span className="font-semibold text-[11px] text-slate-900">Warn and Logout</span>
               </div>
-              <p className="text-xs text-slate-500 ml-7 mb-3 leading-relaxed">User will see a warning and then logged out after the warning period.</p>
+              <p className="text-[10px] text-slate-500 ml-7 mb-3 leading-relaxed">User will see a warning and then logged out after the warning period.</p>
               <div className="ml-7 text-amber-500 bg-amber-50 h-8 w-8 rounded flex items-center justify-center border border-amber-100">
                 <AlertTriangle className="h-4 w-4" />
               </div>
@@ -187,9 +187,9 @@ export default function SessionTimeoutTab() {
                 <div className={`flex items-center justify-center h-4 w-4 rounded-full border ${timeoutBehavior === 'warn-extend' ? 'border-blue-600 bg-blue-600' : 'border-slate-300'}`}>
                   {timeoutBehavior === 'warn-extend' && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
                 </div>
-                <span className="font-semibold text-sm text-slate-900">Warn and Extend</span>
+                <span className="font-semibold text-[11px] text-slate-900">Warn and Extend</span>
               </div>
-              <p className="text-xs text-slate-500 ml-7 mb-3 leading-relaxed">User can extend the session when a warning is shown.</p>
+              <p className="text-[10px] text-slate-500 ml-7 mb-3 leading-relaxed">User can extend the session when a warning is shown.</p>
               <div className="ml-7 text-emerald-500 bg-emerald-50 h-8 w-8 rounded flex items-center justify-center border border-emerald-100">
                 <Clock className="h-4 w-4" />
               </div>
@@ -208,41 +208,41 @@ export default function SessionTimeoutTab() {
                 <div className="h-5 w-5 rounded bg-blue-600 text-white flex items-center justify-center border border-blue-600 shadow-sm">
                   {activities.mouse && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                 </div>
-                <span className="text-sm font-medium text-slate-800">Mouse Movement</span>
+                <span className="text-[11px] font-medium text-slate-800">Mouse Movement</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div className="h-5 w-5 rounded bg-blue-600 text-white flex items-center justify-center border border-blue-600 shadow-sm">
                   {activities.data && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                 </div>
-                <span className="text-sm font-medium text-slate-800">Data Entry / Form Submission</span>
+                <span className="text-[11px] font-medium text-slate-800">Data Entry / Form Submission</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div className="h-5 w-5 rounded bg-blue-600 text-white flex items-center justify-center border border-blue-600 shadow-sm">
                   {activities.keyboard && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                 </div>
-                <span className="text-sm font-medium text-slate-800">Keyboard Activity</span>
+                <span className="text-[11px] font-medium text-slate-800">Keyboard Activity</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div className="h-5 w-5 rounded bg-blue-600 text-white flex items-center justify-center border border-blue-600 shadow-sm">
                   {activities.file && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                 </div>
-                <span className="text-sm font-medium text-slate-800">File Download / Upload</span>
+                <span className="text-[11px] font-medium text-slate-800">File Download / Upload</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div className="h-5 w-5 rounded bg-blue-600 text-white flex items-center justify-center border border-blue-600 shadow-sm">
                   {activities.page && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                 </div>
-                <span className="text-sm font-medium text-slate-800">Page Navigation</span>
+                <span className="text-[11px] font-medium text-slate-800">Page Navigation</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div className="h-5 w-5 rounded bg-blue-600 text-white flex items-center justify-center border border-blue-600 shadow-sm">
                   {activities.api && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                 </div>
-                <span className="text-sm font-medium text-slate-800">API / System Requests</span>
+                <span className="text-[11px] font-medium text-slate-800">API / System Requests</span>
               </label>
             </div>
 
-            <div className="mt-6 flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-lg p-3 text-blue-800 text-sm shadow-sm">
+            <div className="mt-6 flex items-start gap-3 bg-blue-50 border border-blue-100 rounded-lg p-3 text-blue-800 text-[11px] shadow-sm">
               <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
               <p>Any of the selected activities will reset the idle timer.</p>
             </div>
@@ -251,16 +251,16 @@ export default function SessionTimeoutTab() {
 
         {/* Action Bar */}
         <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <button className="flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+          <button className="flex items-center justify-center gap-2 px-5 py-2.5 text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
             <ArrowLeft className="h-4 w-4" />
             Back to Active Access
           </button>
           <div className="flex flex-col sm:items-end gap-2">
-            <button className="flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20">
+            <button className="flex items-center justify-center gap-2 px-6 py-2.5 text-[11px] font-semibold text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm shadow-blue-600/20">
               <CheckCircle2 className="h-4 w-4" />
               Save Timeout Settings
             </button>
-            <div className="flex items-center gap-1.5 text-emerald-600 text-xs font-medium mr-1">
+            <div className="flex items-center gap-1.5 text-emerald-600 text-[10px] font-medium mr-1">
               <span>All changes are autosaved</span>
               <CheckCircle2 className="h-3.5 w-3.5" />
             </div>
@@ -274,10 +274,10 @@ export default function SessionTimeoutTab() {
 
         {/* Timeout Policy Summary Card */}
         <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
-          <h3 className="text-[15px] font-semibold text-slate-900 mb-4">Timeout Policy Summary</h3>
+          <h3 className="text-[12px] font-semibold text-slate-900 mb-4">Timeout Policy Summary</h3>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-[11px]">
               <div className="flex items-center gap-3 text-slate-600">
                 <Clock className="h-4 w-4 text-slate-400" />
                 <span>Idle Timeout Duration</span>
@@ -285,7 +285,7 @@ export default function SessionTimeoutTab() {
               <span className="font-semibold text-slate-900">30 Minutes</span>
             </div>
 
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-[11px]">
               <div className="flex items-center gap-3 text-slate-600">
                 <AlertTriangle className="h-4 w-4 text-blue-500" />
                 <span>Warning Before Logout</span>
@@ -293,7 +293,7 @@ export default function SessionTimeoutTab() {
               <span className="font-semibold text-slate-900">5 Minutes</span>
             </div>
 
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-[11px]">
               <div className="flex items-center gap-3 text-slate-600">
                 <LogOut className="h-4 w-4 text-rose-500" />
                 <span>Auto Logout After Warning</span>
@@ -301,7 +301,7 @@ export default function SessionTimeoutTab() {
               <span className="font-semibold text-slate-900">Yes</span>
             </div>
 
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-[11px]">
               <div className="flex items-center gap-3 text-slate-600">
                 <Calendar className="h-4 w-4 text-blue-400" />
                 <span>Max Session Duration</span>
@@ -309,7 +309,7 @@ export default function SessionTimeoutTab() {
               <span className="font-semibold text-slate-900">8 Hours</span>
             </div>
 
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex justify-between items-center text-[11px]">
               <div className="flex items-center gap-3 text-slate-600">
                 <LogOut className="h-4 w-4 text-blue-500" />
                 <span>Behavior on Timeout</span>
@@ -317,7 +317,7 @@ export default function SessionTimeoutTab() {
               <span className="font-semibold text-slate-900">Automatic Logout</span>
             </div>
 
-            <div className="flex justify-between items-center text-sm pt-4 border-t border-slate-200">
+            <div className="flex justify-between items-center text-[11px] pt-4 border-t border-slate-200">
               <div className="flex items-center gap-3 text-slate-600">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 <span>Status</span>
@@ -329,56 +329,56 @@ export default function SessionTimeoutTab() {
 
         {/* Session Example Card */}
         <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
-          <h3 className="text-[15px] font-semibold text-slate-900 mb-1">Session Example</h3>
-          <p className="text-xs text-slate-500 mb-4">Here's how the timeout will work:</p>
+          <h3 className="text-[12px] font-semibold text-slate-900 mb-1">Session Example</h3>
+          <p className="text-[10px] text-slate-500 mb-4">Here's how the timeout will work:</p>
 
           <div className="relative pl-6 border-l border-slate-200 ml-3 space-y-4">
             <div className="relative">
               <div className="absolute -left-[31px] top-0 h-6 w-6 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
               </div>
-              <p className="text-sm font-semibold text-slate-900">0 min</p>
-              <p className="text-xs text-slate-500 mt-0.5">User is active in the system</p>
+              <p className="text-[11px] font-semibold text-slate-900">0 min</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">User is active in the system</p>
             </div>
 
             <div className="relative">
               <div className="absolute -left-[31px] top-0 h-6 w-6 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm">
                 <AlertTriangle className="h-4 w-4 text-amber-500" />
               </div>
-              <p className="text-sm font-semibold text-slate-900">25 min</p>
-              <p className="text-xs text-slate-500 mt-0.5">Warning message will be shown</p>
+              <p className="text-[11px] font-semibold text-slate-900">25 min</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Warning message will be shown</p>
             </div>
 
             <div className="relative">
               <div className="absolute -left-[31px] top-0 h-6 w-6 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm">
                 <LogOut className="h-4 w-4 text-rose-500" />
               </div>
-              <p className="text-sm font-semibold text-slate-900">30 min</p>
-              <p className="text-xs text-slate-500 mt-0.5">User will be automatically logged out</p>
+              <p className="text-[11px] font-semibold text-slate-900">30 min</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">User will be automatically logged out</p>
             </div>
 
             <div className="relative">
               <div className="absolute -left-[31px] top-0 h-6 w-6 bg-white border border-slate-200 rounded-full flex items-center justify-center shadow-sm">
                 <Calendar className="h-4 w-4 text-purple-500" />
               </div>
-              <p className="text-sm font-semibold text-slate-900">8 hours</p>
-              <p className="text-xs text-slate-500 mt-0.5">Maximum session duration reached</p>
+              <p className="text-[11px] font-semibold text-slate-900">8 hours</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">Maximum session duration reached</p>
             </div>
           </div>
         </div>
 
         {/* Need Help Card */}
         <div className="bg-white border border-slate-200 rounded-md p-2 shadow-sm">
-          <h3 className="text-[15px] font-semibold text-slate-900 mb-2">Need Help?</h3>
+          <h3 className="text-[12px] font-semibold text-slate-900 mb-2">Need Help?</h3>
           <div className="flex gap-3 mb-4">
             <div className="text-blue-500 bg-blue-50 p-2 rounded-lg shrink-0 h-fit border border-blue-100">
               <HelpCircle className="h-5 w-5" />
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed pt-1">
+            <p className="text-[10px] text-slate-600 leading-relaxed pt-1">
               Learn more about session timeout policies and best practices.
             </p>
           </div>
-          <button className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition-colors ml-11">
+          <button className="text-[11px] text-blue-600 font-semibold hover:text-blue-700 transition-colors ml-11">
             View Help Articles →
           </button>
         </div>
