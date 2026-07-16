@@ -699,7 +699,7 @@ const CompanyDashboard = () => {
                         <SummaryCard
                             title="Payroll Overview"
                             filter="May 2025"
-                            totalValue={<div>₹ 28.75 <span className="text-[10px]">Lakh</span></div>}
+                            totalValue={<span>₹ 28.75 <span className="text-[10px]">Lakh</span></span>}
                             totalSub="Total Payroll"
                             rows={PAYROLL}
                             linkLabel="View Payroll Report"
