@@ -1,6 +1,7 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
+import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
 import {
     Home, ChevronRight, Check, ArrowRight,
@@ -46,62 +47,13 @@ function PageHeading() {
     );
 }
 
-// ─── Step indicator ─────────────────────────────────────────────────────────
-const STEPS = [
-    { id: 1, title: 'Plan Details' },
-    { id: 2, title: 'Features & Limits' },
-    { id: 3, title: 'Add-on Modules' },
-    { id: 4, title: 'Billing & Pricing' },
-    { id: 5, title: 'Review & Create' },
-];
-
-const STEP_ROUTES: Record<number, string> = {
-    1: '/super-admin/subscriptions/plan-details',
-    2: '/super-admin/create-new-plan-step2',
-    3: '/super-admin/subscriptions/add-on-modules',
-    4: '/super-admin/Create-new-plan-step4',
-    5: '/super-admin/Create-new-plan-step5',
-};
-
-function StepIndicator({ current }: { current: number }) {
-    return (
-        <div className="rounded-xl border border-zinc-200 bg-white shadow-sm">
-            <div className="flex items-center justify-between gap-2 overflow-x-auto p-3">
-                {STEPS.map((step, i) => {
-                    const href = STEP_ROUTES[step.id] || '#';
-                    return (
-                        <React.Fragment key={step.id}>
-                            <Link href={href} className="flex items-center gap-2 shrink-0 group">
-                                <span
-                                    className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${step.id === current
-                                            ? 'bg-[#16234A] text-white'
-                                            : step.id < current
-                                                ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
-                                                : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
-                                        }`}
-                                >
-                                    {step.id < current ? <Check size={15} /> : step.id}
-                                </span>
-                                <p className={`hidden sm:block text-[12.5px] font-semibold whitespace-nowrap transition-colors ${step.id === current ? 'text-zinc-900' : 'text-zinc-400 group-hover:text-zinc-600'}`}>
-                                    {step.title}
-                                </p>
-                            </Link>
-                            {i < STEPS.length - 1 && <span className="h-px flex-1 min-w-[16px] border-t-2 border-dotted border-zinc-200" />}
-                        </React.Fragment>
-                    );
-                })}
-            </div>
-        </div>
-    );
-}
-
 // ─── Main Content ───────────────────────────────────────────────────────────
 export default function PlanDetailsPage() {
     const router = useRouter();
     return (
         <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-4 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
             <PageHeading />
-            <StepIndicator current={1} />
+            <PlanProgressBar current={1} />
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-1.5 items-start">
 
@@ -269,7 +221,7 @@ export default function PlanDetailsPage() {
                         <button className="flex items-center justify-center gap-1.5 rounded-lg bg-white border border-zinc-200 px-6 py-2 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                             Cancel
                         </button>
-                        <button onClick={() => router.push("/super-admin/create-new-plan-step2")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+                        <button onClick={() => router.push('/super-admin/subscriptions/features-limits')} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
                             Next: Features & Limits <ArrowRight size={14} className="text-white" />
                         </button>
                     </div>
@@ -341,8 +293,4 @@ export default function PlanDetailsPage() {
         </div>
     );
 }
-
-
-
-
 

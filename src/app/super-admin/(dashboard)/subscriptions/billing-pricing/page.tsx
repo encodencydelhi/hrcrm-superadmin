@@ -1,5 +1,6 @@
 'use client';
 import React, { useState } from 'react';
+import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -80,10 +81,10 @@ function StepIndicator({ current }: { current: number }) {
               <Link href={href} className="flex items-center gap-2 shrink-0 group">
                 <span
                   className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${step.id === current
-                      ? 'bg-[#16234A] text-white'
-                      : step.id < current
-                        ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
-                        : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
+                    ? 'bg-[#16234A] text-white'
+                    : step.id < current
+                      ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
+                      : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
                     }`}
                 >
                   {step.id < current ? <Check size={15} /> : step.id}
@@ -325,11 +326,10 @@ export default function CreateNewPlanStep4() {
   const router = useRouter();
   const [pricingModel, setPricingModel] = useState('per_employee');
   const [billingCycle, setBillingCycle] = useState('monthly');
-
   return (
     <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-4 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
       <PageHeading />
-      <StepIndicator current={4} />
+      <PlanProgressBar current={4} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] items-start">
         <div className="min-w-0 space-y-2">
@@ -407,12 +407,12 @@ export default function CreateNewPlanStep4() {
           </SectionCard>
 
           {/* Footer actions */}
-          <div className="flex items-center justify-between gap-2">
-            <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+            <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-2 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
               <ArrowLeft size={14} /> Back
             </button>
-            <button onClick={() => router.push("/super-admin/Create-new-plan-step5")} className="flex items-center gap-1.5 rounded-lg bg-[#16234A] px-6 py-2.5 text-[12.5px] font-semibold text-white shadow-sm hover:bg-[#1c2c5c] transition-colors">
-              Next: Review & Create <ArrowRight size={14} />
+            <button onClick={() => router.push("/super-admin/subscriptions/review-create")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+              Next: Review & Create <ArrowRight size={14} className="text-white" />
             </button>
           </div>
         </div>
@@ -432,5 +432,4 @@ export default function CreateNewPlanStep4() {
     </div>
   );
 }
-
 

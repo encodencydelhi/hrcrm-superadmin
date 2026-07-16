@@ -1,5 +1,6 @@
-'use client';
+﻿'use client';
 import React, { useState } from 'react';
+import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -123,9 +124,9 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () =>
     <button
       type="button"
       onClick={onChange}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-emerald-500' : 'bg-zinc-200'}`}
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${checked ? 'bg-emerald-500' : 'bg-zinc-200'}`}
     >
-      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-0' : 'translate-x-5'}`} />
+      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
   );
 }
@@ -242,12 +243,12 @@ function FeaturesLimitsCard() {
         )}
 
         {/* Footer actions */}
-        <div className="flex items-center justify-between gap-2 pt-2">
-          <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+          <button onClick={() => router.push("/super-admin/subscriptions/plan-details")} className="flex items-center gap-1.5 rounded-lg bg-white border border-zinc-200 px-5 py-2 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
             <ArrowLeft size={14} /> Back
           </button>
-          <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg bg-[#16234A] px-6 py-2.5 text-[12.5px] font-semibold text-white shadow-sm hover:bg-[#1c2c5c] transition-colors">
-            Next: Add-on Modules <ArrowRight size={14} />
+          <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+            Next: Add-on Modules <ArrowRight size={14} className="text-white" />
           </button>
         </div>
       </div>
@@ -319,7 +320,7 @@ export default function CreateNewPlanStep2() {
   return (
     <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-4 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
       <PageHeading />
-      <StepIndicator current={2} />
+      <PlanProgressBar current={2} />
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-4 items-start">
         <div className="min-w-0">
@@ -339,5 +340,4 @@ export default function CreateNewPlanStep2() {
     </div>
   );
 }
-
 
