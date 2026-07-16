@@ -48,7 +48,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/super-admin/coming-soon?feature=Workforce', icon: Users2, label: 'Workforce' },
   { href: '/super-admin/setup-fees', icon: Landmark, label: 'Revenue & Finance' },
   { href: '/super-admin/invoices', icon: Receipt, label: 'Billing & Invoices' },
-  { href: '/super-admin/subscriptions', icon: CreditCard, label: 'Subscriptions' },
+  { href: '/super-admin/subscriptions/subscription-plan', icon: CreditCard, label: 'Subscriptions' },
   { href: '/super-admin/analytics', icon: PieChart, label: 'Analytics' },
   { href: '/super-admin/ai-providers', icon: Bot, label: 'AI Insights' },
   { href: '/super-admin/support', icon: LifeBuoy, label: 'Support Center' },
