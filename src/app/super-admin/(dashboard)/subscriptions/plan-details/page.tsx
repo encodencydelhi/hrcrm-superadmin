@@ -22,78 +22,77 @@ const PREVIEW_FEATURES = [
 const BREADCRUMB = ['Home', 'Subscriptions', 'Subscription Plans', 'Create New Plan'];
 
 function PageHeading() {
-  return (
-    <section className="space-y-1">
-      <div className="flex items-center gap-1.5 text-[12px] text-zinc-500 flex-wrap">
-        {BREADCRUMB.map((crumb, i) => (
-          <React.Fragment key={crumb}>
-            {i === 0 ? (
-              <span className="flex items-center gap-1 text-indigo-600 font-medium hover:underline cursor-pointer">
-                <Home size={12} /> {crumb}
-              </span>
-            ) : i === BREADCRUMB.length - 1 ? (
-              <span className="text-zinc-900 font-semibold">{crumb}</span>
-            ) : (
-              <span className="text-indigo-600 font-medium hover:underline cursor-pointer">{crumb}</span>
-            )}
-            {i < BREADCRUMB.length - 1 && <ChevronRight size={12} />}
-          </React.Fragment>
-        ))}
-      </div>
-      <h1 className="text-2xl font-bold text-zinc-900 leading-tight">Create New Plan</h1>
-      <p className="text-[13px] text-zinc-500">Define plan details, features, and pricing for your organization</p>
-    </section>
-  );
+    return (
+        <section className="space-y-1">
+            <div className="flex items-center gap-1.5 text-[12px] text-zinc-500 flex-wrap">
+                {BREADCRUMB.map((crumb, i) => (
+                    <React.Fragment key={crumb}>
+                        {i === 0 ? (
+                            <span className="flex items-center gap-1 text-indigo-600 font-medium hover:underline cursor-pointer">
+                                <Home size={12} /> {crumb}
+                            </span>
+                        ) : i === BREADCRUMB.length - 1 ? (
+                            <span className="text-zinc-900 font-semibold">{crumb}</span>
+                        ) : (
+                            <span className="text-indigo-600 font-medium hover:underline cursor-pointer">{crumb}</span>
+                        )}
+                        {i < BREADCRUMB.length - 1 && <ChevronRight size={12} />}
+                    </React.Fragment>
+                ))}
+            </div>
+            <h1 className="text-2xl font-bold text-zinc-900 leading-tight">Create New Plan</h1>
+            <p className="text-[13px] text-zinc-500">Define plan details, features, and pricing for your organization</p>
+        </section>
+    );
 }
 
 // ─── Step indicator ─────────────────────────────────────────────────────────
 const STEPS = [
-  { id: 1, title: 'Plan Details' },
-  { id: 2, title: 'Features & Limits' },
-  { id: 3, title: 'Add-on Modules' },
-  { id: 4, title: 'Billing & Pricing' },
-  { id: 5, title: 'Review & Create' },
+    { id: 1, title: 'Plan Details' },
+    { id: 2, title: 'Features & Limits' },
+    { id: 3, title: 'Add-on Modules' },
+    { id: 4, title: 'Billing & Pricing' },
+    { id: 5, title: 'Review & Create' },
 ];
 
 const STEP_ROUTES: Record<number, string> = {
-  1: '/super-admin/subscriptions/plan-details',
-  2: '/super-admin/create-new-plan-step2',
-  3: '/super-admin/subscriptions/add-on-modules',
-  4: '/super-admin/Create-new-plan-step4',
-  5: '/super-admin/Create-new-plan-step5',
+    1: '/super-admin/subscriptions/plan-details',
+    2: '/super-admin/create-new-plan-step2',
+    3: '/super-admin/subscriptions/add-on-modules',
+    4: '/super-admin/Create-new-plan-step4',
+    5: '/super-admin/Create-new-plan-step5',
 };
 
 function StepIndicator({ current }: { current: number }) {
-  return (
-    <div className="rounded-xl border border-zinc-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-2 overflow-x-auto p-4">
-        {STEPS.map((step, i) => {
-          const href = STEP_ROUTES[step.id] || '#';
-          return (
-            <React.Fragment key={step.id}>
-              <Link href={href} className="flex items-center gap-2 shrink-0 group">
-                <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${
-                    step.id === current
-                      ? 'bg-[#16234A] text-white'
-                      : step.id < current
-                        ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
-                        : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
-                  }`}
-                >
-                  {step.id < current ? <Check size={15} /> : step.id}
-                </span>
-                <p className={`hidden sm:block text-[12.5px] font-semibold whitespace-nowrap transition-colors ${step.id === current ? 'text-zinc-900' : 'text-zinc-400 group-hover:text-zinc-600'}`}>
-                  {step.title}
-                </p>
-              </Link>
-              {i < STEPS.length - 1 && <span className="h-px flex-1 min-w-[16px] border-t-2 border-dotted border-zinc-200" />}
-            </React.Fragment>
-          );
-        })}
-      </div>
-    </div>
-  );
+    return (
+        <div className="rounded-xl border border-zinc-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between gap-2 overflow-x-auto p-3">
+                {STEPS.map((step, i) => {
+                    const href = STEP_ROUTES[step.id] || '#';
+                    return (
+                        <React.Fragment key={step.id}>
+                            <Link href={href} className="flex items-center gap-2 shrink-0 group">
+                                <span
+                                    className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${step.id === current
+                                            ? 'bg-[#16234A] text-white'
+                                            : step.id < current
+                                                ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
+                                                : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
+                                        }`}
+                                >
+                                    {step.id < current ? <Check size={15} /> : step.id}
+                                </span>
+                                <p className={`hidden sm:block text-[12.5px] font-semibold whitespace-nowrap transition-colors ${step.id === current ? 'text-zinc-900' : 'text-zinc-400 group-hover:text-zinc-600'}`}>
+                                    {step.title}
+                                </p>
+                            </Link>
+                            {i < STEPS.length - 1 && <span className="h-px flex-1 min-w-[16px] border-t-2 border-dotted border-zinc-200" />}
+                        </React.Fragment>
+                    );
+                })}
+            </div>
+        </div>
+    );
 }
 
 // ─── Main Content ───────────────────────────────────────────────────────────

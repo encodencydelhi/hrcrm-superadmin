@@ -88,7 +88,7 @@ const STEP_ROUTES: Record<number, string> = {
 function StepIndicator({ current }: { current: number }) {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-2 overflow-x-auto p-4">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto p-3">
         {STEPS.map((step, i) => {
           const href = STEP_ROUTES[step.id] || '#';
           return (
