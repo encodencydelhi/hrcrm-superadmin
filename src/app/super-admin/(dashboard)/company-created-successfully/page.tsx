@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
     ChevronRight,
     ExternalLink,
@@ -49,13 +50,6 @@ const PAGE_PADDING = "px-4 sm:px-6 lg:px-8";
 /* -------------------------------------------------------------------------- */
 /*  Data                                                                      */
 /* -------------------------------------------------------------------------- */
-
-const companySummary = [
-    { icon: Building2, label: "Company Name", value: "TechVision Pvt. Ltd." },
-    { icon: Tag, label: "Plan", value: "Professional" },
-    { icon: Users, label: "Employees (Estimated)", value: "100" },
-    { icon: Wallet, label: "Billing", value: "₹ 150 / Employee / Month" },
-];
 
 const onboardingSteps = [
     {
@@ -120,15 +114,6 @@ const nextSteps = [
     },
 ];
 
-const companyDetails = [
-    { label: "Company Name", value: "TechVision Pvt. Ltd." },
-    { label: "Company ID", value: "TECHVISION_001" },
-    { label: "Industry", value: "Information Technology" },
-    { label: "Company Size", value: "201 – 500 Employees" },
-    { label: "Plan", value: "Professional" },
-    { label: "Billing", value: "₹ 150 / Employee / Month" },
-];
-
 const mostEnabledModules = [
     { icon: UsersRound, label: "Employee\nManagement" },
     { icon: CalendarCheck2, label: "Attendance\nManagement" },
@@ -150,6 +135,37 @@ const quickActions = [
 /* -------------------------------------------------------------------------- */
 
 const CompanyCreatedSuccessFully = () => {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const name = searchParams.get('name') || 'Your company';
+    const corporateId = searchParams.get('corporateId') || '—';
+    const industry = searchParams.get('industry') || '—';
+    const companySize = searchParams.get('companySize') || '—';
+    const adminName = searchParams.get('adminName') || '—';
+    const adminEmail = searchParams.get('adminEmail') || '—';
+    const adminDesignation = searchParams.get('adminDesignation') || '—';
+    const planName = searchParams.get('planName') || '—';
+    const pricePerUser = searchParams.get('pricePerUser');
+    const modulesEnabled = Number(searchParams.get('modulesEnabled') || 0);
+    const modulesTotal = Number(searchParams.get('modulesTotal') || 0);
+    const billing = pricePerUser ? `₹ ${pricePerUser} / Employee / Month` : '—';
+
+    const companySummary = [
+        { icon: Building2, label: "Company Name", value: name },
+        { icon: Tag, label: "Plan", value: planName },
+        { icon: Users, label: "Employees (Estimated)", value: searchParams.get('estimatedEmployees') || '—' },
+        { icon: Wallet, label: "Billing", value: billing },
+    ];
+
+    const companyDetails = [
+        { label: "Company Name", value: name },
+        { label: "Company ID", value: corporateId },
+        { label: "Industry", value: industry },
+        { label: "Company Size", value: companySize },
+        { label: "Plan", value: planName },
+        { label: "Billing", value: billing },
+    ];
+
     return (
         <div className="min-h-screen bg-gray-50">
             <PageLayout>
@@ -177,7 +193,7 @@ const CompanyCreatedSuccessFully = () => {
                             Company Created Successfully! 🎉
                         </h1>
                         <p className="text-xs ">
-                            TechVision Pvt. Ltd. has been created and is ready for setup
+                            {name} has been created and is ready for setup
                         </p>
                     </div>
                     <button
@@ -197,7 +213,7 @@ const CompanyCreatedSuccessFully = () => {
                             <Image src={celebration} width={100} height={100} alt="celebrate" className="object-contain" />
                           <div className="pl-2 relative z-10">
                             <h2 className="text-white font-semibold">Congratulatios! Your Company is now live.</h2>
-                            <p className="text-white text-xs pt-1">Company ID: TECHVISION_001</p>
+                            <p className="text-white text-xs pt-1">Company ID: {corporateId}</p>
                             <div className="relative mt-5 grid grid-cols-2 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
                                 {[
                                     ...companySummary,
@@ -357,7 +373,7 @@ const CompanyCreatedSuccessFully = () => {
                                     <div className="mb-1 flex flex-wrap items-center justify-between gap-1">
                                         <div className="flex items-center gap-1.5">
                                             <p className="text-xs font-semibold text-gray-800">
-                                                Rohit Mehta
+                                                {adminName}
                                             </p>
                                             <span className="rounded-md bg-purple-100 border border-purple-300 px-1.5 py-0.5 text-[10px] font-medium text-purple-600">
                                                 Primary
@@ -368,9 +384,9 @@ const CompanyCreatedSuccessFully = () => {
                                         </span>
                                     </div>
                                     <p className="text-xs ">
-                                        rohit.mehta@techvision.com
+                                        {adminEmail}
                                     </p>
-                                    <p className="text-xs ">HR Manager</p>
+                                    <p className="text-xs ">{adminDesignation}</p>
                                 </div>
 
                                 <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">
@@ -401,25 +417,25 @@ const CompanyCreatedSuccessFully = () => {
                                                 stroke="#22C55E"
                                                 strokeWidth="10"
                                                 strokeDasharray={2 * Math.PI * 42}
-                                                strokeDashoffset={2 * Math.PI * 42 * (1 - 10 / 12)}
+                                                strokeDashoffset={2 * Math.PI * 42 * (1 - (modulesTotal ? modulesEnabled / modulesTotal : 0))}
                                                 strokeLinecap="round"
                                             />
                                         </svg>
                                         <div className="absolute flex flex-col items-center">
-                                            <span className="text-base font-bold text-gray-900">10</span>
-                                            <span className="text-[9px] ">of 12</span>
+                                            <span className="text-base font-bold text-gray-900">{modulesEnabled}</span>
+                                            <span className="text-[9px] ">of {modulesTotal}</span>
                                         </div>
                                     </div>
                                     <div>
                                         <div className="mb-1 flex items-center gap-1.5">
                                             <span className="h-2 w-2 rounded-full bg-green-500" />
                                             <p className="text-xs ">Enabled</p>
-                                            <p className="ml-auto text-xs font-medium text-gray-800">10</p>
+                                            <p className="ml-auto text-xs font-medium text-gray-800">{modulesEnabled}</p>
                                         </div>
                                         <div className="mb-1 flex items-center gap-1.5">
                                             <span className="h-2 w-2 rounded-full bg-red-500" />
                                             <p className="text-xs ">Disabled</p>
-                                            <p className="ml-auto text-xs font-medium text-gray-800">2</p>
+                                            <p className="ml-auto text-xs font-medium text-gray-800">{modulesTotal - modulesEnabled}</p>
                                         </div>
                                         <div className="flex items-center gap-1.5">
                                             <span className="h-2 w-2 rounded-full bg-gray-300" />
@@ -482,7 +498,7 @@ const CompanyCreatedSuccessFully = () => {
 
                         {/* Bottom buttons */}
                         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
-                            <button className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
+                            <button onClick={() => router.push('/super-admin/companies')} className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50">
                                 <ArrowLeft className="h-3.5 w-3.5" />
                                 Back to Companies
                             </button>
@@ -626,4 +642,10 @@ const CompanyCreatedSuccessFully = () => {
     );
 };
 
-export default CompanyCreatedSuccessFully;
+export default function CompanyCreatedSuccessfullyPage() {
+    return (
+        <Suspense fallback={null}>
+            <CompanyCreatedSuccessFully />
+        </Suspense>
+    );
+}

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
     LayoutDashboard, Building2, Users, TrendingUp, Receipt, CreditCard,
     BarChart3, Sparkles, LifeBuoy, Rocket, Target, Plug, FileBarChart,
@@ -9,6 +10,8 @@ import {
     Check, Crown, UploadCloud, Info, MapPin, Building, Menu,
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useCompanyWizardStore } from '@/store/companyWizardStore';
+import api from '@/lib/axios';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface Step {
@@ -85,28 +88,38 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
 
 // Inputs use a fixed h-8 height (per spec) instead of py-based padding,
 // so the whole form stays compact and placeholders get full-width room to render.
-function TextField({ label, placeholder, required, icon }: { label: string; placeholder: string; required?: boolean; icon?: React.ReactNode }) {
+function TextField({ label, placeholder, required, icon, value, onChange, type, readOnly }: { label: string; placeholder: string; required?: boolean; icon?: React.ReactNode; value: string; onChange: (v: string) => void; type?: string; readOnly?: boolean }) {
     return (
         <div className="flex flex-col gap-0.5 min-w-0">
             <FieldLabel required={required}>{label}</FieldLabel>
             <div className="relative">
                 {icon && <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400">{icon}</span>}
                 <input
+                    type={type || 'text'}
                     placeholder={placeholder}
                     title={placeholder}
-                    className={`w-full h-8 rounded-lg border border-zinc-200 bg-white text-[12.5px] text-zinc-700 placeholder:text-zinc-400 placeholder:truncate shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors ${icon ? 'pl-9 pr-3' : 'px-3'}`}
+                    required={required}
+                    readOnly={readOnly}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className={`w-full h-8 rounded-lg border text-[12.5px] placeholder:text-zinc-400 placeholder:truncate shadow-sm transition-colors ${readOnly ? 'bg-zinc-50 border-zinc-200 text-zinc-500 cursor-not-allowed' : 'bg-white border-zinc-200 text-zinc-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'} ${icon ? 'pl-9 pr-3' : 'px-3'}`}
                 />
             </div>
         </div>
     );
 }
 
-function SelectField({ label, options, required }: { label: string; options: string[]; required?: boolean }) {
+function SelectField({ label, options, required, value, onChange }: { label: string; options: string[]; required?: boolean; value: string; onChange: (v: string) => void }) {
     return (
         <div className="flex flex-col gap-0.5 min-w-0">
             <FieldLabel required={required}>{label}</FieldLabel>
             <div className="relative">
-                <select className="w-full h-8 appearance-none rounded-lg border border-zinc-200 bg-white px-3 pr-8 text-[12.5px] font-medium text-zinc-700 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
+                <select
+                    required={required}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className="w-full h-8 appearance-none rounded-lg border border-zinc-200 bg-white px-3 pr-8 text-[12.5px] font-medium text-zinc-700 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer"
+                >
                     {options.map((opt) => <option key={opt}>{opt}</option>)}
                 </select>
                 <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -143,7 +156,7 @@ const STEP_ROUTES: Record<number, string> = {
     5: '/super-admin/review-confirm',
 };
 
-function StepIndicator({ current }: { current: number }) {
+function StepIndicator({ current, maxStepReached }: { current: number; maxStepReached: number }) {
     const steps = [
         { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
         { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
@@ -158,36 +171,45 @@ function StepIndicator({ current }: { current: number }) {
                 const isCompleted = step.id < current;
                 const isActive = step.id === current;
                 const isPending = step.id > current;
+                const isUnlocked = step.id <= maxStepReached;
                 const stepLink = STEP_ROUTES[step.id];
+
+                const content = (
+                    <>
+                        {isCompleted && (
+                            <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                    <Check size={14} strokeWidth={3} />
+                                </div>
+                            </div>
+                        )}
+                        {isActive && (
+                            <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
+                                {step.id}
+                            </div>
+                        )}
+                        {isPending && (
+                            <div className={`h-10 w-10 rounded-full border flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm transition-colors ${isUnlocked ? 'bg-slate-100 border-slate-200 text-[#020b22] group-hover:bg-slate-200' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                                {step.id}
+                            </div>
+                        )}
+
+                        <div className="flex flex-col">
+                            <span className={`text-[12px] font-bold transition-colors ${isUnlocked ? 'text-[#020b22] group-hover:text-indigo-600' : 'text-slate-300'}`}>{step.title}</span>
+                            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                                {isCompleted ? 'Completed' : step.subtitle}
+                            </span>
+                        </div>
+                    </>
+                );
 
                 return (
                     <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
-                        <Link href={stepLink} className="flex items-center gap-3 group">
-                            {isCompleted && (
-                                <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                                        <Check size={14} strokeWidth={3} />
-                                    </div>
-                                </div>
-                            )}
-                            {isActive && (
-                                <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
-                                    {step.id}
-                                </div>
-                            )}
-                            {isPending && (
-                                <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 text-[#020b22] flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm group-hover:bg-slate-200 transition-colors">
-                                    {step.id}
-                                </div>
-                            )}
-
-                            <div className="flex flex-col">
-                                <span className="text-[12px] font-bold text-[#020b22] group-hover:text-indigo-600 transition-colors">{step.title}</span>
-                                <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
-                                    {isCompleted ? 'Completed' : step.subtitle}
-                                </span>
-                            </div>
-                        </Link>
+                        {isUnlocked ? (
+                            <Link href={stepLink} className="flex items-center gap-3 group">{content}</Link>
+                        ) : (
+                            <div className="flex items-center gap-3 cursor-not-allowed">{content}</div>
+                        )}
                         {index < steps.length - 1 && (
                             <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
                         )}
@@ -200,6 +222,47 @@ function StepIndicator({ current }: { current: number }) {
 
 // ─── Basic Information form ─────────────────────────────────────────────────
 function BasicInformationForm() {
+    const w = useCompanyWizardStore();
+    const searchParams = useSearchParams();
+    const isEditing = !!searchParams.get('edit');
+    const [uploading, setUploading] = useState(false);
+    const [generatingId, setGeneratingId] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const idRequestedRef = useRef(false);
+
+    useEffect(() => {
+        // Editing an existing company keeps its real corporateId (loaded by the page-level
+        // edit effect) — never generate a fresh one over it.
+        if (isEditing) return;
+        // Guards against React Strict Mode's dev-only double-invoke of effects, which would
+        // otherwise silently burn two sequence numbers (two server round-trips) per mount.
+        if (w.corporateId || idRequestedRef.current) return;
+        idRequestedRef.current = true;
+        setGeneratingId(true);
+        api.get('/super-admin/next-corporate-id')
+            .then((res) => w.update({ corporateId: res.data.corporateId }))
+            .catch((err) => console.error('Failed to generate corporate ID:', err))
+            .finally(() => setGeneratingId(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const data = new FormData();
+        data.append('file', file);
+        setUploading(true);
+        try {
+            const res = await api.post('/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+            w.update({ logoUrl: res.data.url });
+        } catch (err) {
+            console.error('Logo upload failed', err);
+            alert('Failed to upload logo. Max size 2MB.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     return (
         <Card className="rounded-sm border-zinc-200/80 shadow-sm">
             <CardContent className="p-2 space-y-2">
@@ -216,23 +279,29 @@ function BasicInformationForm() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_120px] gap-x-1.5 gap-y-1.5">
                     {/* Row 1 */}
                     <div className="xl:col-start-1 xl:row-start-1">
-                        <TextField label="Company Name" placeholder="Enter legal company name" required />
+                        <TextField label="Company Name" placeholder="Enter legal company name" required value={w.name} onChange={(v) => w.update({ name: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-1">
-                        <TextField label="Corporate ID" placeholder="Enter unique corporate ID" required />
+                        <TextField label="Corporate ID" placeholder={generatingId ? 'Generating...' : 'Auto-generated'} required readOnly value={w.corporateId} onChange={() => {}} />
                     </div>
                     <div className="xl:col-start-3 xl:row-start-1">
-                        <TextField label="Display Name" placeholder="Enter display name (short name)" required />
+                        <TextField label="Display Name" placeholder="Enter display name (short name)" required value={w.tradeName} onChange={(v) => w.update({ tradeName: v })} />
                     </div>
 
                     {/* Logo — spans rows 1-3 in column 4, fixed width (column track) & height (row span) */}
                     <div className="xl:col-start-4 xl:row-start-1 xl:row-span-3 flex flex-col gap-0.5 min-w-0">
                         <FieldLabel>Company Logo</FieldLabel>
+                        <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
                         <div className="flex h-full min-h-[150px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50/60 px-3 py-3 text-center">
-                            <UploadCloud size={18} className="text-zinc-400" />
-                            <p className="text-[11px] text-zinc-500 leading-snug">Drag &amp; drop your logo here or</p>
-                            <button className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50">
-                                Browse File
+                            {w.logoUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={w.logoUrl} alt="Company logo" className="h-12 w-12 rounded-lg object-cover" />
+                            ) : (
+                                <UploadCloud size={18} className="text-zinc-400" />
+                            )}
+                            <p className="text-[11px] text-zinc-500 leading-snug">{w.logoUrl ? 'Logo uploaded' : 'Drag & drop your logo here or'}</p>
+                            <button type="button" onClick={() => fileInputRef.current?.click()} disabled={uploading} className="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 disabled:opacity-50">
+                                {uploading ? 'Uploading...' : w.logoUrl ? 'Change File' : 'Browse File'}
                             </button>
                             <p className="text-[9.5px] text-zinc-400 leading-snug">JPG, PNG or SVG (Max. 2MB)</p>
                         </div>
@@ -240,29 +309,29 @@ function BasicInformationForm() {
 
                     {/* Row 2 */}
                     <div className="xl:col-start-1 xl:row-start-2">
-                        <SelectField label="Industry" options={INDUSTRIES} required />
+                        <SelectField label="Industry" options={INDUSTRIES} required value={w.industry || INDUSTRIES[0]} onChange={(v) => w.update({ industry: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-2">
-                        <SelectField label="Company Size" options={COMPANY_SIZES} required />
+                        <SelectField label="Company Size" options={COMPANY_SIZES} required value={w.companySize || COMPANY_SIZES[0]} onChange={(v) => w.update({ companySize: v })} />
                     </div>
 
                     {/* Row 3 */}
                     <div className="xl:col-start-1 xl:row-start-3">
-                        <TextField label="GSTIN / Tax ID" placeholder="Enter GSTIN or Tax ID (Optional)" />
+                        <TextField label="GSTIN / Tax ID" placeholder="Enter GSTIN or Tax ID (Optional)" value={w.gstin} onChange={(v) => w.update({ gstin: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-3">
-                        <TextField label="PAN" placeholder="Enter PAN Number (Optional)" />
+                        <TextField label="PAN" placeholder="Enter PAN Number (Optional)" value={w.panNumber} onChange={(v) => w.update({ panNumber: v })} />
                     </div>
                     <div className="xl:col-start-3 xl:row-start-3">
-                        <TextField label="Registration Number" placeholder="Enter Registration Number (Optional)" />
+                        <TextField label="Registration Number" placeholder="Enter Registration Number (Optional)" value={w.cin} onChange={(v) => w.update({ cin: v })} />
                     </div>
 
                     {/* Row 4 — no logo column here, just 3 boxes aligned to the same columns above */}
                     <div className="xl:col-start-1 xl:row-start-4">
-                        <TextField label="Website" placeholder="https://example.com" />
+                        <TextField label="Website" placeholder="https://example.com" value={w.website} onChange={(v) => w.update({ website: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-4">
-                        <TextField label="Email" placeholder="Enter official email" />
+                        <TextField label="Email" placeholder="Enter official email" type="email" value={w.email} onChange={(v) => w.update({ email: v })} />
                     </div>
                     <div className="xl:col-start-3 xl:col-span-2 xl:row-start-4 flex flex-col gap-0.5 min-w-0">
                         <FieldLabel>Phone</FieldLabel>
@@ -270,19 +339,19 @@ function BasicInformationForm() {
                             <div className="flex h-8 items-center gap-1 rounded-lg border border-zinc-200 bg-white px-2.5 text-[13px] text-zinc-600 shrink-0">
                                 🇮🇳 +91 <ChevronDown size={12} className="text-zinc-400" />
                             </div>
-                            <input placeholder="Enter phone number" className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-3 text-[12.5px] text-zinc-700 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" />
+                            <input placeholder="Enter phone number" value={w.phone} onChange={(e) => w.update({ phone: e.target.value })} className="w-full h-8 rounded-lg border border-zinc-200 bg-white px-3 text-[12.5px] text-zinc-700 placeholder:text-zinc-400 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-colors" />
                         </div>
                     </div>
 
                     {/* Row 5 — no logo column here either, 3 boxes aligned the same way */}
                     <div className="xl:col-start-1 xl:row-start-5">
-                        <TextField label="Year of Establishment" placeholder="Select year" />
+                        <TextField label="Year of Establishment" placeholder="Select year" value={w.incorporationYear} onChange={(v) => w.update({ incorporationYear: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-5">
-                        <SelectField label="Currency" options={CURRENCIES} />
+                        <SelectField label="Currency" options={CURRENCIES} value={w.baseCurrency} onChange={(v) => w.update({ baseCurrency: v })} />
                     </div>
                     <div className="xl:col-start-3 xl:col-span-2 xl:row-start-5">
-                        <SelectField label="Time Zone" options={['(GMT+05:30) Asia/Kolkata', '(GMT+00:00) UTC', '(GMT-05:00) America/New_York']} />
+                        <SelectField label="Time Zone" options={['(GMT+05:30) Asia/Kolkata', '(GMT+00:00) UTC', '(GMT-05:00) America/New_York']} value={w.timezone} onChange={(v) => w.update({ timezone: v })} />
                     </div>
                 </div>
             </CardContent>
@@ -292,6 +361,7 @@ function BasicInformationForm() {
 
 // ─── Registered Address form ────────────────────────────────────────────────
 function RegisteredAddressForm() {
+    const w = useCompanyWizardStore();
     return (
         <Card className="rounded-sm border-zinc-200/80 shadow-sm">
             <CardContent className="p-2 space-y-2">
@@ -306,15 +376,15 @@ function RegisteredAddressForm() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-1.5 gap-y-1.5">
-                    <TextField label="Address Line 1" placeholder="Enter address line 1" required />
-                    <TextField label="Address Line 2" placeholder="Enter address line 2" />
+                    <TextField label="Address Line 1" placeholder="Enter address line 1" required value={w.addressLine1} onChange={(v) => w.update({ addressLine1: v })} />
+                    <TextField label="Address Line 2" placeholder="Enter address line 2" value={w.addressLine2} onChange={(v) => w.update({ addressLine2: v })} />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-1.5 gap-y-1.5">
-                    <SelectField label="Country" options={COUNTRIES} required />
-                    <SelectField label="State" options={['Select State']} required />
-                    <SelectField label="City" options={['Select City']} required />
-                    <TextField label="PIN Code" placeholder="Enter PIN code" required />
+                    <SelectField label="Country" options={COUNTRIES} required value={w.country} onChange={(v) => w.update({ country: v })} />
+                    <TextField label="State" placeholder="Enter state" required value={w.state} onChange={(v) => w.update({ state: v })} />
+                    <TextField label="City" placeholder="Enter city" required value={w.city} onChange={(v) => w.update({ city: v })} />
+                    <TextField label="PIN Code" placeholder="Enter PIN code" required value={w.postalCode} onChange={(v) => w.update({ postalCode: v })} />
                 </div>
             </CardContent>
         </Card>
@@ -429,12 +499,13 @@ function NeedHelpCard() {
 
 // ─── Footer actions ─────────────────────────────────────────────────────────
 function FormFooter() {
+    const router = useRouter();
     return (
         <div className="flex items-center justify-between gap-2 pt-1">
-            <button className="rounded-md border border-zinc-200 bg-white px-4 py-2 text-[12.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+            <button type="button" onClick={() => router.push('/super-admin/companies')} className="rounded-md border border-zinc-200 bg-white px-4 py-2 text-[12.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
                 Cancel
             </button>
-            <button className="flex items-center gap-1.5 rounded-md bg-indigo-700 px-5 py-2 text-[12.5px] font-semibold text-white shadow-sm hover:bg-indigo-800 transition-colors">
+            <button type="submit" className="flex items-center gap-1.5 rounded-md bg-indigo-700 px-5 py-2 text-[12.5px] font-semibold text-white shadow-sm hover:bg-indigo-800 transition-colors">
                 Save &amp; Next <ChevronRight size={14} />
             </button>
         </div>
@@ -443,9 +514,35 @@ function FormFooter() {
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function AddNewCompanyPage() {
+    return (
+        <Suspense fallback={null}>
+            <AddNewCompanyPageInner />
+        </Suspense>
+    );
+}
+
+function AddNewCompanyPageInner() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const w = useCompanyWizardStore();
     const [currentStep] = useState(1);
     const activeStep = STEPS.find((s) => s.id === currentStep)!;
     const progress = Math.round((currentStep / STEPS.length) * 100);
+
+    useEffect(() => {
+        const editId = searchParams.get('edit');
+        if (!editId || w.editingTenantId === editId) return;
+        api.get(`/super-admin/tenants/${editId}`)
+            .then((res) => w.loadFromExisting(editId, res.data))
+            .catch((err) => console.error('Failed to load company for editing:', err));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [searchParams]);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        w.unlockStep(2);
+        router.push('/super-admin/step-2');
+    };
 
     return (
         <div className="flex min-h-screen bg-zinc-50 font-sans text-zinc-900">
@@ -454,10 +551,9 @@ export default function AddNewCompanyPage() {
 
                 <main className="mx-auto space-y-2">
                     <PageHeading />
-                    <StepIndicator current={currentStep} />
+                    <StepIndicator current={currentStep} maxStepReached={w.maxStepReached} />
 
-                    {/* Left form column and right rail ratio adjusted to reduce form width */}
-                    <div className="grid grid-cols-1 xl:grid-cols-[3fr_1fr] gap-4 items-start">
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-[3fr_1fr] gap-4 items-start">
                         <div className="space-y-2 min-w-0">
                             <BasicInformationForm />
                             <RegisteredAddressForm />
@@ -470,7 +566,7 @@ export default function AddNewCompanyPage() {
                             <SetupProgressCard percent={progress} current={activeStep} />
                             <NeedHelpCard />
                         </div>
-                    </div>
+                    </form>
                 </main>
             </div>
         </div>

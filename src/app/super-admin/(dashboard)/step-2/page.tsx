@@ -1,8 +1,11 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ChevronRight, Home, Check, Info, Send, Rocket, Wand2, SlidersHorizontal, ChevronDown, Headphones, ArrowRight, ArrowLeft, } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { useCompanyWizardStore, WizardPackage } from '@/store/companyWizardStore';
+import api from '@/lib/axios';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface Step {
@@ -26,7 +29,6 @@ interface Plan {
     ctaStyle: 'outline' | 'solid' | 'outline-amber';
     highlighted?: boolean;
     badge?: string;
-    customPricing?: boolean;
 }
 
 interface AddonModule {
@@ -44,67 +46,44 @@ const STEPS: Step[] = [
     { id: 5, title: 'Review & Confirm', subtitle: 'Verify and create' },
 ];
 
-const PLANS: Plan[] = [
-    {
-        id: 'starter',
-        name: 'Starter',
-        tagline: 'Perfect for small teams getting started',
-        price: 89,
-        icon: <Send size={18} />,
-        iconBg: 'bg-emerald-50',
-        iconColor: 'text-emerald-600',
-        nameColor: 'text-zinc-900',
-        cardBg: 'bg-emerald-50/40',
-        features: ['Up to 50 Employees', 'Core HR & Employee Profile', 'Leave Management', 'Attendance (Basic)', 'Mobile App Access', 'Email Support'],
-        cta: 'Select Plan',
-        ctaStyle: 'outline',
+// Visual styling keyed by package tier — the package data itself (name, price, features)
+// now comes from the real `/super-admin/packages` API instead of being hardcoded here.
+// Every fetched package is a real, immediately selectable plan in this wizard (there's no
+// separate "contact sales" workflow), so every tier — including packages whose `tier` field
+// is unset and defaults to CUSTOM in the schema — always renders a clickable "Select Plan".
+const TIER_STYLE: Record<string, Omit<Plan, 'id' | 'name' | 'tagline' | 'price' | 'features'>> = {
+    BASIC: {
+        icon: <Send size={18} />, iconBg: 'bg-emerald-50', iconColor: 'text-emerald-600',
+        nameColor: 'text-zinc-900', cardBg: 'bg-emerald-50/40', cta: 'Select Plan', ctaStyle: 'outline',
     },
-    {
-        id: 'professional',
-        name: 'Professional',
-        tagline: 'Ideal for growing organizations',
-        price: 150,
-        icon: <Rocket size={18} />,
-        iconBg: 'bg-indigo-50',
-        iconColor: 'text-indigo-600',
-        nameColor: 'text-indigo-700',
-        cardBg: 'bg-indigo-50/60',
-        features: ['Up to 200 Employees', 'All Starter Features', 'Payroll Management', 'Advanced Attendance', 'Performance Management', 'Reports & Analytics', 'Priority Support'],
-        cta: 'Select Plan',
-        ctaStyle: 'solid',
-        highlighted: true,
-        badge: 'Most Popular',
+    PROFESSIONAL: {
+        icon: <Rocket size={18} />, iconBg: 'bg-indigo-50', iconColor: 'text-indigo-600',
+        nameColor: 'text-indigo-700', cardBg: 'bg-indigo-50/60', cta: 'Select Plan', ctaStyle: 'solid',
+        highlighted: true, badge: 'Most Popular',
     },
-    {
-        id: 'enterprise',
-        name: 'Enterprise',
-        tagline: 'Advanced features for large organizations',
-        price: 250,
-        icon: <Wand2 size={18} />,
-        iconBg: 'bg-purple-50',
-        iconColor: 'text-purple-600',
-        nameColor: 'text-zinc-900',
-        cardBg: 'bg-purple-50/40',
-        features: ['Unlimited Employees', 'All Professional Features', 'Advanced HR Analytics', 'Recruitment & Onboarding', 'Asset Management', 'Workflow Automation', 'API Access', 'Dedicated Support'],
-        cta: 'Select Plan',
-        ctaStyle: 'outline',
+    ENTERPRISE: {
+        icon: <Wand2 size={18} />, iconBg: 'bg-purple-50', iconColor: 'text-purple-600',
+        nameColor: 'text-zinc-900', cardBg: 'bg-purple-50/40', cta: 'Select Plan', ctaStyle: 'outline',
     },
-    {
-        id: 'custom',
-        name: 'Custom',
-        tagline: 'Tailored solution for your unique requirements',
-        price: 0,
-        icon: <SlidersHorizontal size={18} />,
-        iconBg: 'bg-amber-50',
-        iconColor: 'text-amber-600',
-        nameColor: 'text-zinc-900',
-        cardBg: 'bg-amber-50/40',
-        features: ['All Enterprise Features', 'Custom Modules', 'Custom Integrations', 'Dedicated Account Manager', 'SLA & Priority Support', 'On-premise / Private Cloud'],
-        cta: 'Contact Sales',
-        ctaStyle: 'outline-amber',
-        customPricing: true,
+    CUSTOM: {
+        icon: <SlidersHorizontal size={18} />, iconBg: 'bg-amber-50', iconColor: 'text-amber-600',
+        nameColor: 'text-zinc-900', cardBg: 'bg-amber-50/40', cta: 'Select Plan', ctaStyle: 'outline-amber',
     },
-];
+};
+const DEFAULT_TIER_STYLE = TIER_STYLE.CUSTOM;
+
+function packageToPlan(pkg: WizardPackage, billing: 'monthly' | 'yearly'): Plan {
+    const style = TIER_STYLE[pkg.tier] || DEFAULT_TIER_STYLE;
+    const price = billing === 'yearly' ? pkg.pricePerUserYearlyINR : pkg.pricePerUserMonthlyINR;
+    return {
+        id: pkg._id,
+        name: pkg.name,
+        tagline: `Up to ${pkg.maxUsers} employees`,
+        price,
+        features: pkg.features?.length ? pkg.features : ['Core HR & Employee Profile'],
+        ...style,
+    };
+}
 
 const ADDON_MODULES: AddonModule[] = [
     { id: 'ai-analytics', name: 'AI & Predictive Analytics', price: '₹ 20 / Employee / Month' },
@@ -128,12 +107,12 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
     return <label className="text-[12.5px] font-semibold text-zinc-700">{children}</label>;
 }
 
-function SelectField({ label, options }: { label: string; options: string[] }) {
+function SelectField({ label, options, value, onChange }: { label: string; options: string[]; value?: string; onChange?: (v: string) => void }) {
     return (
         <div className="flex flex-col gap-1.5 min-w-0">
             <FieldLabel>{label}</FieldLabel>
             <div className="relative">
-                <select className="w-full h-9 appearance-none rounded-lg border border-zinc-200 bg-white px-3 pr-8 text-[12.5px] font-medium text-zinc-700 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
+                <select value={value} onChange={(e) => onChange?.(e.target.value)} className="w-full h-9 appearance-none rounded-lg border border-zinc-200 bg-white px-3 pr-8 text-[12.5px] font-medium text-zinc-700 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer">
                     {options.map((opt) => <option key={opt}>{opt}</option>)}
                 </select>
                 <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -169,7 +148,7 @@ const STEP_ROUTES: Record<number, string> = {
     5: '/super-admin/review-confirm',
 };
 
-function StepIndicator({ current }: { current: number }) {
+function StepIndicator({ current, maxStepReached }: { current: number; maxStepReached: number }) {
     const steps = [
         { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
         { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
@@ -184,36 +163,45 @@ function StepIndicator({ current }: { current: number }) {
                 const isCompleted = step.id < current;
                 const isActive = step.id === current;
                 const isPending = step.id > current;
+                const isUnlocked = step.id <= maxStepReached;
                 const stepLink = STEP_ROUTES[step.id];
+
+                const content = (
+                    <>
+                        {isCompleted && (
+                            <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                                <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                                    <Check size={14} strokeWidth={3} />
+                                </div>
+                            </div>
+                        )}
+                        {isActive && (
+                            <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
+                                {step.id}
+                            </div>
+                        )}
+                        {isPending && (
+                            <div className={`h-10 w-10 rounded-full border flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm transition-colors ${isUnlocked ? 'bg-slate-100 border-slate-200 text-[#020b22] group-hover:bg-slate-200' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                                {step.id}
+                            </div>
+                        )}
+
+                        <div className="flex flex-col">
+                            <span className={`text-[12px] font-bold transition-colors ${isUnlocked ? 'text-[#020b22] group-hover:text-indigo-600' : 'text-slate-300'}`}>{step.title}</span>
+                            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                                {isCompleted ? 'Completed' : step.subtitle}
+                            </span>
+                        </div>
+                    </>
+                );
 
                 return (
                     <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
-                        <Link href={stepLink} className="flex items-center gap-3 group">
-                            {isCompleted && (
-                                <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                                    <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                                        <Check size={14} strokeWidth={3} />
-                                    </div>
-                                </div>
-                            )}
-                            {isActive && (
-                                <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
-                                    {step.id}
-                                </div>
-                            )}
-                            {isPending && (
-                                <div className="h-10 w-10 rounded-full bg-slate-100 border border-slate-200 text-[#020b22] flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm group-hover:bg-slate-200 transition-colors">
-                                    {step.id}
-                                </div>
-                            )}
-
-                            <div className="flex flex-col">
-                                <span className="text-[12px] font-bold text-[#020b22] group-hover:text-indigo-600 transition-colors">{step.title}</span>
-                                <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
-                                    {isCompleted ? 'Completed' : step.subtitle}
-                                </span>
-                            </div>
-                        </Link>
+                        {isUnlocked ? (
+                            <Link href={stepLink} className="flex items-center gap-3 group">{content}</Link>
+                        ) : (
+                            <div className="flex items-center gap-3 cursor-not-allowed">{content}</div>
+                        )}
                         {index < steps.length - 1 && (
                             <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
                         )}
@@ -229,6 +217,7 @@ function BillingToggle({ value, onChange }: { value: 'monthly' | 'yearly'; onCha
     return (
         <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-1">
             <button
+                type="button"
                 onClick={() => onChange('monthly')}
                 className={`rounded-md px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${value === 'monthly' ? 'bg-zinc-900 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
                     }`}
@@ -236,6 +225,7 @@ function BillingToggle({ value, onChange }: { value: 'monthly' | 'yearly'; onCha
                 Monthly
             </button>
             <button
+                type="button"
                 onClick={() => onChange('yearly')}
                 className={`rounded-md px-3.5 py-1.5 text-[12px] font-semibold transition-colors ${value === 'yearly' ? 'bg-zinc-900 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
                     }`}
@@ -257,7 +247,11 @@ function PlanCard({ plan, selected, onSelect }: { plan: Plan; selected: boolean;
 
     return (
         <div
-            className={`relative flex flex-col rounded-xl border p-2 ${plan.badge ? 'pt-5' : ''} ${plan.cardBg} ${plan.highlighted ? 'border-indigo-300 ring-1 ring-indigo-200' : 'border-zinc-200'
+            onClick={onSelect}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(); } }}
+            className={`relative flex flex-col rounded-xl border p-2 cursor-pointer transition-shadow ${plan.badge ? 'pt-5' : ''} ${plan.cardBg} ${selected ? 'border-indigo-400 ring-2 ring-indigo-300 shadow-md' : plan.highlighted ? 'border-indigo-300 ring-1 ring-indigo-200' : 'border-zinc-200 hover:border-indigo-200'
                 }`}
         >
             {plan.badge && (
@@ -276,15 +270,11 @@ function PlanCard({ plan, selected, onSelect }: { plan: Plan; selected: boolean;
                 </div>
             </div>
 
-            {plan.customPricing ? (
-                <p className="mt-1.5 text-base font-extrabold text-zinc-900">Custom Pricing</p>
-            ) : (
-                <div className="mt-1.5 flex items-baseline gap-1">
-                    <span className="text-[14px] font-bold text-zinc-900">₹</span>
-                    <span className="text-xl font-extrabold text-zinc-900">{plan.price}</span>
-                </div>
-            )}
-            <p className="text-[10.5px] text-zinc-400">{plan.customPricing ? "Let's build for you" : 'Per Employee / Month'}</p>
+            <div className="mt-1.5 flex items-baseline gap-1">
+                <span className="text-[14px] font-bold text-zinc-900">₹</span>
+                <span className="text-xl font-extrabold text-zinc-900">{plan.price}</span>
+            </div>
+            <p className="text-[10.5px] text-zinc-400">Per Employee / Month</p>
 
             <ul className="mt-2 space-y-1 flex-1">
                 {plan.features.map((f) => (
@@ -296,6 +286,7 @@ function PlanCard({ plan, selected, onSelect }: { plan: Plan; selected: boolean;
             </ul>
 
             <button
+                type="button"
                 onClick={onSelect}
                 className={`mt-2 w-full rounded-lg py-1.5 text-[12px] font-semibold transition-colors ${ctaClasses}`}
             >
@@ -309,6 +300,7 @@ function PlanCard({ plan, selected, onSelect }: { plan: Plan; selected: boolean;
 function AddonCard({ addon, checked, onToggle }: { addon: AddonModule; checked: boolean; onToggle: () => void }) {
     return (
         <button
+            type="button"
             onClick={onToggle}
             className={`relative flex flex-col gap-1 rounded-sm border p-1 text-left transition-colors ${checked ? 'border-indigo-400 bg-indigo-50/40' : 'border-zinc-200 bg-white hover:bg-zinc-50'
                 }`}
@@ -331,20 +323,26 @@ function AddonCard({ addon, checked, onToggle }: { addon: AddonModule; checked: 
 
 // ─── Combined Subscription + Add-ons + Billing card ────────────────────────
 function SubscriptionAndBillingCard({
-    selectedPlan,
-    setSelectedPlan,
+    plans,
+    loadingPlans,
+    selectedPlanId,
+    setSelectedPlanId,
     billing,
     setBilling,
     selectedAddons,
     toggleAddon,
 }: {
-    selectedPlan: string;
-    setSelectedPlan: (id: string) => void;
+    plans: Plan[];
+    loadingPlans: boolean;
+    selectedPlanId: string;
+    setSelectedPlanId: (id: string) => void;
     billing: 'monthly' | 'yearly';
     setBilling: (v: 'monthly' | 'yearly') => void;
     selectedAddons: string[];
     toggleAddon: (id: string) => void;
 }) {
+    const w = useCompanyWizardStore();
+    const router = useRouter();
     return (
         <Card className="rounded-sm border-zinc-200/80 shadow-sm">
             <CardContent className="p-3 space-y-3">
@@ -358,8 +356,12 @@ function SubscriptionAndBillingCard({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                    {PLANS.map((plan) => (
-                        <PlanCard key={plan.id} plan={plan} selected={selectedPlan === plan.id} onSelect={() => setSelectedPlan(plan.id)} />
+                    {loadingPlans ? (
+                        <p className="text-[12px] text-zinc-400 col-span-full py-4 text-center">Loading packages…</p>
+                    ) : plans.length === 0 ? (
+                        <p className="text-[12px] text-zinc-400 col-span-full py-4 text-center">No active packages found. Create one under Packages first.</p>
+                    ) : plans.map((plan) => (
+                        <PlanCard key={plan.id} plan={plan} selected={selectedPlanId === plan.id} onSelect={() => setSelectedPlanId(plan.id)} />
                     ))}
                 </div>
 
@@ -383,19 +385,19 @@ function SubscriptionAndBillingCard({
                         <p className="text-[11.5px] text-zinc-400 text-justify">Configure billing cycle and payment terms</p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
-                        <SelectField label="Billing Cycle" options={['Monthly', 'Quarterly', 'Annually']} />
-                        <SelectField label="Advance Payment" options={['1 Month', '2 Months', '3 Months', 'None']} />
-                        <SelectField label="Invoice Currency" options={['INR (₹) - Indian Rupee', 'USD ($) - US Dollar', 'EUR (€) - Euro', 'GBP (£) - British Pound']} />
-                        <SelectField label="GST Treatment" options={['Exclusive of GST', 'Inclusive of GST', 'Not Applicable']} />
+                        <SelectField label="Billing Cycle" options={['Monthly', 'Quarterly', 'Annually']} value={billing === 'yearly' ? 'Annually' : 'Monthly'} onChange={() => {}} />
+                        <SelectField label="Advance Payment" options={['1 Month', '2 Months', '3 Months', 'None']} value={w.advancePayment} onChange={(v) => w.update({ advancePayment: v })} />
+                        <SelectField label="Invoice Currency" options={['INR (₹) - Indian Rupee', 'USD ($) - US Dollar', 'EUR (€) - Euro', 'GBP (£) - British Pound']} value={w.invoiceCurrency} onChange={(v) => w.update({ invoiceCurrency: v })} />
+                        <SelectField label="GST Treatment" options={['Exclusive of GST', 'Inclusive of GST', 'Not Applicable']} value={w.gstTreatment} onChange={(v) => w.update({ gstTreatment: v })} />
                     </div>
                 </div>
 
                 {/* Footer actions */}
                 <div className="flex items-center justify-between gap-2">
-                    <button className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-4 py-2 text-[12px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+                    <button type="button" onClick={() => router.push('/super-admin/step-1')} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-4 py-2 text-[12px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
                         <ArrowLeft size={14} /> Back
                     </button>
-                    <button className="flex items-center gap-1.5 rounded-md bg-indigo-700 px-5 py-2 text-[12px] font-semibold text-white shadow-sm hover:bg-indigo-800 transition-colors">
+                    <button type="submit" disabled={!selectedPlanId} className="flex items-center gap-1.5 rounded-md bg-indigo-700 px-5 py-2 text-[12px] font-semibold text-white shadow-sm hover:bg-indigo-800 transition-colors disabled:opacity-50">
                         Save &amp; Next <ChevronRight size={14} />
                     </button>
                 </div>
@@ -405,9 +407,14 @@ function SubscriptionAndBillingCard({
 }
 
 // ─── Right rail ─────────────────────────────────────────────────────────────
-function SubscriptionSummary({ plan, addons }: { plan: Plan; addons: AddonModule[] }) {
-    const planAmount = plan.customPricing ? 0 : plan.price * 100;
-    const addonAmount = addons.length * 15 * 100;
+function addonPricePerEmployee(addon: AddonModule): number {
+    const match = addon.price.match(/[\d,]+/);
+    return match ? Number(match[0].replace(/,/g, '')) : 0;
+}
+
+function SubscriptionSummary({ plan, addons, employees, onEmployeesChange }: { plan: Plan; addons: AddonModule[]; employees: number; onEmployeesChange: (n: number) => void }) {
+    const planAmount = plan.price * employees;
+    const addonAmount = addons.reduce((sum, a) => sum + addonPricePerEmployee(a), 0) * employees;
     const total = planAmount + addonAmount;
 
     return (
@@ -422,17 +429,19 @@ function SubscriptionSummary({ plan, addons }: { plan: Plan; addons: AddonModule
             </div>
 
             <p className="text-md font-bold text-blue-600">{plan.name}</p>
-            {!plan.customPricing && (
-                <>
-                    <p className="text-md font-bold text-amber-500">₹ {plan.price}</p>
-                    <p className="text-[10.5px] text-zinc-600">Per Employee / Month</p>
-                </>
-            )}
+            <p className="text-md font-bold text-amber-500">₹ {plan.price}</p>
+            <p className="text-[10.5px] text-zinc-600">Per Employee / Month</p>
 
             <div className="mt-2 space-y-2 border-t border-zinc-200 pt-2">
                 <div className="flex items-center justify-between text-[11px]">
                     <span className="text-zinc-600">Employees (Estimated)</span>
-                    <span className="font-semibold text-zinc-900">100</span>
+                    <input
+                        type="number"
+                        min={1}
+                        value={employees}
+                        onChange={(e) => onEmployeesChange(Math.max(1, Number(e.target.value) || 1))}
+                        className="w-16 h-6 text-right rounded border border-zinc-200 px-1.5 text-[11px] font-semibold text-zinc-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    />
                 </div>
                 <div className="flex items-center justify-between text-[11.5px]">
                     <span className="text-zinc-600">Plan Amount</span>
@@ -498,29 +507,65 @@ function NeedHelpChoosingCard() {
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function SubscriptionPlanStep() {
+    const router = useRouter();
+    const w = useCompanyWizardStore();
     const [currentStep] = useState(2);
-    const [selectedPlanId, setSelectedPlanId] = useState('professional');
-    const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
-    const [selectedAddons, setSelectedAddons] = useState<string[]>(['advanced-recruitment']);
+    const [rawPackages, setRawPackages] = useState<WizardPackage[]>([]);
+    const [loadingPlans, setLoadingPlans] = useState(true);
+    const [selectedPlanId, setSelectedPlanId] = useState(w.selectedPackage?._id || '');
+    const [billing, setBilling] = useState<'monthly' | 'yearly'>(w.billingCycle === 'YEARLY' ? 'yearly' : 'monthly');
+    const [selectedAddons, setSelectedAddons] = useState<string[]>(w.addonModules);
+    const [employees, setEmployees] = useState(w.estimatedEmployees);
 
-    const selectedPlan = PLANS.find((p) => p.id === selectedPlanId)!;
+    useEffect(() => {
+        if (w.maxStepReached < 2) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        api.get('/super-admin/packages').then((res) => {
+            const active = (res.data || []).filter((p: any) => p.isActive !== false);
+            setRawPackages(active);
+            if (!selectedPlanId && active.length) setSelectedPlanId(active[0]._id);
+        }).catch((e) => console.error('Failed to load packages:', e)).finally(() => setLoadingPlans(false));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const plans = rawPackages.map((p) => packageToPlan(p, billing));
+    const selectedPlan = plans.find((p) => p.id === selectedPlanId);
     const selectedAddonObjs = ADDON_MODULES.filter((a) => selectedAddons.includes(a.id));
 
     const toggleAddon = (id: string) => {
         setSelectedAddons((prev) => (prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]));
     };
 
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const pkg = rawPackages.find((p) => p._id === selectedPlanId);
+        if (!pkg) return;
+        w.update({
+            selectedPackage: pkg,
+            billingCycle: billing === 'yearly' ? 'YEARLY' : 'MONTHLY',
+            addonModules: selectedAddons,
+            estimatedEmployees: employees,
+        });
+        w.unlockStep(3);
+        router.push('/super-admin/step-3');
+    };
+
     return (
         <div className="min-h-screen bg-zinc-50 font-sans text-zinc-900">
             <main className="mx-auto max-w-[1600px]  space-y-2">
                 <PageHeading />
-                <StepIndicator current={currentStep} />
+                <StepIndicator current={currentStep} maxStepReached={w.maxStepReached} />
 
-                <div className="grid grid-cols-1 xl:grid-cols-[3.3fr_0.9fr] gap-4 items-start">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 xl:grid-cols-[3.3fr_0.9fr] gap-4 items-start">
                     <div className="space-y-3 min-w-0">
                         <SubscriptionAndBillingCard
-                            selectedPlan={selectedPlanId}
-                            setSelectedPlan={setSelectedPlanId}
+                            plans={plans}
+                            loadingPlans={loadingPlans}
+                            selectedPlanId={selectedPlanId}
+                            setSelectedPlanId={setSelectedPlanId}
                             billing={billing}
                             setBilling={setBilling}
                             selectedAddons={selectedAddons}
@@ -529,11 +574,11 @@ export default function SubscriptionPlanStep() {
                     </div>
 
                     <div className="space-y-3 min-w-0 xl:sticky xl:top-4 xl:max-w-[300px] xl:justify-self-end w-full">
-                        <SubscriptionSummary plan={selectedPlan} addons={selectedAddonObjs} />
+                        {selectedPlan && <SubscriptionSummary plan={selectedPlan} addons={selectedAddonObjs} employees={employees} onEmployeesChange={setEmployees} />}
                         <WhatsIncludedCard />
                         <NeedHelpChoosingCard />
                     </div>
-                </div>
+                </form>
             </main>
         </div>
     );

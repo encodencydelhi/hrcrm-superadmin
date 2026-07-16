@@ -12,6 +12,7 @@ import {
 import { DataTable, Column } from '@/components/shared/DataTable';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import api from '@/lib/axios';
+import { generateTempPassword } from '@/lib/generatePassword';
 
 /* Portfolio-level charts/side-rail figures are illustrative placeholders matching the
    approved visual design — real analytics wiring lands with the platform-metrics API phase. */
@@ -113,15 +114,6 @@ function CompanyStatTile({ icon, accent, label, value, sub, subColor }: { icon: 
   );
 }
 
-function generateTempPassword() {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const lower = 'abcdefghijkmnpqrstuvwxyz';
-  const digits = '23456789';
-  const pick = (set: string) => set[Math.floor(Math.random() * set.length)];
-  const body = Array.from({ length: 9 }, () => pick(lower)).join('');
-  return `${pick(upper)}${body}${pick(digits)}${pick(digits)}`;
-}
-
 export default function SuperAdminCompaniesPage() {
   return (
     <Suspense fallback={null}>
@@ -140,8 +132,6 @@ function SuperAdminCompaniesPageInner() {
   const [pageSize, setPageSize] = useState(10);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState(EMPTY_FORM);
@@ -204,25 +194,19 @@ function SuperAdminCompaniesPageInner() {
     setFormError('');
     setSubmitting(true);
     try {
-      if (isEditMode && editId) {
-        await api.put(`/super-admin/tenants/${editId}`, formData);
-        setIsModalOpen(false);
-        resetForm();
-      } else {
-        const res = await api.post('/super-admin/tenants', formData);
-        setIsModalOpen(false);
-        resetForm();
-        setCredentialsPanel({
-          companyName: formData.name,
-          adminEmail: res.data.adminEmail,
-          emailSent: !!res.data.credentialsEmailSent,
-          passwordFallback: res.data.adminPasswordFallback,
-          error: res.data.credentialsEmailError,
-        });
-        const fromLead = searchParams.get('fromLead');
-        if (fromLead) {
-          api.put(`/super-admin/leads/${fromLead}`, { convertedTenantId: res.data._id }).catch((e) => console.error('Failed to link lead to company:', e));
-        }
+      const res = await api.post('/super-admin/tenants', formData);
+      setIsModalOpen(false);
+      resetForm();
+      setCredentialsPanel({
+        companyName: formData.name,
+        adminEmail: res.data.adminEmail,
+        emailSent: !!res.data.credentialsEmailSent,
+        passwordFallback: res.data.adminPasswordFallback,
+        error: res.data.credentialsEmailError,
+      });
+      const fromLead = searchParams.get('fromLead');
+      if (fromLead) {
+        api.put(`/super-admin/leads/${fromLead}`, { convertedTenantId: res.data._id }).catch((e) => console.error('Failed to link lead to company:', e));
       }
       fetchData();
     } catch (e: any) {
@@ -338,46 +322,9 @@ function SuperAdminCompaniesPageInner() {
   };
 
   const resetForm = () => {
-    setIsEditMode(false);
-    setEditId(null);
     setActiveTab('basic');
     setFormError('');
     setFormData(EMPTY_FORM);
-  };
-
-  const openEditModal = async (t: any) => {
-    setIsEditMode(true);
-    setEditId(t._id);
-    setActiveTab('basic');
-    setFormError('');
-
-    const c = t.company || {};
-
-    setFormData({
-      name: t.name,
-      packageId: t.packageId?._id || '',
-      isActive: t.isActive,
-      aiCredits: t.aiCredits || 0,
-      country: c.country || 'India',
-      adminFirstName: t.admin?.firstName || '',
-      adminLastName: t.admin?.lastName || '',
-      adminEmail: t.admin?.email || '',
-      adminPassword: '',
-      tradeName: c.tradeName || '', industry: c.industry || '', companyType: c.companyType || '', website: c.website || '', email: c.email || '', phone: c.phone || '',
-      addressLine1: c.addressLine1 || '', addressLine2: c.addressLine2 || '', city: c.city || '', state: c.state || '', postalCode: c.postalCode || '',
-      timezone: c.timezone || 'Asia/Kolkata', baseCurrency: c.baseCurrency || 'INR', financialYearStartMonth: c.financialYearStartMonth || 4,
-      panNumber: c.panNumber || '', gstin: c.gstin || '', cin: c.cin || '', tan: c.tan || '', epfoNumber: c.epfoNumber || '', esicNumber: c.esicNumber || '', ptNumber: c.ptNumber || '', lwfNumber: c.lwfNumber || '',
-      tin: c.tin || '', ein: c.ein || '', vatNumber: c.vatNumber || '', businessLicenseNumber: c.businessLicenseNumber || '',
-      logoUrl: c.logoUrl || '', adminProfilePictureUrl: t.admin?.profilePictureUrl || '',
-      setupFeeAmount: t.setupFeeAmount ?? 0,
-      setupFeeCurrency: t.setupFeeCurrency || 'INR',
-      setupFeeStatus: t.setupFeeStatus || 'PENDING',
-      billingCycle: t.billingCycle || 'MONTHLY',
-      subscriptionAmount: t.subscriptionAmount ?? 0,
-      subscriptionCurrency: t.subscriptionCurrency || 'INR',
-      subscriptionStatus: t.subscriptionStatus || 'ACTIVE',
-    });
-    setIsModalOpen(true);
   };
 
   const filteredTenants = tenants.filter((t: any) => {
@@ -483,7 +430,7 @@ function SuperAdminCompaniesPageInner() {
           >
             {resendingId === row._id ? <RefreshCw size={14} className="animate-spin" /> : <Mail size={14} />}
           </button>
-          <button onClick={() => openEditModal(row)} className="text-xs font-medium text-[#0b1638] hover:text-[#0a1330] px-1.5">Edit</button>
+          <Link href={`/super-admin/step-1?edit=${row._id}`} className="text-xs font-medium text-[#0b1638] hover:text-[#0a1330] px-1.5">Edit</Link>
           <button onClick={() => setDeleteConfirmId(row._id)} className="text-xs font-medium text-rose-600 hover:text-rose-700 px-1.5">Delete</button>
         </div>
       ),
@@ -848,7 +795,7 @@ function SuperAdminCompaniesPageInner() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm transition-all duration-200 py-10 overflow-y-auto">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl border border-zinc-200/50 animate-in fade-in zoom-in-95 duration-200 flex flex-col my-auto max-h-full">
             <div className="px-5 py-4 border-b border-zinc-100 flex justify-between items-center bg-white rounded-t-xl shrink-0">
-              <h2 className="text-sm font-md text-zinc-900">{isEditMode ? 'Edit Company' : 'Create New Company'}</h2>
+              <h2 className="text-sm font-md text-zinc-900">Create New Company</h2>
               <button type="button" onClick={() => setIsModalOpen(false)} className="text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 p-1 rounded-md transition-colors">
                 <X size={16} />
               </button>
@@ -908,15 +855,6 @@ function SuperAdminCompaniesPageInner() {
                         className="w-full border border-zinc-200 rounded-lg text-sm px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#0b1638]/20 focus:border-[#0b1638]"
                       />
                     </div>
-                    {isEditMode && (
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-md text-zinc-700">Status</label>
-                        <select value={formData.isActive ? 'true' : 'false'} onChange={(e: any) => setFormData({ ...formData, isActive: e.target.value === 'true' })} className="w-full border border-zinc-200 rounded-lg text-sm px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#0b1638]/20 focus:border-[#0b1638]">
-                          <option value="true">Active</option>
-                          <option value="false">Inactive</option>
-                        </select>
-                      </div>
-                    )}
                   </div>
                   <div className="mt-6 pt-4 border-t border-zinc-100">
                     <h3 className="text-xs font-md uppercase tracking-wider text-slate-500 mb-4">Company Admin Login Details</h3>
@@ -934,12 +872,12 @@ function SuperAdminCompaniesPageInner() {
                         <input required type="email" value={formData.adminEmail} onChange={(e: any) => setFormData({ ...formData, adminEmail: e.target.value })} className="w-full border border-zinc-200 rounded-lg text-sm px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#0b1638]/20" placeholder="admin@company.com" />
                       </div>
                       <div className="space-y-1.5">
-                        <label className="block text-xs font-md text-zinc-700">Admin Password {isEditMode ? '' : '*'}</label>
+                        <label className="block text-xs font-md text-zinc-700">Admin Password *</label>
                         <div className="flex gap-2">
-                          <input required={!isEditMode} type="text" value={formData.adminPassword} onChange={(e: any) => setFormData({ ...formData, adminPassword: e.target.value })} className="w-full border border-zinc-200 rounded-lg text-sm px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#0b1638]/20 font-mono" placeholder={isEditMode ? "Leave blank to keep unchanged" : "Min 8 chars, 1 uppercase, 1 number"} />
+                          <input required type="text" value={formData.adminPassword} onChange={(e: any) => setFormData({ ...formData, adminPassword: e.target.value })} className="w-full border border-zinc-200 rounded-lg text-sm px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-[#0b1638]/20 font-mono" placeholder="Min 8 chars, 1 uppercase, 1 number" />
                           <button type="button" onClick={() => setFormData({ ...formData, adminPassword: generateTempPassword() })} className="px-3 text-xs font-medium text-[#0b1638] border border-[#0b1638]/20 rounded-lg hover:bg-[#f5c451]/10 whitespace-nowrap">Generate</button>
                         </div>
-                        {!isEditMode && <p className="text-[10px] text-zinc-400">This will be emailed to the admin once the company is created.</p>}
+                        <p className="text-[10px] text-zinc-400">This will be emailed to the admin once the company is created.</p>
                       </div>
                       <div className="space-y-1.5">
                         <label className="block text-xs font-md text-zinc-700">Admin Photo (Optional)</label>
@@ -998,17 +936,6 @@ function SuperAdminCompaniesPageInner() {
                           <option value="USD">USD ($)</option>
                         </select>
                       </div>
-                      {isEditMode && (
-                        <div className="space-y-1.5 col-span-3">
-                          <label className="block text-xs font-md text-zinc-700">Subscription Status</label>
-                          <select value={formData.subscriptionStatus} onChange={(e: any) => setFormData({ ...formData, subscriptionStatus: e.target.value })} className="w-full border border-zinc-200 rounded-lg text-sm px-3.5 py-2 max-w-xs">
-                            <option value="ACTIVE">Active</option>
-                            <option value="PENDING">Pending</option>
-                            <option value="PAST_DUE">Past Due</option>
-                            <option value="CANCELLED">Cancelled</option>
-                          </select>
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -1093,7 +1020,7 @@ function SuperAdminCompaniesPageInner() {
               <div className="pt-6 mt-6 border-t border-zinc-100 flex justify-end gap-3 shrink-0">
                 <Button type="button" variant="outline" className="h-9 px-4 text-xs font-medium border-zinc-200" onClick={() => setIsModalOpen(false)}>Cancel</Button>
                 <Button type="submit" disabled={submitting} className="h-9 px-4 text-xs font-medium bg-[#0b1638] hover:bg-[#0a1330] text-white shadow-md shadow-[#0b1638]/20 disabled:opacity-60">
-                  {submitting ? 'Saving...' : isEditMode ? 'Save Changes' : 'Create Company'}
+                  {submitting ? 'Saving...' : 'Create Company'}
                 </Button>
               </div>
             </form>
