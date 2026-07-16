@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import {
-    ChevronRight, Check, ArrowRight,
+    Home, ChevronRight, Check, ArrowRight,
     Rocket, HelpCircle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -18,84 +18,93 @@ const PREVIEW_FEATURES = [
     'Priority Support'
 ];
 
-// ─── Breadcrumb + Heading ───────────────────────────────────────────────────
+// ─── Breadcrumb + heading ───────────────────────────────────────────────────
+const BREADCRUMB = ['Home', 'Subscriptions', 'Subscription Plans', 'Create New Plan'];
+
 function PageHeading() {
-    return (
-        <>
-            <div className="flex items-center text-[10px] text-zinc-500 font-medium">
-                <Link href="/super-admin" className="hover:text-indigo-700">Home</Link>
-                <ChevronRight size={12} className="mx-1" />
-                <Link href="#" className="hover:text-indigo-700">Subscriptions</Link>
-                <ChevronRight size={12} className="mx-1" />
-                <Link href="#" className="hover:text-indigo-700">Subscription Plans</Link>
-                <ChevronRight size={12} className="mx-1" />
-                <span className="text-zinc-800">Create New Plan</span>
-            </div>
-            <div className="flex items-start justify-between pb-1 mt-1">
-                <div>
-                    <h1 className="text-[16px] font-bold text-[#020b22]">Create New Plan</h1>
-                    <p className="text-[10px] text-zinc-500">Define plan details, features, and pricing for your organization</p>
-                </div>
-            </div>
-        </>
-    );
+  return (
+    <section className="space-y-1">
+      <div className="flex items-center gap-1.5 text-[12px] text-zinc-500 flex-wrap">
+        {BREADCRUMB.map((crumb, i) => (
+          <React.Fragment key={crumb}>
+            {i === 0 ? (
+              <span className="flex items-center gap-1 text-indigo-600 font-medium hover:underline cursor-pointer">
+                <Home size={12} /> {crumb}
+              </span>
+            ) : i === BREADCRUMB.length - 1 ? (
+              <span className="text-zinc-900 font-semibold">{crumb}</span>
+            ) : (
+              <span className="text-indigo-600 font-medium hover:underline cursor-pointer">{crumb}</span>
+            )}
+            {i < BREADCRUMB.length - 1 && <ChevronRight size={12} />}
+          </React.Fragment>
+        ))}
+      </div>
+      <h1 className="text-2xl font-bold text-zinc-900 leading-tight">Create New Plan</h1>
+      <p className="text-[13px] text-zinc-500">Define plan details, features, and pricing for your organization</p>
+    </section>
+  );
 }
 
-// ─── Progress Bar ───────────────────────────────────────────────────────────
-function ProgressBar() {
-    const router = useRouter();
-    return (
-        <div className="bg-white rounded-lg shadow-sm border border-zinc-200 px-6 py-4 flex items-center justify-between mt-2">
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 shadow-sm">
-                    <span className="text-[12px] font-bold">1</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#020b22]">Plan Details</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
+// ─── Step indicator ─────────────────────────────────────────────────────────
+const STEPS = [
+  { id: 1, title: 'Plan Details' },
+  { id: 2, title: 'Features & Limits' },
+  { id: 3, title: 'Add-on Modules' },
+  { id: 4, title: 'Billing & Pricing' },
+  { id: 5, title: 'Review & Create' },
+];
 
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200">
-                    <span className="text-[12px] font-bold">2</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Features & Limits</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
+const STEP_ROUTES: Record<number, string> = {
+  1: '/super-admin/subscriptions/plan-details',
+  2: '/super-admin/create-new-plan-step2',
+  3: '/super-admin/subscriptions/add-on-modules',
+  4: '/super-admin/Create-new-plan-step4',
+  5: '/super-admin/Create-new-plan-step5',
+};
 
-            <div onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-3 cursor-pointer">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200 ">
-                    <span className="text-[12px] font-bold">3</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Add-on Modules</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
-
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200">
-                    <span className="text-[12px] font-bold">4</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Billing & Pricing</span>
-            </div>
-            <div className="h-px flex-1 bg-zinc-200 mx-6"></div>
-
-            <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-white text-[#020b22] flex items-center justify-center shrink-0 border border-zinc-200">
-                    <span className="text-[12px] font-bold">5</span>
-                </div>
-                <span className="text-[12px] font-bold text-[#45474b]">Review & Create</span>
-            </div>
-        </div>
-    );
+function StepIndicator({ current }: { current: number }) {
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between gap-2 overflow-x-auto p-4">
+        {STEPS.map((step, i) => {
+          const href = STEP_ROUTES[step.id] || '#';
+          return (
+            <React.Fragment key={step.id}>
+              <Link href={href} className="flex items-center gap-2 shrink-0 group">
+                <span
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${
+                    step.id === current
+                      ? 'bg-[#16234A] text-white'
+                      : step.id < current
+                        ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
+                        : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
+                  }`}
+                >
+                  {step.id < current ? <Check size={15} /> : step.id}
+                </span>
+                <p className={`hidden sm:block text-[12.5px] font-semibold whitespace-nowrap transition-colors ${step.id === current ? 'text-zinc-900' : 'text-zinc-400 group-hover:text-zinc-600'}`}>
+                  {step.title}
+                </p>
+              </Link>
+              {i < STEPS.length - 1 && <span className="h-px flex-1 min-w-[16px] border-t-2 border-dotted border-zinc-200" />}
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
 }
 
 // ─── Main Content ───────────────────────────────────────────────────────────
 export default function PlanDetailsPage() {
+    const router = useRouter();
     return (
-        <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-1.5 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
+        <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-4 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
             <PageHeading />
-            <ProgressBar />
+            <StepIndicator current={1} />
 
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-1.5 mt-3 items-start">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-1.5 items-start">
 
                 {/* Left Section - Form */}
                 <div className="xl:col-span-3 flex flex-col gap-1">
@@ -261,7 +270,7 @@ export default function PlanDetailsPage() {
                         <button className="flex items-center justify-center gap-1.5 rounded-lg bg-white border border-zinc-200 px-6 py-2 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                             Cancel
                         </button>
-                        <button className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+                        <button onClick={() => router.push("/super-admin/create-new-plan-step2")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
                             Next: Features & Limits <ArrowRight size={14} className="text-white" />
                         </button>
                     </div>
@@ -333,3 +342,8 @@ export default function PlanDetailsPage() {
         </div>
     );
 }
+
+
+
+
+

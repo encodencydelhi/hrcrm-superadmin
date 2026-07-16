@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Home, ChevronRight, ChevronDown, ArrowLeft, ArrowRight, Check, Rocket,
   Maximize2, Minimize2, Lightbulb,
@@ -77,11 +78,11 @@ function PageHeading() {
 
 // ─── Step indicator ─────────────────────────────────────────────────────────
 const STEP_ROUTES: Record<number, string> = {
-  1: '/super-admin/coming-soon?feature=CreateNewPlanStep1',
+  1: '/super-admin/subscriptions/plan-details',
   2: '/super-admin/create-new-plan-step2',
-  3: '/super-admin/Create-new-plan-step5',
+  3: '/super-admin/subscriptions/add-on-modules',
   4: '/super-admin/Create-new-plan-step4',
-  5: '/super-admin/create-new-plan-step2',
+  5: '/super-admin/Create-new-plan-step5',
 };
 
 function StepIndicator({ current }: { current: number }) {
@@ -94,13 +95,12 @@ function StepIndicator({ current }: { current: number }) {
             <React.Fragment key={step.id}>
               <Link href={href} className="flex items-center gap-2 shrink-0 group">
                 <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${
-                    step.id === current
-                      ? 'bg-[#16234A] text-white'
-                      : step.id < current
-                        ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
-                        : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
-                  }`}
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${step.id === current
+                    ? 'bg-[#16234A] text-white'
+                    : step.id < current
+                      ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
+                      : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
+                    }`}
                 >
                   {step.id < current ? <Check size={15} /> : step.id}
                 </span>
@@ -125,7 +125,7 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () =>
       onClick={onChange}
       className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${checked ? 'bg-emerald-500' : 'bg-zinc-200'}`}
     >
-      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-5' : 'translate-x-0.5'}`} />
+      <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${checked ? 'translate-x-0' : 'translate-x-5'}`} />
     </button>
   );
 }
@@ -135,7 +135,7 @@ function FeaturesLimitsCard() {
   const [tab, setTab] = useState<'core' | 'usage'>('core');
   const [features, setFeatures] = useState(CORE_FEATURES);
   const [selects, setSelects] = useState(SELECT_ROWS);
-
+  const router = useRouter();
   const toggleFeature = (id: string) => {
     setFeatures((prev) => prev.map((f) => (f.id === id ? { ...f, included: !f.included } : f)));
   };
@@ -246,7 +246,7 @@ function FeaturesLimitsCard() {
           <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
             <ArrowLeft size={14} /> Back
           </button>
-          <button className="flex items-center gap-1.5 rounded-lg bg-[#16234A] px-6 py-2.5 text-[12.5px] font-semibold text-white shadow-sm hover:bg-[#1c2c5c] transition-colors">
+          <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg bg-[#16234A] px-6 py-2.5 text-[12.5px] font-semibold text-white shadow-sm hover:bg-[#1c2c5c] transition-colors">
             Next: Add-on Modules <ArrowRight size={14} />
           </button>
         </div>
@@ -262,7 +262,7 @@ function PlanPreviewCard() {
       <p className="text-[13px] font-bold text-zinc-900">Plan Preview</p>
       <p className="text-[11.5px] text-zinc-400 mt-0.5">See how this plan will appear to users</p>
 
-      <div className="relative mt-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+      <div className="relative rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
         <span className="absolute -top-2.5 right-3 rounded-full bg-zinc-900 px-2.5 py-1 text-[9px] font-bold text-white whitespace-nowrap">
           Most Popular
         </span>
@@ -315,8 +315,9 @@ function NeedHelpCard() {
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function CreateNewPlanStep2() {
+  const router = useRouter();
   return (
-    <div className="space-y-4 font-sans text-zinc-900">
+    <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-4 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
       <PageHeading />
       <StepIndicator current={2} />
 
@@ -338,3 +339,5 @@ export default function CreateNewPlanStep2() {
     </div>
   );
 }
+
+

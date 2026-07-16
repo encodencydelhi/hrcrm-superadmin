@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Home, ChevronRight, ArrowLeft, ArrowRight, Check, Pencil, Rocket,
   Sparkles, ShieldCheck, Info, Brain, Users, Wallet,
@@ -91,7 +92,7 @@ function PageHeading() {
           </React.Fragment>
         ))}
       </div>
-      <h1 className="text-1xl font-bold text-zinc-900 leading-tight">Create New Plan</h1>
+      <h1 className="text-2xl font-bold text-zinc-900 leading-tight">Create New Plan</h1>
       <p className="text-[13px] text-zinc-500">Review all details before creating your subscription plan</p>
     </section>
   );
@@ -99,11 +100,11 @@ function PageHeading() {
 
 // ─── Step indicator ─────────────────────────────────────────────────────────
 const STEP_ROUTES: Record<number, string> = {
-  1: '/super-admin/coming-soon?feature=CreateNewPlanStep1',
+  1: '/super-admin/subscriptions/plan-details',
   2: '/super-admin/create-new-plan-step2',
-  3: '/super-admin/Create-new-plan-step5',
+  3: '/super-admin/subscriptions/add-on-modules',
   4: '/super-admin/Create-new-plan-step4',
-  5: '/super-admin/create-new-plan-step2',
+  5: '/super-admin/Create-new-plan-step5',
 };
 
 function StepIndicator({ current }: { current: number }) {
@@ -116,13 +117,12 @@ function StepIndicator({ current }: { current: number }) {
             <React.Fragment key={step.id}>
               <Link href={href} className="flex items-center gap-2 shrink-0 group">
                 <span
-                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${
-                    step.id === current
+                  className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[13px] font-bold transition-colors ${step.id === current
                       ? 'bg-[#16234A] text-white'
                       : step.id < current
                         ? 'bg-emerald-500 text-white group-hover:bg-emerald-600'
                         : 'border-2 border-zinc-200 text-zinc-400 group-hover:border-zinc-300'
-                  }`}
+                    }`}
                 >
                   {step.id < current ? <Check size={15} /> : step.id}
                 </span>
@@ -274,7 +274,7 @@ function PlanPreviewCard() {
       <p className="text-[13px] font-bold text-zinc-900">Plan Preview</p>
       <p className="text-[11.5px] text-zinc-400 mt-0.5">This is how the plan will appear to users</p>
 
-      <div className="relative mt-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+      <div className="relative rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
         <span className="absolute -top-2.5 right-3 rounded-full bg-zinc-900 px-2.5 py-1 text-[9px] font-bold text-white whitespace-nowrap">
           Most Popular
         </span>
@@ -355,8 +355,9 @@ function WhatsNextCard() {
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function CreateNewPlanStep5() {
+  const router = useRouter();
   return (
-    <div className="space-y-4 font-sans text-zinc-900">
+    <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-4 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
       <PageHeading />
       <StepIndicator current={5} />
 
@@ -393,3 +394,5 @@ export default function CreateNewPlanStep5() {
     </div>
   );
 }
+
+
