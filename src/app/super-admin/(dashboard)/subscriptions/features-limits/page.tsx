@@ -169,10 +169,10 @@ function FeaturesLimitsCard() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+            <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
               <Maximize2 size={12} /> Expand All
             </button>
-            <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-[11.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+            <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
               <Minimize2 size={12} /> Collapse All
             </button>
           </div>
@@ -244,10 +244,10 @@ function FeaturesLimitsCard() {
 
         {/* Footer actions */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
-          <button onClick={() => router.push("/super-admin/subscriptions/plan-details")} className="flex items-center gap-1.5 rounded-lg bg-white border border-zinc-200 px-5 py-2 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+          <button onClick={() => router.push("/super-admin/subscriptions/plan-details")} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
             <ArrowLeft size={14} /> Back
           </button>
-          <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-6 py-2 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+          <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
             Next: Add-on Modules <ArrowRight size={14} className="text-white" />
           </button>
         </div>

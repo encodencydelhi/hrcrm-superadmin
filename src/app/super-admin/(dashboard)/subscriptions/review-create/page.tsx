@@ -149,7 +149,7 @@ function ReviewCard({ title, badge, children }: { title: string; badge?: string;
           <h3 className="text-[14px] font-bold text-zinc-900">{title}</h3>
           {badge && <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10.5px] font-bold text-indigo-600">{badge}</span>}
         </div>
-        <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1 text-[11.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+        <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
           <Pencil size={12} /> Edit
         </button>
       </div>
@@ -371,10 +371,10 @@ export default function CreateNewPlanStep5() {
 
           {/* Footer actions */}
           <div className="flex items-center justify-between gap-2">
-            <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+            <button onClick={() => router.push('/super-admin/subscriptions/billing-pricing')} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
               <ArrowLeft size={14} /> Back
             </button>
-            <button className="flex items-center gap-1.5 rounded-lg bg-[#16234A] px-6 py-2.5 text-[12.5px] font-semibold text-white shadow-sm hover:bg-[#1c2c5c] transition-colors">
+            <button onClick={() => router.push('/super-admin/subscriptions/subscription-plan')} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
               Create Plan <ArrowRight size={14} />
             </button>
           </div>
