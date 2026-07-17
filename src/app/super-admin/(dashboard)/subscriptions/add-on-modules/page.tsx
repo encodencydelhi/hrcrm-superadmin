@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from 'react';
 import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
@@ -231,7 +231,7 @@ export default function AddOnModulesPage() {
                     </div>
                     {/* Bottom Actions */}
                     <div className="flex items-center justify-between pt-1.5 ">
-                        <button onClick={() => router.push('/super-admin/subscriptions/features-limits')} className="flex items-center gap-1.5 rounded-lg bg-white border border-zinc-200 px-4 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                        <button onClick={() => router.push('/super-admin/subscriptions/features-limits')} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                             <ArrowLeft size={14} /> Back
                         </button>
                         <button onClick={() => router.push('/super-admin/subscriptions/billing-pricing')} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
