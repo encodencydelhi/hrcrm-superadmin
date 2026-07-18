@@ -8,6 +8,7 @@ import {
     Rocket, HelpCircle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
 
 const PREVIEW_FEATURES = [
     'Up to 200 Employees',
@@ -45,6 +46,7 @@ function PageHeading() {
 // ─── Main Content ───────────────────────────────────────────────────────────
 export default function PlanDetailsPage() {
     const router = useRouter();
+    const store = useSubscriptionPlanStore();
     return (
         <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-1.5 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
             <PageHeading />
@@ -70,7 +72,8 @@ export default function PlanDetailsPage() {
                                 <input
                                     type="text"
                                     placeholder="e.g. Professional"
-                                    defaultValue="e.g. Professional"
+                                    value={store.name}
+                                    onChange={(e) => store.update({ name: e.target.value })}
                                     className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 text-zinc-700 placeholder:text-zinc-400"
                                 />
                             </div>
@@ -81,7 +84,8 @@ export default function PlanDetailsPage() {
                                 <input
                                     type="text"
                                     placeholder="e.g. PRO"
-                                    defaultValue="e.g. PRO"
+                                    value={store.planCode}
+                                    onChange={(e) => store.update({ planCode: e.target.value })}
                                     className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 text-zinc-700 placeholder:text-zinc-400"
                                 />
                                 <p className="text-[9.5px] text-zinc-500 mt-1">Unique code for internal reference (e.g., BASIC, PRO, ENT)</p>
@@ -96,9 +100,12 @@ export default function PlanDetailsPage() {
                             <div className="relative">
                                 <textarea
                                     placeholder="Describe the plan, its benefits, and ideal use cases..."
+                                    value={store.description}
+                                    onChange={(e) => store.update({ description: e.target.value })}
+                                    maxLength={500}
                                     className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 min-h-[90px] resize-none text-zinc-700 placeholder:text-zinc-400"
                                 ></textarea>
-                                <span className="absolute bottom-2 right-2 text-[10px] text-zinc-400 font-medium">0/500</span>
+                                <span className="absolute bottom-2 right-2 text-[10px] text-zinc-400 font-medium">{store.description.length}/500</span>
                             </div>
                         </div>
 
@@ -108,37 +115,17 @@ export default function PlanDetailsPage() {
                                 Plan Category <span className="text-red-500">*</span>
                             </label>
                             <div className="grid grid-cols-4 gap-3">
-                                <label className="border border-zinc-200 rounded-lg p-3 flex gap-2 cursor-pointer hover:bg-zinc-50 transition-colors">
-                                    <div className="mt-0.5 h-3.5 w-3.5 rounded-full border border-zinc-300 bg-white shrink-0"></div>
-                                    <div>
-                                        <p className="text-[11.5px] font-bold text-zinc-900">Starter</p>
-                                        <p className="text-[9.5px] text-zinc-500 mt-0.5">Entry-level plans</p>
-                                    </div>
-                                </label>
-
-                                <label className="border border-blue-500 bg-blue-50/50 rounded-lg p-3 flex gap-2 cursor-pointer shadow-sm transition-colors">
-                                    <div className="mt-0.5 h-3.5 w-3.5 rounded-full border-[4px] border-blue-600 bg-white shrink-0"></div>
-                                    <div>
-                                        <p className="text-[11.5px] font-bold text-[#024efc]">Professional</p>
-                                        <p className="text-[9.5px] text-blue-600/80 mt-0.5">Mid-tier plans</p>
-                                    </div>
-                                </label>
-
-                                <label className="border border-zinc-200 rounded-lg p-3 flex gap-2 cursor-pointer hover:bg-zinc-50 transition-colors">
-                                    <div className="mt-0.5 h-3.5 w-3.5 rounded-full border border-zinc-300 bg-white shrink-0"></div>
-                                    <div>
-                                        <p className="text-[11.5px] font-bold text-zinc-900">Enterprise</p>
-                                        <p className="text-[9.5px] text-zinc-500 mt-0.5">Advanced plans</p>
-                                    </div>
-                                </label>
-
-                                <label className="border border-zinc-200 rounded-lg p-3 flex gap-2 cursor-pointer hover:bg-zinc-50 transition-colors">
-                                    <div className="mt-0.5 h-3.5 w-3.5 rounded-full border border-zinc-300 bg-white shrink-0"></div>
-                                    <div>
-                                        <p className="text-[11.5px] font-bold text-zinc-900">Custom</p>
-                                        <p className="text-[9.5px] text-zinc-500 mt-0.5">Tailored solutions</p>
-                                    </div>
-                                </label>
+                                {['Starter', 'Professional', 'Enterprise', 'Custom'].map((t) => (
+                                    <label key={t} onClick={() => store.update({ tier: t })} className={`border ${store.tier === t ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-zinc-200 hover:bg-zinc-50'} rounded-lg p-3 flex gap-2 cursor-pointer transition-colors`}>
+                                        <div className={`mt-0.5 h-3.5 w-3.5 rounded-full border ${store.tier === t ? 'border-[4px] border-blue-600' : 'border-zinc-300'} bg-white shrink-0`}></div>
+                                        <div>
+                                            <p className={`text-[11.5px] font-bold ${store.tier === t ? 'text-[#024efc]' : 'text-zinc-900'}`}>{t}</p>
+                                            <p className={`text-[9.5px] mt-0.5 ${store.tier === t ? 'text-blue-600/80' : 'text-zinc-500'}`}>
+                                                {t === 'Starter' ? 'Entry-level plans' : t === 'Professional' ? 'Mid-tier plans' : t === 'Enterprise' ? 'Advanced plans' : 'Tailored solutions'}
+                                            </p>
+                                        </div>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
@@ -148,27 +135,14 @@ export default function PlanDetailsPage() {
                                 Target Audience <span className="text-red-500">*</span>
                             </label>
                             <div className="flex items-center gap-6">
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <div className="h-4 w-4 rounded border border-zinc-300 bg-white group-hover:border-zinc-400 transition-colors"></div>
-                                    <span className="text-[11.5px] font-medium text-zinc-700">Small Teams</span>
-                                </label>
-
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <div className="h-4 w-4 rounded border border-blue-600 bg-blue-600 flex items-center justify-center transition-colors shadow-sm">
-                                        <Check size={10} className="text-white" strokeWidth={3} />
-                                    </div>
-                                    <span className="text-[11.5px] font-medium text-zinc-900">Growing Businesses</span>
-                                </label>
-
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <div className="h-4 w-4 rounded border border-zinc-300 bg-white group-hover:border-zinc-400 transition-colors"></div>
-                                    <span className="text-[11.5px] font-medium text-zinc-700">Large Enterprises</span>
-                                </label>
-
-                                <label className="flex items-center gap-2 cursor-pointer group">
-                                    <div className="h-4 w-4 rounded border border-zinc-300 bg-white group-hover:border-zinc-400 transition-colors"></div>
-                                    <span className="text-[11.5px] font-medium text-zinc-700">Custom Requirements</span>
-                                </label>
+                                {['Small Teams', 'Growing Businesses', 'Large Enterprises', 'Custom Requirements'].map((aud) => (
+                                    <label key={aud} onClick={() => store.toggleTargetAudience(aud)} className="flex items-center gap-2 cursor-pointer group">
+                                        <div className={`h-4 w-4 rounded border flex items-center justify-center transition-colors shadow-sm ${store.targetAudience.includes(aud) ? 'border-blue-600 bg-blue-600' : 'border-zinc-300 bg-white group-hover:border-zinc-400'}`}>
+                                            {store.targetAudience.includes(aud) && <Check size={10} className="text-white" strokeWidth={3} />}
+                                        </div>
+                                        <span className={`text-[11.5px] font-medium ${store.targetAudience.includes(aud) ? 'text-zinc-900' : 'text-zinc-700'}`}>{aud}</span>
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
@@ -177,10 +151,10 @@ export default function PlanDetailsPage() {
                             <div>
                                 <label className="text-[11px] font-bold text-zinc-900 block mb-[3px]">Plan Badge</label>
                                 <div className="relative">
-                                    <select className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 text-zinc-800 appearance-none bg-white">
-                                        <option>Most Popular</option>
-                                        <option>Best Value</option>
-                                        <option>Recommended</option>
+                                    <select value={store.planBadge} onChange={(e) => store.update({ planBadge: e.target.value })} className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 text-zinc-800 appearance-none bg-white">
+                                        <option value="Most Popular">Most Popular</option>
+                                        <option value="Best Value">Best Value</option>
+                                        <option value="Recommended">Recommended</option>
                                     </select>
                                     <ChevronRight size={14} className="absolute right-3 top-2.5 text-zinc-400 pointer-events-none rotate-90" />
                                 </div>
@@ -190,8 +164,9 @@ export default function PlanDetailsPage() {
                                     Display Order <span className="text-red-500">*</span>
                                 </label>
                                 <input
-                                    type="text"
-                                    defaultValue="2"
+                                    type="number"
+                                    value={store.displayOrder}
+                                    onChange={(e) => store.update({ displayOrder: Number(e.target.value) })}
                                     className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 text-zinc-800"
                                 />
                                 <p className="text-[9.5px] text-zinc-500 mt-1">Lower numbers appear first</p>
@@ -202,10 +177,10 @@ export default function PlanDetailsPage() {
                         <div className="mt-0">
                             <label className="text-[11px] font-bold text-zinc-900 block mb-1">Plan Status</label>
                             <div className="flex items-center gap-3">
-                                <button className="relative inline-flex h-[20px] w-[36px] items-center rounded-full bg-emerald-500 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2">
-                                    <span className="translate-x-[18px] inline-block h-[14px] w-[14px] transform rounded-full bg-white transition-transform shadow-sm" />
+                                <button onClick={() => store.update({ isActive: !store.isActive })} className={`relative inline-flex h-[20px] w-[36px] items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${store.isActive ? 'bg-emerald-500' : 'bg-zinc-300'}`}>
+                                    <span className={`${store.isActive ? 'translate-x-[18px]' : 'translate-x-[2px]'} inline-block h-[14px] w-[14px] transform rounded-full bg-white transition-transform shadow-sm`} />
                                 </button>
-                                <span className="text-[11.5px] font-bold text-emerald-600">Active</span>
+                                <span className={`text-[11.5px] font-bold ${store.isActive ? 'text-emerald-600' : 'text-zinc-500'}`}>{store.isActive ? 'Active' : 'Inactive'}</span>
                                 <span className="text-[10px] text-zinc-500 ml-1">Inactive plans will be hidden from selection</span>
                             </div>
                         </div>
@@ -233,7 +208,7 @@ export default function PlanDetailsPage() {
                         <div className="bg-white rounded-lg border border-zinc-200 shadow-sm px-4 py-3 relative overflow-hidden">
                             <div className="absolute top-4 right-4">
                                 <span className="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-bold shadow-sm">
-                                    Most Popular
+                                    {store.planBadge || 'Most Popular'}
                                 </span>
                             </div>
 
@@ -241,13 +216,13 @@ export default function PlanDetailsPage() {
                                 <Rocket size={20} />
                             </div>
 
-                            <h2 className="text-[18px] font-bold text-[#024efc] mb-1">Professional</h2>
-                            <p className="text-[10.5px] text-zinc-500 mb-4">Ideal for growing organizations</p>
+                            <h2 className="text-[18px] font-bold text-[#024efc] mb-1">{store.name || 'Plan Name'}</h2>
+                            <p className="text-[10.5px] text-zinc-500 mb-4">{store.description ? store.description.slice(0, 50) + (store.description.length > 50 ? '...' : '') : 'Ideal for growing organizations'}</p>
 
                             <div className="mb-4">
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-[20px] font-bold text-zinc-900">₹</span>
-                                    <span className="text-[32px] font-bold text-[#020b22] leading-none">150</span>
+                                    <span className="text-[32px] font-bold text-[#020b22] leading-none">{store.pricePerUserMonthlyINR || 0}</span>
                                 </div>
                                 <p className="text-[10px] text-zinc-500 mt-1">Per Employee / Month</p>
                             </div>

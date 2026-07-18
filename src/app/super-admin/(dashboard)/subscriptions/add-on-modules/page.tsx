@@ -9,6 +9,7 @@ import {
     Info, Rocket, HelpCircle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
 
 // ─── Static Data ────────────────────────────────────────────────────────────
 const ADD_ON_MODULES = [
@@ -131,10 +132,10 @@ function PageHeading() {
 
 // ─── Main Content ───────────────────────────────────────────────────────────
 export default function AddOnModulesPage() {
-    const [modules, setModules] = useState(ADD_ON_MODULES.map(m => ({ ...m, checked: m.defaultChecked })));
+    const store = useSubscriptionPlanStore();
     const router = useRouter();
     const toggleModule = (id: string) => {
-        setModules(modules.map(m => m.id === id ? { ...m, checked: !m.checked } : m));
+        store.toggleAddOnModule(id);
     };
 
     return (
@@ -173,7 +174,7 @@ export default function AddOnModulesPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-zinc-100">
-                                    {modules.map((mod) => (
+                                    {ADD_ON_MODULES.map((mod) => (
                                         <tr key={mod.id} className="hover:bg-zinc-50/50 transition-colors group">
                                             <td className="px-3 py-[8.7px] align-middle">
                                                 <button className="h-6 w-6 rounded flex items-center justify-center text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors">
@@ -206,7 +207,7 @@ export default function AddOnModulesPage() {
                                                     <input
                                                         type="checkbox"
                                                         className="peer sr-only"
-                                                        checked={mod.checked}
+                                                        checked={store.addOnModules.includes(mod.id)}
                                                         onChange={() => toggleModule(mod.id)}
                                                     />
                                                     <div className="h-4 w-4 rounded border border-zinc-300 bg-white peer-checked:bg-blue-600 peer-checked:border-blue-600 flex items-center justify-center transition-colors">
@@ -251,7 +252,7 @@ export default function AddOnModulesPage() {
                         <div className="bg-white rounded-lg border border-zinc-200 shadow-sm px-4 py-3 relative overflow-hidden">
                             <div className="absolute top-4 right-4">
                                 <span className="bg-blue-600 text-white px-2 py-1 rounded text-[9px] font-bold shadow-sm">
-                                    Most Popular
+                                    {store.planBadge || 'Most Popular'}
                                 </span>
                             </div>
 
@@ -259,13 +260,13 @@ export default function AddOnModulesPage() {
                                 <Rocket size={20} />
                             </div>
 
-                            <h2 className="text-[18px] font-bold text-[#024efc] mb-1">Professional</h2>
-                            <p className="text-[10.5px] text-zinc-500 mb-4">Ideal for growing organizations</p>
+                            <h2 className="text-[18px] font-bold text-[#024efc] mb-1">{store.name || 'Plan Name'}</h2>
+                            <p className="text-[10.5px] text-zinc-500 mb-4">{store.description ? store.description.slice(0, 50) + (store.description.length > 50 ? '...' : '') : 'Ideal for growing organizations'}</p>
 
                             <div className="mb-4">
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-[20px] font-bold text-zinc-900">₹</span>
-                                    <span className="text-[32px] font-bold text-[#020b22] leading-none">150</span>
+                                    <span className="text-[32px] font-bold text-[#020b22] leading-none">{store.pricePerUserMonthlyINR || 0}</span>
                                 </div>
                                 <p className="text-[10px] text-zinc-500 mt-1">Per Employee / Month</p>
                             </div>
