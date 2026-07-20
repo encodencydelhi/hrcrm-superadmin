@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import React, { useState } from 'react';
 import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
@@ -7,6 +7,7 @@ import {
   Maximize2, Minimize2, Lightbulb,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const STEPS = [
@@ -134,11 +135,11 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: () =>
 // ─── Features & Limits card ─────────────────────────────────────────────────
 function FeaturesLimitsCard() {
   const [tab, setTab] = useState<'core' | 'usage'>('core');
-  const [features, setFeatures] = useState(CORE_FEATURES);
+  const store = useSubscriptionPlanStore();
   const [selects, setSelects] = useState(SELECT_ROWS);
   const router = useRouter();
   const toggleFeature = (id: string) => {
-    setFeatures((prev) => prev.map((f) => (f.id === id ? { ...f, included: !f.included } : f)));
+    store.toggleFeature(id);
   };
   const setSelectValue = (id: string, value: string) => {
     setSelects((prev) => prev.map((s) => (s.id === id ? { ...s, value } : s)));
@@ -188,7 +189,7 @@ function FeaturesLimitsCard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100">
-                {features.map((f) => (
+                {CORE_FEATURES.map((f) => (
                   <tr key={f.id} className="text-[12.5px]">
                     <td className="py-2 pr-4">
                       <div className="flex items-start gap-2">
@@ -201,7 +202,7 @@ function FeaturesLimitsCard() {
                     </td>
                     <td className="py-2 text-center">
                       <div className="flex justify-center">
-                        <ToggleSwitch checked={f.included} onChange={() => toggleFeature(f.id)} />
+                        <ToggleSwitch checked={store.features.includes(f.id)} onChange={() => toggleFeature(f.id)} />
                       </div>
                     </td>
                   </tr>
@@ -258,6 +259,7 @@ function FeaturesLimitsCard() {
 
 // ─── Right rail: Plan preview ───────────────────────────────────────────────
 function PlanPreviewCard() {
+  const store = useSubscriptionPlanStore();
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-3">
       <p className="text-[13px] font-bold text-zinc-900">Plan Preview</p>
@@ -265,17 +267,17 @@ function PlanPreviewCard() {
 
       <div className="relative mt-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
         <span className="absolute -top-2.5 right-3 rounded-full bg-zinc-900 px-2.5 py-1 text-[9px] font-bold text-white whitespace-nowrap">
-          Most Popular
+          {store.planBadge || 'Most Popular'}
         </span>
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-100 text-indigo-600">
           <Rocket size={17} />
         </span>
-        <p className="text-[14px] font-bold text-indigo-700 mt-2">Professional</p>
-        <p className="text-[11.5px] text-zinc-500">Ideal for growing organizations</p>
+        <p className="text-[14px] font-bold text-indigo-700 mt-2">{store.name || 'Plan Name'}</p>
+        <p className="text-[11.5px] text-zinc-500">{store.description ? store.description.slice(0, 50) + (store.description.length > 50 ? '...' : '') : 'Ideal for growing organizations'}</p>
 
         <div className="mt-2 flex items-baseline gap-1">
           <span className="text-sm font-bold text-zinc-900">₹</span>
-          <span className="text-2xl font-extrabold text-zinc-900">150</span>
+          <span className="text-2xl font-extrabold text-zinc-900">{store.pricePerUserMonthlyINR || 0}</span>
         </div>
         <p className="text-[10.5px] text-zinc-400">Per Employee / Month</p>
 

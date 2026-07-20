@@ -7,6 +7,7 @@ import {
   User, FileText, Info, Headphones, ExternalLink,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const STEPS = [
@@ -206,12 +207,13 @@ function BillingCycleToggle({ value, onChange }: { value: string; onChange: (v: 
 
 // ─── Estimated price summary (inline, left column) ─────────────────────────
 function EstimatedPriceSummary() {
+  const store = useSubscriptionPlanStore();
   return (
     <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-3">
       <p className="text-[9px] font-semibold text-zinc-400 uppercase tracking-wide mb-1.5">Estimated Price Summary</p>
       <div className="flex flex-wrap items-center gap-2.5">
         <p className="text-[11px] font-semibold text-zinc-700 whitespace-nowrap">
-          Base Price (Per Employee/Month) <span className="font-bold text-zinc-900">₹ 150</span>
+          Base Price (Per Employee/Month) <span className="font-bold text-zinc-900">₹ {store.pricePerUserMonthlyINR || 0}</span>
         </p>
         <span className="text-zinc-300 text-[14px] shrink-0">+</span>
         <p className="text-[11px] font-semibold text-zinc-700 whitespace-nowrap">
@@ -235,6 +237,7 @@ function EstimatedPriceSummary() {
 
 // ─── Right rail: Plan preview ───────────────────────────────────────────────
 function PlanPreviewCard() {
+  const store = useSubscriptionPlanStore();
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-3">
       <p className="text-[13px] font-bold text-zinc-900">Plan Preview</p>
@@ -242,17 +245,17 @@ function PlanPreviewCard() {
 
       <div className="relative mt-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
         <span className="absolute -top-2.5 right-3 rounded-full bg-zinc-900 px-2.5 py-1 text-[9px] font-bold text-white whitespace-nowrap">
-          Most Popular
+          {store.planBadge || 'Most Popular'}
         </span>
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-100 text-indigo-600">
           <Rocket size={17} />
         </span>
-        <p className="text-[14px] font-bold text-indigo-700 mt-2">Professional</p>
-        <p className="text-[11.5px] text-zinc-500">Ideal for growing organizations</p>
+        <p className="text-[14px] font-bold text-indigo-700 mt-2">{store.name || 'Plan Name'}</p>
+        <p className="text-[11.5px] text-zinc-500">{store.description ? store.description.slice(0, 50) + (store.description.length > 50 ? '...' : '') : 'Ideal for growing organizations'}</p>
 
         <div className="mt-2 flex items-baseline gap-1">
           <span className="text-sm font-bold text-zinc-900">₹</span>
-          <span className="text-2xl font-extrabold text-zinc-900">150</span>
+          <span className="text-2xl font-extrabold text-zinc-900">{store.pricePerUserMonthlyINR || 0}</span>
         </div>
         <p className="text-[10.5px] text-zinc-400">Per Employee / Month</p>
 
@@ -271,6 +274,7 @@ function PlanPreviewCard() {
 
 // ─── Right rail: Pricing summary ────────────────────────────────────────────
 function PricingSummaryCard() {
+  const store = useSubscriptionPlanStore();
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-3">
       <div className="flex items-center justify-between mb-3">
@@ -280,7 +284,7 @@ function PricingSummaryCard() {
       <div className="space-y-2">
         <div className="flex items-center justify-between text-[11px]">
           <span className="text-zinc-500">Base Price (Per Employee)</span>
-          <span className="font-semibold text-zinc-900">₹ 150</span>
+          <span className="font-semibold text-zinc-900">₹ {store.pricePerUserMonthlyINR || 0}</span>
         </div>
         <div className="flex items-center justify-between text-[11px]">
           <span className="text-zinc-500">Estimated Add-on Modules</span>
@@ -323,6 +327,7 @@ function NeedHelpCard() {
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function CreateNewPlanStep4() {
+  const store = useSubscriptionPlanStore();
   const [pricingModel, setPricingModel] = useState('per_employee');
   const [billingCycle, setBillingCycle] = useState('monthly');
   const router = useRouter();
@@ -343,14 +348,14 @@ export default function CreateNewPlanStep4() {
               <Field label="Base Price (Per Employee/Month)" required hint="This is the base price before add-on modules and taxes.">
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[12.5px] text-zinc-400">₹</span>
-                  <input type="text" defaultValue="150" className={`${inputClass} pl-6`} />
+                  <input type="number" value={store.pricePerUserMonthlyINR} onChange={(e) => store.update({ pricePerUserMonthlyINR: Number(e.target.value) })} className={`${inputClass} pl-6`} />
                 </div>
               </Field>
               <Field label="Minimum Employees" hint="Minimum number of employees required to subscribe.">
                 <input type="text" defaultValue="10" className={inputClass} />
               </Field>
               <Field label="Maximum Employees" hint="Leave empty for unlimited.">
-                <input type="text" defaultValue="2000" className={inputClass} />
+                <input type="number" value={store.maxUsers} onChange={(e) => store.update({ maxUsers: Number(e.target.value) })} className={inputClass} />
               </Field>
             </div>
 
