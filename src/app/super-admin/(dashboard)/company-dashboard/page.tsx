@@ -27,6 +27,9 @@ import {
     UserCircle2,
     Calendar,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import api from "@/lib/axios";
 import needHelp from "@/assets/need_help.webp"
 import {
     LineChart,
@@ -238,27 +241,27 @@ const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
     </div>
 );
 
-const Breadcrumb = () => (
+const Breadcrumb = ({ companyName }: { companyName: string }) => (
     <div className="flex items-center gap-2 text-[10px]  px-0 py-0 mb-2">
         <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Home</span>
         <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
         <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Companies</span>
         <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
         <span className="text-blue-600 hover:text-blue-600 hover:underline cursor-pointer font-semibold">
-            TechVision Pvt. Ltd.
+            {companyName}
         </span>
         <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
         <span className=" font-semibold">Dashboard</span>
     </div>
 );
 
-const PageHeader = () => (
+const PageHeader = ({ companyName, status }: { companyName: string; status: string }) => (
     <div className="flex items-start justify-between px-0 py-0 flex-wrap gap-2">
         <div>
             <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold ">TechVision Pvt. Ltd.</h1>
-                <span className="text-[10px] bg-green-100 text-green-700 rounded-full px-2 py-0.5 font-medium">
-                    Active
+                <h1 className="text-xl font-bold ">{companyName}</h1>
+                <span className={`text-[10px] rounded-full px-2 py-0.5 font-medium ${status === 'ACTIVE' || status === 'LIVE' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {status || 'Active'}
                 </span>
             </div>
             <p className="text-[10px] mb-2">
@@ -657,11 +660,32 @@ const NeedHelp = () => (
 
 
 
-const CompanyDashboard = () => {
+const CompanyDashboardInner = () => {
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
+    const [company, setCompany] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (id) {
+            api.get(`/super-admin/tenants/${id}`).then(res => {
+                setCompany(res.data.data || res.data);
+                setLoading(false);
+            }).catch(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
+    }, [id]);
+
+    if (loading) return <div className="p-8 text-center text-sm font-medium">Loading dashboard...</div>;
+
+    const companyName = company?.company?.legalName || company?.name || "TechVision Pvt. Ltd.";
+    const status = company?.lifecycleStatus || "ACTIVE";
+
     return (
         <div className="min-h-screen bg-gray-50 py-0">
-            <Breadcrumb />
-            <PageHeader />
+            <Breadcrumb companyName={companyName} />
+            <PageHeader companyName={companyName} status={status} />
             <Tabs />
             <StatsGrid />
 
@@ -716,6 +740,14 @@ const CompanyDashboard = () => {
                 </div>
             </div>
         </div>
+    );
+};
+
+const CompanyDashboard = () => {
+    return (
+        <React.Suspense fallback={<div className="p-8 text-center text-sm font-medium">Loading dashboard...</div>}>
+            <CompanyDashboardInner />
+        </React.Suspense>
     );
 };
 

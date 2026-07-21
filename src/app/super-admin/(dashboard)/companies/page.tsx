@@ -350,7 +350,7 @@ function SuperAdminCompaniesPageInner() {
       label: 'COMPANY NAME',
       sortable: true,
       render: (v, row) => (
-        <Link href={`/super-admin/companies/${row._id}/lifecycle`} className="flex items-center gap-2.5 font-medium hover:text-[#0b1638]">
+        <Link href={`/super-admin/company-dashboard?id=${row._id}`} className="flex items-center gap-2.5 font-medium hover:text-[#0b1638]">
           <CompanyAvatar name={v} logoUrl={row.company?.logoUrl} />
           {v}
         </Link>

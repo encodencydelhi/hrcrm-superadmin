@@ -26,7 +26,8 @@ import {
 } from 'lucide-react';
 import { CrewcamLogo } from '@/components/branding/CrewcamLogo';
 import { LEAD_STAGE_GROUPS, stageGroupQuery } from '@/lib/leadStages';
-
+import Image from 'next/image';
+import logo from '@/assets/logo2.png';
 const LEADS_HREF = '/super-admin/leads';
 
 const PLATFORM_STATUS = [
@@ -107,13 +108,14 @@ export default function SuperAdminSidebar() {
         className="w-64 flex-shrink-0 flex flex-col relative z-20"
         style={{ background: 'var(--brand-primary, #0b1638)' }}
       >
-        <div className="h-16 flex items-center px-5" style={{ borderBottom: '1px solid rgba(245,196,81,0.15)' }}>
-          <div className="flex items-center gap-2.5">
-            <CrewcamLogo size={34} className="shrink-0" />
+        <div className="flex justify-center h-16 items-center pt-2 px-5" style={{ borderBottom: '1px solid rgba(245,196,81,0.15)' }}>
+          <div className="flex items-center justify-center w-full">
+            <Image src={logo} alt="Logo" className="w-[180px] h-auto object-contain mx-auto" />
+            {/* <CrewcamLogo size={34} className="shrink-0" />
             <div className="leading-tight">
               <p className="text-sm font-semibold text-white tracking-tight">Crewcam <span style={{ color: 'var(--brand-secondary, #f5c451)' }}>HRMS</span></p>
               <p className="text-[8px] text-white/40 uppercase tracking-widest">Insight &bull; Innovation &bull; Impact</p>
-            </div>
+            </div> */}
           </div>
         </div>
 
