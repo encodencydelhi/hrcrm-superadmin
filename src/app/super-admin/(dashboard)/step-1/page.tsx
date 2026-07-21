@@ -160,7 +160,7 @@ function PageHeading() {
                     <Home size={12} /> Home
                 </Link>
                 <ChevronRight size={12} />
-                <Link href="/dashboard/companies" className="hover:text-indigo-700">Companies</Link>
+                <Link href="/super-admin/companies" className="hover:text-indigo-700">Companies</Link>
                 <ChevronRight size={12} />
                 <span className="text-zinc-700 font-medium">Add New Company</span>
             </div>
@@ -250,7 +250,7 @@ function BasicInformationForm() {
     const isEditing = !!searchParams.get('edit');
     const [uploading, setUploading] = useState(false);
     const [generatingId, setGeneratingId] = useState(false);
-    
+
     // Master data states
     const [industries, setIndustries] = useState<string[]>(INDUSTRIES);
     const [companySizes, setCompanySizes] = useState<string[]>(COMPANY_SIZES);
@@ -269,7 +269,7 @@ function BasicInformationForm() {
             const activeIndustries = indRes.data.data.filter((i: any) => i.isActive).map((i: any) => i.name);
             const activeSizes = sizeRes.data.data.filter((i: any) => i.isActive).map((i: any) => i.name);
             const activeTzs = tzRes.data.data.filter((i: any) => i.isActive).map((i: any) => `(${i.offset}) ${i.identifier}`);
-            
+
             if (activeIndustries.length > 0) setIndustries(activeIndustries);
             if (activeSizes.length > 0) setCompanySizes(activeSizes);
             if (activeTzs.length > 0) setTimeZones(activeTzs);
@@ -328,7 +328,7 @@ function BasicInformationForm() {
                         <TextField label="Company Name" placeholder="Enter legal company name" required value={w.name} onChange={(v) => w.update({ name: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-1">
-                        <TextField label="Corporate ID" placeholder={generatingId ? 'Generating...' : 'Auto-generated'} required readOnly value={w.corporateId} onChange={() => {}} />
+                        <TextField label="Corporate ID" placeholder={generatingId ? 'Generating...' : 'Auto-generated'} required readOnly value={w.corporateId} onChange={() => { }} />
                     </div>
                     <div className="xl:col-start-3 xl:row-start-1">
                         <TextField label="Display Name" placeholder="Enter display name (short name)" required value={w.tradeName} onChange={(v) => w.update({ tradeName: v })} />
@@ -632,7 +632,11 @@ function AddNewCompanyPageInner() {
 
     useEffect(() => {
         const editId = searchParams.get('edit');
-        if (!editId || w.editingTenantId === editId) return;
+        if (!editId) {
+            w.reset();
+            return;
+        }
+        if (w.editingTenantId === editId) return;
         api.get(`/super-admin/tenants/${editId}`)
             .then((res) => w.loadFromExisting(editId, res.data))
             .catch((err) => console.error('Failed to load company for editing:', err));

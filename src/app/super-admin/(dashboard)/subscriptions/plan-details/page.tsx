@@ -9,16 +9,9 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
+import toast from 'react-hot-toast';
 
-const PREVIEW_FEATURES = [
-    'Up to 200 Employees',
-    'All Starter Features',
-    'Payroll Management',
-    'Advanced Attendance',
-    'Performance Management',
-    'Reports & Analytics',
-    'Priority Support'
-];
+// Preview features dynamic array generated inside component
 
 // ─── Breadcrumb + Heading ───────────────────────────────────────────────────
 function PageHeading() {
@@ -47,6 +40,28 @@ function PageHeading() {
 export default function PlanDetailsPage() {
     const router = useRouter();
     const store = useSubscriptionPlanStore();
+    const [errors, setErrors] = React.useState<Record<string, string>>({});
+
+    const handleNext = () => {
+        const newErrors: Record<string, string> = {};
+        if (!store.name.trim()) newErrors.name = 'Plan Name is required';
+        if (!store.planCode.trim()) newErrors.planCode = 'Plan Code is required';
+        if (!store.description.trim()) newErrors.description = 'Plan Description is required';
+        if (store.targetAudience.length === 0) newErrors.targetAudience = 'Please select at least one Target Audience';
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+        setErrors({});
+        router.push('/super-admin/subscriptions/features-limits');
+    };
+
+    const PREVIEW_FEATURES = [
+        `Up to ${store.maxUsers || 'Unlimited'} Employees`,
+        ...store.features,
+    ];
+
     return (
         <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-1.5 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
             <PageHeading />
@@ -74,8 +89,9 @@ export default function PlanDetailsPage() {
                                     placeholder="e.g. Professional"
                                     value={store.name}
                                     onChange={(e) => store.update({ name: e.target.value })}
-                                    className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 text-zinc-700 placeholder:text-zinc-400"
+                                    className={`w-full border ${errors.name ? 'border-red-500 focus:border-red-500' : 'border-zinc-200 focus:border-blue-500'} rounded-md px-3 py-2 text-[12px] focus:outline-none text-zinc-700 placeholder:text-zinc-400`}
                                 />
+                                {errors.name && <p className="text-[10px] text-red-500 mt-1">{errors.name}</p>}
                             </div>
                             <div>
                                 <label className="text-[11px] font-bold text-zinc-900 block mb-[3px]">
@@ -86,9 +102,9 @@ export default function PlanDetailsPage() {
                                     placeholder="e.g. PRO"
                                     value={store.planCode}
                                     onChange={(e) => store.update({ planCode: e.target.value })}
-                                    className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 text-zinc-700 placeholder:text-zinc-400"
+                                    className={`w-full border ${errors.planCode ? 'border-red-500 focus:border-red-500' : 'border-zinc-200 focus:border-blue-500'} rounded-md px-3 py-2 text-[12px] focus:outline-none text-zinc-700 placeholder:text-zinc-400`}
                                 />
-                                <p className="text-[9.5px] text-zinc-500 mt-1">Unique code for internal reference (e.g., BASIC, PRO, ENT)</p>
+                                {errors.planCode ? <p className="text-[10px] text-red-500 mt-1">{errors.planCode}</p> : <p className="text-[9.5px] text-zinc-500 mt-1">Unique code for internal reference (e.g., BASIC, PRO, ENT)</p>}
                             </div>
                         </div>
 
@@ -102,11 +118,11 @@ export default function PlanDetailsPage() {
                                     placeholder="Describe the plan, its benefits, and ideal use cases..."
                                     value={store.description}
                                     onChange={(e) => store.update({ description: e.target.value })}
-                                    maxLength={500}
-                                    className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-blue-500 min-h-[90px] resize-none text-zinc-700 placeholder:text-zinc-400"
+                                    className={`w-full border ${errors.description ? 'border-red-500 focus:border-red-500' : 'border-zinc-200 focus:border-blue-500'} rounded-md px-3 py-2 text-[12px] focus:outline-none min-h-[90px] resize-none text-zinc-700 placeholder:text-zinc-400`}
                                 ></textarea>
                                 <span className="absolute bottom-2 right-2 text-[10px] text-zinc-400 font-medium">{store.description.length}/500</span>
                             </div>
+                            {errors.description && <p className="text-[10px] text-red-500 mt-1">{errors.description}</p>}
                         </div>
 
                         {/* Plan Category */}
@@ -144,6 +160,7 @@ export default function PlanDetailsPage() {
                                     </label>
                                 ))}
                             </div>
+                            {errors.targetAudience && <p className="text-[10px] text-red-500 mt-1">{errors.targetAudience}</p>}
                         </div>
 
                         {/* Plan Badge & Display Order */}
@@ -191,7 +208,7 @@ export default function PlanDetailsPage() {
                         <button onClick={() => router.push('/super-admin/subscriptions/subscription-plan')} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                             Cancel
                         </button>
-                        <button onClick={() => router.push('/super-admin/subscriptions/features-limits')} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+                        <button onClick={handleNext} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
                             Next: Features & Limits <ArrowRight size={14} className="text-white" />
                         </button>
                     </div>

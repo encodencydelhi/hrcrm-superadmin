@@ -27,6 +27,9 @@ import {
     UserCircle2,
     Calendar,
 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import api from "@/lib/axios";
 import needHelp from "@/assets/need_help.webp"
 import {
     LineChart,
@@ -79,65 +82,7 @@ const TABS = [
     { label: "Helpdesk", icon: Headphones },
 ];
 
-const STATS = [
-    {
-        icon: Users,
-        iconBg: "bg-blue-50",
-        iconColor: "text-blue-600",
-        label: "Total Employees",
-        value: "348",
-        delta: "18 this month",
-        deltaColor: "text-green-600",
-        up: true,
-    },
-    {
-        icon: CheckCircle2,
-        iconBg: "bg-green-50",
-        iconColor: "text-green-600",
-        label: "Present Today",
-        value: "278",
-        delta: "79.89%",
-        deltaColor: "",
-    },
-    {
-        icon: CalendarDays,
-        iconBg: "bg-purple-50",
-        iconColor: "text-purple-600",
-        label: "On Leave",
-        value: "32",
-        delta: "9.20%",
-        deltaColor: "text-orange-500",
-    },
-    {
-        icon: UserPlus,
-        iconBg: "bg-blue-50",
-        iconColor: "text-blue-600",
-        label: "New Joiners (This Month)",
-        value: "15",
-        delta: "25% from last month",
-        deltaColor: "text-green-600",
-        up: true,
-    },
-    {
-        icon: Wallet,
-        iconBg: "bg-amber-50",
-        iconColor: "text-amber-600",
-        label: "Monthly Payroll",
-        value: "₹ 28.75 Lakh",
-        delta: "May 2025",
-        deltaColor: "",
-    },
-    {
-        icon: Headphones,
-        iconBg: "bg-red-50",
-        iconColor: "text-red-500",
-        label: "Open Tickets",
-        value: "8",
-        delta: "3 from last week",
-        deltaColor: "text-red-500",
-        down: true,
-    },
-];
+// STATS array removed in favor of dynamic rendering in StatsGrid
 
 const ACTIVITIES = [
     {
@@ -238,27 +183,27 @@ const Card: React.FC<{ children: React.ReactNode; className?: string }> = ({
     </div>
 );
 
-const Breadcrumb = () => (
+const Breadcrumb = ({ companyName }: { companyName: string }) => (
     <div className="flex items-center gap-2 text-[10px]  px-0 py-0 mb-2">
         <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Home</span>
         <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
         <span className="text-blue-600 hover:text-blue-600 cursor-pointer font-semibold">Companies</span>
         <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
         <span className="text-blue-600 hover:text-blue-600 hover:underline cursor-pointer font-semibold">
-            TechVision Pvt. Ltd.
+            {companyName}
         </span>
         <ChevronRight className="w-3 h-3 text-blue-600 hover:text-blue-600 font-semibold" />
         <span className=" font-semibold">Dashboard</span>
     </div>
 );
 
-const PageHeader = () => (
+const PageHeader = ({ companyName, status }: { companyName: string; status: string }) => (
     <div className="flex items-start justify-between px-0 py-0 flex-wrap gap-2">
         <div>
             <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold ">TechVision Pvt. Ltd.</h1>
-                <span className="text-[10px] bg-green-100 text-green-700 rounded-full px-2 py-0.5 font-medium">
-                    Active
+                <h1 className="text-xl font-bold ">{companyName}</h1>
+                <span className={`text-[10px] rounded-full px-2 py-0.5 font-medium ${status === 'ACTIVE' || status === 'LIVE' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                    {status || 'Active'}
                 </span>
             </div>
             <p className="text-[10px] mb-2">
@@ -308,29 +253,86 @@ const Tabs = () => (
     </Card>
 );
 
-const StatsGrid = () => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-0 py-2">
-        {STATS.map((s) => {
-            const Icon = s.icon;
-            return (
-                <Card key={s.label} className="flex items-start gap-2">
-                    <div className={`${s.iconBg} rounded-full mt-2 p-2 shrink-0`}>
-                        <Icon className={`w-4 h-4 ${s.iconColor}`} />
-                    </div>
-                    <div className="flex flex-col gap-1 min-w-0">
-                        <p className="text-[10px] ">{s.label}</p>
-                        <p className="text-lg font-semibold ">{s.value}</p>
-                        <div className="flex items-center gap-2">
-                            {s.up && <ArrowUp className="w-3 h-3 text-green-600" />}
-                            {s.down && <ArrowDown className="w-3 h-3 text-red-500" />}
-                            <span className={`text-[10px] ${s.deltaColor}`}>{s.delta}</span>
+const StatsGrid = ({ stats }: { stats: any }) => {
+    const dynamicStats = [
+        {
+            icon: Users,
+            iconBg: "bg-blue-50",
+            iconColor: "text-blue-600",
+            label: "Total Employees",
+            value: stats?.totalEmployees || 0,
+            delta: "",
+            deltaColor: "",
+        },
+        {
+            icon: CheckCircle2,
+            iconBg: "bg-green-50",
+            iconColor: "text-green-600",
+            label: "Present Today",
+            value: stats?.presentToday || 0,
+            delta: "",
+            deltaColor: "",
+        },
+        {
+            icon: CalendarDays,
+            iconBg: "bg-purple-50",
+            iconColor: "text-purple-600",
+            label: "On Leave",
+            value: stats?.onLeave || 0,
+            delta: "",
+            deltaColor: "",
+        },
+        {
+            icon: UserPlus,
+            iconBg: "bg-blue-50",
+            iconColor: "text-blue-600",
+            label: "New Joiners (This Month)",
+            value: stats?.newJoiners || 0,
+            delta: "",
+            deltaColor: "",
+        },
+        {
+            icon: Wallet,
+            iconBg: "bg-amber-50",
+            iconColor: "text-amber-600",
+            label: "Monthly Payroll",
+            value: "₹ " + (((stats?.monthlyPayroll || 0) / 100000).toFixed(2)) + " Lakh",
+            delta: "",
+            deltaColor: "",
+        },
+        {
+            icon: Headphones,
+            iconBg: "bg-red-50",
+            iconColor: "text-red-500",
+            label: "Open Tickets",
+            value: stats?.openTickets || 0,
+            delta: "",
+            deltaColor: "",
+        },
+    ];
+
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 px-0 py-2">
+            {dynamicStats.map((s) => {
+                const Icon = s.icon;
+                return (
+                    <Card key={s.label} className="flex items-start gap-2">
+                        <div className={`${s.iconBg} rounded-full mt-2 p-2 shrink-0`}>
+                            <Icon className={`w-4 h-4 ${s.iconColor}`} />
                         </div>
-                    </div>
-                </Card>
-            );
-        })}
-    </div>
-);
+                        <div className="flex flex-col gap-1 min-w-0">
+                            <p className="text-[10px] ">{s.label}</p>
+                            <p className="text-lg font-semibold ">{s.value}</p>
+                            <div className="flex items-center gap-2">
+                                {s.delta && <span className={`text-[10px] ${s.deltaColor}`}>{s.delta}</span>}
+                            </div>
+                        </div>
+                    </Card>
+                );
+            })}
+        </div>
+    );
+};
 
 const HeadcountTrend = () => (
     <Card className="flex flex-col gap-2 h-full">
@@ -657,13 +659,39 @@ const NeedHelp = () => (
 
 
 
-const CompanyDashboard = () => {
+const CompanyDashboardInner = () => {
+    const searchParams = useSearchParams();
+    const id = searchParams.get('id');
+    const [company, setCompany] = useState<any>(null);
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (id) {
+            Promise.all([
+                api.get(`/super-admin/tenants/${id}`),
+                api.get(`/super-admin/tenants/${id}/dashboard-stats`).catch(() => ({ data: {} }))
+            ]).then(([companyRes, statsRes]) => {
+                setCompany(companyRes.data.data || companyRes.data);
+                setStats(statsRes.data.data || statsRes.data);
+                setLoading(false);
+            }).catch(() => setLoading(false));
+        } else {
+            setLoading(false);
+        }
+    }, [id]);
+
+    if (loading) return <div className="p-8 text-center text-sm font-medium">Loading dashboard...</div>;
+
+    const companyName = company?.company?.legalName || company?.name || "TechVision Pvt. Ltd.";
+    const status = company?.lifecycleStatus || "ACTIVE";
+
     return (
         <div className="min-h-screen bg-gray-50 py-0">
-            <Breadcrumb />
-            <PageHeader />
+            <Breadcrumb companyName={companyName} />
+            <PageHeader companyName={companyName} status={status} />
             <Tabs />
-            <StatsGrid />
+            <StatsGrid stats={stats} />
 
             {/* Left content area is 3/4 of the row width, right sidebar is 1/4 — matches the 955px:315px split in the design */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 px-0 pb-2">
@@ -716,6 +744,14 @@ const CompanyDashboard = () => {
                 </div>
             </div>
         </div>
+    );
+};
+
+const CompanyDashboard = () => {
+    return (
+        <React.Suspense fallback={<div className="p-8 text-center text-sm font-medium">Loading dashboard...</div>}>
+            <CompanyDashboardInner />
+        </React.Suspense>
     );
 };
 

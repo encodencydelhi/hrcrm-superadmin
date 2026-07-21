@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 export interface SubscriptionPlanState {
+  id: string | null;
   // Plan Details (Step 1)
   name: string;
   planCode: string;
@@ -46,6 +47,7 @@ export interface SubscriptionPlanState {
 }
 
 const initialState = {
+  id: null,
   // Step 1
   name: '',
   planCode: '',
