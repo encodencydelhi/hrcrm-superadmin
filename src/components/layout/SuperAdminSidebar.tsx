@@ -108,15 +108,13 @@ export default function SuperAdminSidebar() {
         className="w-64 flex-shrink-0 flex flex-col relative z-20"
         style={{ background: 'var(--brand-primary, #0b1638)' }}
       >
-        <div className="flex justify-center h-16 items-center pt-2 px-5" style={{ borderBottom: '1px solid rgba(245,196,81,0.15)' }}>
-          <div className="flex items-center justify-center w-full">
-            <Image src={logo} alt="Logo" className="w-[180px] h-auto object-contain mx-auto" />
-            {/* <CrewcamLogo size={34} className="shrink-0" />
-            <div className="leading-tight">
-              <p className="text-sm font-semibold text-white tracking-tight">Crewcam <span style={{ color: 'var(--brand-secondary, #f5c451)' }}>HRMS</span></p>
-              <p className="text-[8px] text-white/40 uppercase tracking-widest">Insight &bull; Innovation &bull; Impact</p>
-            </div> */}
-          </div>
+        <div className="w-full flex justify-center h-16 items-center pt-2" style={{ borderBottom: '1px solid rgba(245,196,81,0.15)' }}>
+          <Image src={logo} alt="Logo" style={{ width: '180px', height: 'auto' }} className="object-contain ml-[-12px]" />
+          {/* <CrewcamLogo size={34} className="shrink-0" />
+          <div className="leading-tight">
+            <p className="text-sm font-semibold text-white tracking-tight">Crewcam <span style={{ color: 'var(--brand-secondary, #f5c451)' }}>HRMS</span></p>
+            <p className="text-[8px] text-white/40 uppercase tracking-widest">Insight &bull; Innovation &bull; Impact</p>
+          </div> */}
         </div>
 
         <div className="sa-sidebar-scroll flex-1 overflow-y-auto py-2 px-3">

@@ -632,7 +632,11 @@ function AddNewCompanyPageInner() {
 
     useEffect(() => {
         const editId = searchParams.get('edit');
-        if (!editId || w.editingTenantId === editId) return;
+        if (!editId) {
+            w.reset();
+            return;
+        }
+        if (w.editingTenantId === editId) return;
         api.get(`/super-admin/tenants/${editId}`)
             .then((res) => w.loadFromExisting(editId, res.data))
             .catch((err) => console.error('Failed to load company for editing:', err));
