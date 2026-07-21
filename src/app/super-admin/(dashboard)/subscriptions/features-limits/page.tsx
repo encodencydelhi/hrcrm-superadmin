@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
+import toast from 'react-hot-toast';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const STEPS = [
@@ -40,15 +41,7 @@ const SELECT_ROWS: { id: string; name: string; description: string; options: str
   { id: 'support', name: 'Support', description: 'Customer support and assistance', options: ['Email Only', 'Email & Chat', 'Priority 24/7'], value: 'Email & Chat' },
 ];
 
-const PREVIEW_FEATURES = [
-  'Up to 200 Employees',
-  'All Starter Features',
-  'Payroll Management',
-  'Advanced Attendance',
-  'Performance Management',
-  'Reports & Analytics',
-  'Priority Support',
-];
+// Preview features dynamic array generated inside component
 
 // ─── Breadcrumb + heading ───────────────────────────────────────────────────
 const BREADCRUMB = ['Home', 'Subscriptions', 'Subscription Plans', 'Create New Plan'];
@@ -138,11 +131,21 @@ function FeaturesLimitsCard() {
   const store = useSubscriptionPlanStore();
   const [selects, setSelects] = useState(SELECT_ROWS);
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
   const toggleFeature = (id: string) => {
     store.toggleFeature(id);
   };
   const setSelectValue = (id: string, value: string) => {
     setSelects((prev) => prev.map((s) => (s.id === id ? { ...s, value } : s)));
+  };
+
+  const handleNext = () => {
+    if (store.features.length === 0) {
+      setError('Please select at least one feature');
+      return;
+    }
+    setError(null);
+    router.push('/super-admin/subscriptions/add-on-modules');
   };
 
   return (
@@ -243,12 +246,13 @@ function FeaturesLimitsCard() {
           </div>
         )}
 
+        {error && <div className="px-3 text-red-500 text-[11.5px] font-medium">{error}</div>}
         {/* Footer actions */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
           <button onClick={() => router.push("/super-admin/subscriptions/plan-details")} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
             <ArrowLeft size={14} /> Back
           </button>
-          <button onClick={() => router.push("/super-admin/subscriptions/add-on-modules")} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+          <button onClick={handleNext} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
             Next: Add-on Modules <ArrowRight size={14} className="text-white" />
           </button>
         </div>
@@ -260,6 +264,10 @@ function FeaturesLimitsCard() {
 // ─── Right rail: Plan preview ───────────────────────────────────────────────
 function PlanPreviewCard() {
   const store = useSubscriptionPlanStore();
+  const PREVIEW_FEATURES = [
+    `Up to ${store.maxUsers || 'Unlimited'} Employees`,
+    ...store.features,
+  ];
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-3">
       <p className="text-[13px] font-bold text-zinc-900">Plan Preview</p>

@@ -97,15 +97,7 @@ const ADD_ON_MODULES = [
     }
 ];
 
-const PREVIEW_FEATURES = [
-    'Up to 200 Employees',
-    'All Starter Features',
-    'Payroll Management',
-    'Advanced Attendance',
-    'Performance Management',
-    'Reports & Analytics',
-    'Priority Support'
-];
+// Preview features dynamic array generated inside component
 
 // ─── Breadcrumb + Heading ───────────────────────────────────────────────────
 function PageHeading() {
@@ -137,6 +129,16 @@ export default function AddOnModulesPage() {
     const toggleModule = (id: string) => {
         store.toggleAddOnModule(id);
     };
+
+    const handleNext = () => {
+        // Validation could be added here if needed in the future
+        router.push('/super-admin/subscriptions/billing-pricing');
+    };
+
+    const PREVIEW_FEATURES = [
+        `Up to ${store.maxUsers || 'Unlimited'} Employees`,
+        ...store.features,
+    ];
 
     return (
         <div className="w-full max-w-[1600px] mx-auto pb-4 space-y-1.5 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
@@ -235,7 +237,7 @@ export default function AddOnModulesPage() {
                         <button onClick={() => router.push('/super-admin/subscriptions/features-limits')} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                             <ArrowLeft size={14} /> Back
                         </button>
-                        <button onClick={() => router.push('/super-admin/subscriptions/billing-pricing')} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
+                        <button onClick={handleNext} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
                             Next: Billing & Pricing <ArrowRight size={14} className="text-white" />
                         </button>
                     </div>

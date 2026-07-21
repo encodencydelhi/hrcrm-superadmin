@@ -126,11 +126,11 @@ function PageHeading() {
     return (
         <section className="py-1">
             <div className="flex items-center gap-1.5 text-[12px] text-zinc-500">
-                <Link href="/dashboard" className="flex items-center gap-1 hover:text-indigo-700">
+                <Link href="/super-admin" className="flex items-center gap-1 hover:text-indigo-700">
                     <Home size={12} /> Home
                 </Link>
                 <ChevronRight size={12} />
-                <Link href="/dashboard/companies" className="hover:text-indigo-700">Companies</Link>
+                <Link href="/super-admin/companies" className="hover:text-indigo-700">Companies</Link>
                 <ChevronRight size={12} />
                 <span className="text-zinc-700 font-medium">Add New Company</span>
             </div>
@@ -385,7 +385,7 @@ function SubscriptionAndBillingCard({
                         <p className="text-[11.5px] text-zinc-400 text-justify">Configure billing cycle and payment terms</p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-2">
-                        <SelectField label="Billing Cycle" options={['Monthly', 'Quarterly', 'Annually']} value={billing === 'yearly' ? 'Annually' : 'Monthly'} onChange={() => {}} />
+                        <SelectField label="Billing Cycle" options={['Monthly', 'Quarterly', 'Annually']} value={billing === 'yearly' ? 'Annually' : 'Monthly'} onChange={() => { }} />
                         <SelectField label="Advance Payment" options={['1 Month', '2 Months', '3 Months', 'None']} value={w.advancePayment} onChange={(v) => w.update({ advancePayment: v })} />
                         <SelectField label="Invoice Currency" options={['INR (₹) - Indian Rupee', 'USD ($) - US Dollar', 'EUR (€) - Euro', 'GBP (£) - British Pound']} value={w.invoiceCurrency} onChange={(v) => w.update({ invoiceCurrency: v })} />
                         <SelectField label="GST Treatment" options={['Exclusive of GST', 'Inclusive of GST', 'Not Applicable']} value={w.gstTreatment} onChange={(v) => w.update({ gstTreatment: v })} />
