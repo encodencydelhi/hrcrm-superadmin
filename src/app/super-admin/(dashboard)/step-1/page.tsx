@@ -341,7 +341,7 @@ function BasicInformationForm() {
                         <div className="flex h-full min-h-[150px] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50/60 px-3 py-3 text-center">
                             {w.logoUrl ? (
                                 // eslint-disable-next-line @next/next/no-img-element
-                                <img src={w.logoUrl} alt="Company logo" className="h-12 w-12 rounded-lg object-cover" />
+                                <img src={w.logoUrl} alt="Company logo" className="w-full max-h-[110px] rounded-lg object-contain" />
                             ) : (
                                 <UploadCloud size={18} className="text-zinc-400" />
                             )}
