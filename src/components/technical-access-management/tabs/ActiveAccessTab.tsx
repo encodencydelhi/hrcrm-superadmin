@@ -1,8 +1,8 @@
 "use client";
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
     ChevronRight, RefreshCcw, Clock, Pencil, PauseCircle, XCircle,
-    Download, ShieldCheck, ArrowLeft, MoreVertical, Timer, Users, LogOut,
+    Download, ShieldCheck, ArrowLeft, MoreVertical, Timer, Users, LogOut, FileSearch,
 } from "lucide-react";
 import TableCard, { TableCardColumn } from "@/components/table/TableCard";
 
@@ -113,6 +113,58 @@ const StatusPill = ({ label }: { label: string }) => (
     </span>
 );
 
+// ---- Row action menu ----
+function SessionActionsMenu({ session }: { session: ActiveSession }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const actions = [
+        { label: "View Details", icon: FileSearch, onClick: () => console.log("view details", session.name) },
+        { label: "Extend Session", icon: Clock, onClick: () => console.log("extend session", session.name) },
+        { label: "Force Logout", icon: LogOut, danger: true, onClick: () => console.log("force logout", session.name) },
+        { label: "Terminate Session", icon: XCircle, danger: true, onClick: () => console.log("terminate", session.name) },
+    ];
+
+    return (
+        <div className="relative" ref={ref}>
+            <button
+                onClick={() => setOpen((v) => !v)}
+                className="text-zinc-400 hover:text-zinc-600 p-1 rounded hover:bg-zinc-100 transition-colors"
+            >
+                <MoreVertical className="h-4 w-4" />
+            </button>
+
+            {open && (
+                <div className="absolute right-0 top-7 z-10 w-44 rounded-md border border-zinc-200 bg-white shadow-lg py-1">
+                    {actions.map((action) => (
+                        <button
+                            key={action.label}
+                            onClick={() => {
+                                action.onClick();
+                                setOpen(false);
+                            }}
+                            className={`flex w-full items-center gap-2 px-3 py-1.5 text-[11.5px] font-medium hover:bg-zinc-50 transition-colors ${
+                                action.danger ? "text-red-600" : "text-zinc-700"
+                            }`}
+                        >
+                            <action.icon size={13} />
+                            {action.label}
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ------------------------------------------------------------------
 // Active Sessions table
 // ------------------------------------------------------------------
@@ -167,12 +219,12 @@ function ActiveSessionsTable() {
         {
             key: "action",
             header: "Action",
-            render: () => (
+            render: (s) => (
                 <div className="flex items-center gap-2">
                     <button className="rounded-lg border border-red-200 px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50">
                         Terminate
                     </button>
-                    <MoreVertical className="h-4 w-4" />
+                    <SessionActionsMenu session={s} />
                 </div>
             ),
         },

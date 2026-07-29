@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   ChevronRight,
   FileText,
@@ -244,6 +244,16 @@ const StatusPill = ({ label }: { label: string }) => (
 // Main component
 // ------------------------------------------------------------------
 const ActiveAccessPage = () => {
+  const [openDropdown, setOpenDropdown] = useState<number | null>(null);
+
+  const dropdownItems = [
+    { label: "View Details", icon: FileText, color: "text-gray-700" },
+    { label: "Extend Access", icon: Timer, color: "text-blue-600" },
+    { label: "Pause Session", icon: PauseCircle, color: "text-amber-600" },
+    { label: "Revoke Access", icon: XCircle, color: "text-red-600" },
+    { label: "Download Report", icon: Download, color: "text-gray-700" },
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 mb-2">
       <div className={`mx-auto flex max-w-[1400px] flex-col ${GAP}`}>
@@ -438,13 +448,37 @@ const ActiveAccessPage = () => {
                           <StatusPill label={s.status} />
                         </td>
                         <td className={PAD}>
-                          <div className="flex items-center gap-2">
-                            <button className="rounded-lg border border-red-200 px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50">
-                              Terminate
-                            </button>
-                            <MoreVertical className="h-4 w-4 " />
-                          </div>
-                        </td>
+                           <div className="flex items-center gap-2">
+                             <button className="rounded-lg border border-red-200 px-2 py-1 text-[11px] font-medium text-red-600 hover:bg-red-50">
+                               Terminate
+                             </button>
+                             <div className="relative">
+                               <button
+                                 onClick={() => setOpenDropdown(openDropdown === s.id ? null : s.id)}
+                                 className="rounded-lg p-1 hover:bg-gray-100"
+                               >
+                                 <MoreVertical className="h-4 w-4 " />
+                               </button>
+                               {openDropdown === s.id && (
+                                 <div className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                                   {dropdownItems.map((item) => {
+                                     const Icon = item.icon;
+                                     return (
+                                       <button
+                                         key={item.label}
+                                         onClick={() => setOpenDropdown(null)}
+                                         className={`flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium ${item.color} hover:bg-gray-50`}
+                                       >
+                                         <Icon className="h-3.5 w-3.5" />
+                                         {item.label}
+                                       </button>
+                                     );
+                                   })}
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         </td>
                       </tr>
                     ))}
                   </tbody>
