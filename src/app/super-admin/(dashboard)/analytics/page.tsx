@@ -18,11 +18,25 @@ interface ReportsSummary {
 }
 
 export default function SuperAdminAnalyticsPage() {
+
   const { data, isLoading } = useQuery<ReportsSummary>({
     queryKey: ['super-admin', 'reports-summary'],
     queryFn: async () => (await api.get('/super-admin/reports/summary')).data,
   });
+const CustomYAxisTick = (props: any) => {
+    const { x, y, payload } = props;
+    const MAX_CHARS = 14;
+    const value: string = payload.value ?? "";
+    const label =
+        value.length > MAX_CHARS ? `${value.slice(0, MAX_CHARS)}…` : value;
 
+    return (
+        <text x={x} y={y} dy={4} textAnchor="end" fontSize={10} fill="#52525b">
+            <title>{value}</title>
+            {label}
+        </text>
+    );
+};
   return (
     <div className="space-y-4">
       <div>
@@ -74,43 +88,43 @@ export default function SuperAdminAnalyticsPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-12 gap-3">
-        <Card className="col-span-6 border-zinc-200/80 shadow-sm rounded-lg overflow-hidden">
-          <CardHeader className="px-4 py-2.5 border-b border-zinc-100 bg-zinc-50/50">
-            <CardTitle className="text-[13px] font-md">Module Adoption</CardTitle>
-          </CardHeader>
-          <CardContent className="p-1">
-            <div className="h-[260px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.moduleAdoption || []} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 0 }}>
-                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#a1a1aa' }} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#52525b' }} width={110} />
-                  <Tooltip contentStyle={{ borderRadius: 6, fontSize: 12 }} />
-                  <Bar dataKey="count" name="Companies" fill="#22c55e" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="grid grid-cols-12 gap-3">
+    <Card className="col-span-6 border-zinc-200/80 shadow-sm rounded-lg overflow-hidden">
+      <CardHeader className="px-4 py-2.5 border-b border-zinc-100 bg-zinc-50/50">
+        <CardTitle className="text-[13px] font-md">Module Adoption</CardTitle>
+      </CardHeader>
+      <CardContent className="p-1">
+        <div className="h-[260px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data?.moduleAdoption || []} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 0 }}>
+              <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#a1a1aa' }} allowDecimals={false} />
+              <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={<CustomYAxisTick />} width={110} interval={0} />
+              <Tooltip contentStyle={{ borderRadius: 6, fontSize: 12 }} />
+              <Bar dataKey="count" name="Companies" fill="#22c55e" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
 
-        <Card className="col-span-6 border-zinc-200/80 shadow-sm rounded-lg overflow-hidden">
-          <CardHeader className="px-4 py-2.5 border-b border-zinc-100 bg-zinc-50/50">
-            <CardTitle className="text-[13px] font-md">Sales Funnel (Leads)</CardTitle>
-          </CardHeader>
-          <CardContent className="p-1">
-            <div className="h-[260px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data?.leadFunnel || []} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#a1a1aa' }} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#a1a1aa' }} allowDecimals={false} />
-                  <Tooltip contentStyle={{ borderRadius: 6, fontSize: 12 }} />
-                  <Bar dataKey="count" name="Leads" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+    <Card className="col-span-6 border-zinc-200/80 shadow-sm rounded-lg overflow-hidden">
+      <CardHeader className="px-4 py-2.5 border-b border-zinc-100 bg-zinc-50/50">
+        <CardTitle className="text-[13px] font-md">Sales Funnel (Leads)</CardTitle>
+      </CardHeader>
+      <CardContent className="p-1">
+        <div className="h-[260px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data?.leadFunnel || []} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+              <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 9, fill: '#a1a1aa' }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#a1a1aa' }} allowDecimals={false} />
+              <Tooltip contentStyle={{ borderRadius: 6, fontSize: 12 }} />
+              <Bar dataKey="count" name="Leads" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
 
       {!isLoading && (data?.packageDistribution || []).length === 0 && (
         <p className="text-xs text-zinc-400 text-center py-4">Not enough data yet — analytics will populate as companies, payments, and leads are added.</p>

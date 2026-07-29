@@ -49,7 +49,7 @@ const NAV_ITEMS: NavItem[] = [
   // { href: '/super-admin/term-and-conditions', icon: FileText, label: 'Terms & Conditions' },
   // { href: '/super-admin/credentials-and-instructions', icon: KeyRound, label: 'Credentials & Instructions' },
   // { href: '/super-admin/create-new-plan-step2', icon: FilePlus, label: 'Create New Plan' },
-  { href: '/super-admin/coming-soon?feature=Workforce', icon: Users2, label: 'Workforce' },
+  { href: '/super-admin/coming-soon?feature=workforce', icon: Users2, label: 'Workforce' },
   { href: '/super-admin/setup-fees', icon: Landmark, label: 'Revenue & Finance' },
   { href: '/super-admin/invoices', icon: Receipt, label: 'Billing & Invoices' },
   { href: '/super-admin/subscriptions/subscription-plan', icon: CreditCard, label: 'Subscriptions' },
@@ -75,7 +75,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: LEADS_HREF, label: 'All Leads' },
     ],
   },
-  { href: '/super-admin/coming-soon?feature=Integrations', icon: Plug, label: 'Integrations' },
+  { href: '/super-admin/coming-soon?feature=integrations', icon: Plug, label: 'Integrations' },
   { href: '/super-admin/reports', icon: BarChart3, label: 'Reports' },
   {
     icon: SettingsIcon, label: 'Settings',

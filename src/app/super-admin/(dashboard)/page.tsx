@@ -15,6 +15,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell,
 } from 'recharts';
+import { StatsCard } from '@/components/statsCards';
 
 /* All figures on this page are illustrative placeholders matching the approved
    visual design — real data wiring lands with the platform-metrics API phase. */
@@ -132,20 +133,19 @@ export default function SuperAdminOverviewPage() {
       </div>
 
       {/* Stat tile row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {STATS.map((s) => (
-          <Card key={s.label} className="border-slate-200 shadow-sm rounded-xl">
-            <CardContent className="p-3">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${s.accent}1a`, color: s.accent }}>
-                <s.icon size={16} />
-              </div>
-              <h3 className="text-lg font-bold tracking-tight text-slate-900 leading-none">{s.value}</h3>
-              <p className="text-[10px] text-slate-500 mt-1.5">{s.label}</p>
-              <p className="text-[9px] font-medium mt-1" style={{ color: s.deltaColor }}>{s.delta}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+  {STATS.map((s) => (
+    <StatsCard
+      key={s.label}
+      icon={<s.icon size={16} />}
+      accent={s.accent}
+      label={s.label}
+      value={s.value}
+      sub={s.delta}
+      subColor={s.deltaColor}
+    />
+  ))}
+</div>
 
       {/* Portfolio / AI Insights / Quick Actions */}
       <div className="grid grid-cols-12 gap-3">
@@ -314,17 +314,22 @@ export default function SuperAdminOverviewPage() {
             <CardTitle className="text-[12px] font-semibold text-slate-800">Implementation Tracker</CardTitle>
           </CardHeader>
           <CardContent className="p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              {IMPLEMENTATION_STAGES.map((s, i) => (
-                <React.Fragment key={s.label}>
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ background: 'var(--brand-primary)' }}>{s.value}</div>
-                    <span className="text-[8px] text-slate-500 text-center leading-tight max-w-[42px]">{s.label}</span>
-                  </div>
-                  {i < IMPLEMENTATION_STAGES.length - 1 && <div className="h-px flex-1 bg-slate-200 mb-4" />}
-                </React.Fragment>
-              ))}
-            </div>
+           <div className="grid grid-cols-5 items-start w-full">
+  {IMPLEMENTATION_STAGES.map((s) => (
+    <div key={s.label} className="flex flex-col items-center">
+      <div
+        className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+        style={{ background: "var(--brand-primary)" }}
+      >
+        {s.value}
+      </div>
+
+      <span className="mt-2 text-center text-[8px] leading-tight text-slate-500">
+        {s.label}
+      </span>
+    </div>
+  ))}
+</div>
             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
               <div>
                 <p className="text-sm font-bold text-slate-900">41</p>
