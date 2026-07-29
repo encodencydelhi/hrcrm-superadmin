@@ -4,21 +4,114 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Pencil } from 'lucide-react';
+import { DataTable, Column } from '@/components/shared/DataTable';
 import api from '@/lib/axios';
+
+const packageColumns: Column<any>[] = [
+  {
+    key: 'name',
+    label: 'PACKAGE NAME',
+    width: '16.67%',
+    render: (v) => <span className="font-medium">{v}</span>,
+  },
+  {
+    key: 'tier',
+    label: 'TIER',
+    width: '10%',
+    render: (v) => (
+      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700">
+        {v || 'CUSTOM'}
+      </span>
+    ),
+  },
+  {
+    key: 'maxUsers',
+    label: 'MAX USERS',
+    width: '10%',
+    render: (v) => <span className="text-zinc-500">{v}</span>,
+  },
+  {
+    key: 'pricePerUserMonthlyINR',
+    label: 'PER USER / MONTH',
+    width: '17%',
+    render: (_v, row) => (
+      <span className="text-zinc-500">
+        ₹{row.pricePerUserMonthlyINR || 0} / ${row.pricePerUserMonthlyUSD || 0}
+      </span>
+    ),
+  },
+  {
+    key: 'pricePerUserYearlyINR',
+    label: 'PER USER / YEAR',
+    width: '17%',
+    render: (_v, row) => (
+      <span className="text-zinc-500">
+        ₹{row.pricePerUserYearlyINR || 0} / ${row.pricePerUserYearlyUSD || 0}
+      </span>
+    ),
+  },
+  {
+    key: 'setupFeeINR',
+    label: 'SETUP FEE',
+    width: '13%',
+    render: (v) => <span className="text-zinc-500">₹{v || 0}</span>,
+  },
+  {
+    key: 'freeAiCredits',
+    label: 'FREE AI CREDITS',
+    width: '13%',
+    render: (v) => <span className="text-zinc-500">{v || 0}</span>,
+  },
+  {
+    key: 'isActive',
+    label: 'STATUS',
+    align: 'right',
+    sortable: false,
+    render: (v) => (
+      <span
+        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${
+          v ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
+        }`}
+      >
+        {v ? 'Active' : 'Inactive'}
+      </span>
+    ),
+  },
+  {
+    key: 'actions',
+    label: '',
+    width: '48px',
+    sortable: false,
+    filterable: false,
+    render: (_v, row) => (
+      <Link
+        href={`/super-admin/packages/${row._id}/edit`}
+        className="inline-flex text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-md transition-colors"
+        title="Edit package"
+      >
+        <Pencil size={14} />
+      </Link>
+    ),
+  },
+];
 
 export default function SuperAdminPackagesPage() {
   const [packages, setPackages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPackages();
   }, []);
 
   const fetchPackages = async () => {
+    setLoading(true);
     try {
       const res = await api.get('/super-admin/packages');
       setPackages(res.data || res.data?.data || []);
     } catch (e) {
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,46 +129,15 @@ export default function SuperAdminPackagesPage() {
 
       <Card className="border-zinc-200 shadow-sm dark:border-zinc-800">
         <CardContent className="p-0">
-          <div className="border-b border-zinc-200 dark:border-zinc-800 px-4 py-2 bg-zinc-50 dark:bg-zinc-900 flex gap-4 text-xs font-md text-zinc-500">
-            <div className="w-1/6">PACKAGE NAME</div>
-            <div className="w-[10%]">TIER</div>
-            <div className="w-[10%]">MAX USERS</div>
-            <div className="w-[17%]">PER USER / MONTH</div>
-            <div className="w-[17%]">PER USER / YEAR</div>
-            <div className="w-[13%]">SETUP FEE</div>
-            <div className="w-[13%]">FREE AI CREDITS</div>
-            <div className="flex-1 text-right">STATUS</div>
-            <div className="w-12"></div>
-          </div>
-
-          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {packages.map((p: any) => (
-              <div key={p._id} className="px-4 py-2.5 flex items-center gap-4 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
-                <div className="w-1/6 font-medium">{p.name}</div>
-                <div className="w-[10%]">
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-indigo-50 text-indigo-700">{p.tier || 'CUSTOM'}</span>
-                </div>
-                <div className="w-[10%] text-zinc-500">{p.maxUsers}</div>
-                <div className="w-[17%] text-zinc-500">₹{p.pricePerUserMonthlyINR || 0} / ${p.pricePerUserMonthlyUSD || 0}</div>
-                <div className="w-[17%] text-zinc-500">₹{p.pricePerUserYearlyINR || 0} / ${p.pricePerUserYearlyUSD || 0}</div>
-                <div className="w-[13%] text-zinc-500">₹{p.setupFeeINR || 0}</div>
-                <div className="w-[13%] text-zinc-500">{p.freeAiCredits || 0}</div>
-                <div className="flex-1 text-right">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${p.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
-                    {p.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
-                <div className="w-12 text-right">
-                  <Link href={`/super-admin/packages/${p._id}/edit`} className="inline-flex text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 p-1.5 rounded-md transition-colors" title="Edit package">
-                    <Pencil size={14} />
-                  </Link>
-                </div>
-              </div>
-            ))}
-            {packages.length === 0 && (
-              <div className="p-8 text-center text-zinc-500 text-sm">No packages found. Create one.</div>
-            )}
-          </div>
+          <DataTable
+            columns={packageColumns}
+            data={packages}
+            rowKey="_id"
+            loading={loading}
+            showActions={false}
+            enableColumnFilters={false}
+            emptyMessage="No packages found. Create one."
+          />
         </CardContent>
       </Card>
     </div>

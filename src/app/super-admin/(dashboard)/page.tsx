@@ -15,6 +15,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell,
 } from 'recharts';
+import { StatsCard } from '@/components/statsCards';
 
 /* All figures on this page are illustrative placeholders matching the approved
    visual design — real data wiring lands with the platform-metrics API phase. */
@@ -132,20 +133,19 @@ export default function SuperAdminOverviewPage() {
       </div>
 
       {/* Stat tile row */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {STATS.map((s) => (
-          <Card key={s.label} className="border-slate-200 shadow-sm rounded-xl">
-            <CardContent className="p-3">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${s.accent}1a`, color: s.accent }}>
-                <s.icon size={16} />
-              </div>
-              <h3 className="text-lg font-bold tracking-tight text-slate-900 leading-none">{s.value}</h3>
-              <p className="text-[10px] text-slate-500 mt-1.5">{s.label}</p>
-              <p className="text-[9px] font-medium mt-1" style={{ color: s.deltaColor }}>{s.delta}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+  {STATS.map((s) => (
+    <StatsCard
+      key={s.label}
+      icon={<s.icon size={16} />}
+      accent={s.accent}
+      label={s.label}
+      value={s.value}
+      sub={s.delta}
+      subColor={s.deltaColor}
+    />
+  ))}
+</div>
 
       {/* Portfolio / AI Insights / Quick Actions */}
       <div className="grid grid-cols-12 gap-3">
