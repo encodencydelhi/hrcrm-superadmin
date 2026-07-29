@@ -117,6 +117,16 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
           <div className="flex-1 overflow-auto px-4 py-2.5">
             <div className="w-full h-full">
               {children}
+              {/* Footer */}
+      <footer className="text-[11px] py-4 flex items-start md:items-center md:justify-between px-5 gap-2 flex-wrap">
+        <span className="w-0 hidden md:inline"></span>
+        <span>© 2025 Crewcam HRMS. All Rights Reserved.</span>
+        <div className="flex items-start md:items-center gap-2">
+          <span className="hover:underline cursor-pointer">Privacy Policy</span>
+          <span className="">|</span>
+          <span className="hover:underline cursor-pointer">Terms of Service</span>
+        </div>
+      </footer>
             </div>
           </div>
         </main>
