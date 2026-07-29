@@ -475,9 +475,9 @@ function SuperAdminCompaniesPageInner() {
         <StatsCard icon={<Building2 size={16} />} accent="#0b1638" label="Total Companies" value={loading ? '—' : totalCompanies} sub="All Time" />
         <StatsCard icon={<CheckCircle2 size={16} />} accent="#059669" label="Active Companies" value={loading ? '—' : activeCompanies} sub="▲ 12 This Month" subColor="#059669" />
         <StatsCard icon={<Hourglass size={16} />} accent="#7c3aed" label="Trial Companies" value={32} sub="▼ 3 This Month" subColor="#dc2626" />
-        <CompanyStatTile icon={<XCircle size={16} />} accent="#dc2626" label="Expired / Inactive" value={loading ? '—' : inactiveCompanies} sub="▲ 5 This Month" subColor="#dc2626" />
-        <CompanyStatTile icon={<Crown size={16} />} accent="#f5c451" label="Enterprise Clients" value={46} sub="18.6% of Total" />
-        <CompanyStatTile icon={<Globe2 size={16} />} accent="#7c3aed" label="Countries Served" value={25} />
+        <StatsCard icon={<XCircle size={16} />} accent="#dc2626" label="Expired / Inactive" value={loading ? '—' : inactiveCompanies} sub="▲ 5 This Month" subColor="#dc2626" />
+        <StatsCard icon={<Crown size={16} />} accent="#f5c451" label="Enterprise Clients" value={46} sub="18.6% of Total" />
+        <StatsCard icon={<Globe2 size={16} />} accent="#7c3aed" label="Countries Served" value={25} />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[3.4fr_1fr] gap-4 min-w-0">

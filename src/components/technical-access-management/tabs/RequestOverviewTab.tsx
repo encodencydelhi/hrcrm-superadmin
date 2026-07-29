@@ -130,7 +130,7 @@ function InfoRow({
 
 export default function RequestOverviewTab() {
   return (
-    <div className={`grid grid-cols-1 ${GAP} lg:grid-cols-4`}>
+   <div className={`grid grid-cols-1 ${GAP} lg:grid-cols-[1fr_1fr_0.7fr_0.7fr]`}>
       {/* Request Information */}
       <div className={`bg-white ${CARD_BORDER} ${CARD_RADIUS} ${CARD_PAD}`}>
         <h3 className="mb-3 text-sm font-semibold text-gray-900">
