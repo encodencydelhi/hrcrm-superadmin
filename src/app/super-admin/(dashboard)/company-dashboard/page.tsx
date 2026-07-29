@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import api from "@/lib/axios";
 import needHelp from "@/assets/need_help.webp"
 import {
@@ -197,7 +198,7 @@ const Breadcrumb = ({ companyName }: { companyName: string }) => (
     </div>
 );
 
-const PageHeader = ({ companyName, status }: { companyName: string; status: string }) => (
+const PageHeader = ({ companyName, status, id }: { companyName: string; status: string; id: string | null }) => (
     <div className="flex items-start justify-between px-0 py-0 flex-wrap gap-2">
         <div>
             <div className="flex items-center gap-2">
@@ -211,10 +212,10 @@ const PageHeader = ({ companyName, status }: { companyName: string; status: stri
             </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-            <button className="flex items-center gap-2 text-[10px] font-medium border border-gray-300 rounded-md px-3 py-2  hover:bg-gray-50">
+            <Link href={`/super-admin/companies/${id}/lifecycle`} className="flex items-center gap-2 text-[10px] font-medium border border-gray-300 rounded-md px-3 py-2  hover:bg-gray-50">
                 <Settings className="w-3.5 h-3.5" />
                 Company Settings
-            </button>
+            </Link>
             <button className="flex items-center gap-2 text-[10px] font-medium border border-gray-300 rounded-md px-3 py-2  hover:bg-gray-50">
                 <Download className="w-3.5 h-3.5" />
                 Generate Report
@@ -689,7 +690,7 @@ const CompanyDashboardInner = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-0">
             <Breadcrumb companyName={companyName} />
-            <PageHeader companyName={companyName} status={status} />
+            <PageHeader companyName={companyName} status={status} id={id} />
             <Tabs />
             <StatsGrid stats={stats} />
 
