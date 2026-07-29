@@ -44,8 +44,8 @@ const AI_INSIGHTS = [
 ];
 
 const QUICK_ACTIONS = [
-  { icon: PlusCircle, label: 'Add New\nCompany', href: '/super-admin/companies/new' },
-  { icon: CreditCard, label: 'Create\nSubscription', href: '/super-admin/subscriptions' },
+  { icon: PlusCircle, label: 'Add New\nCompany', href: '/super-admin/step-1' },
+  { icon: CreditCard, label: 'Create\nSubscription', href: '/super-admin/subscriptions/plan-details' },
   { icon: FileText, label: 'Generate\nInvoice', href: '/super-admin/invoices' },
   { icon: Rocket, label: 'Start Free\nTrial', href: '/super-admin/companies/new' },
   { icon: Bell, label: 'Send Renewal\nReminder', href: '/super-admin/subscriptions' },
