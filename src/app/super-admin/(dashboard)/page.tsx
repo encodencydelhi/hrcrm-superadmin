@@ -16,6 +16,7 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts';
 import { StatsCard } from '@/components/statsCards';
+import PageHeader from '@/components/layout/PageHeader';
 
 /* All figures on this page are illustrative placeholders matching the approved
    visual design — real data wiring lands with the platform-metrics API phase. */
@@ -123,8 +124,10 @@ export default function SuperAdminOverviewPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">{greeting}, {firstName} 👋</h1>
-          <p className="text-xs text-slate-500">Crewcam HRMS Control Center</p>
+          <PageHeader
+            title={`${greeting}, ${firstName} 👋`}
+            description="Crewcam HRMS Control Center"
+          />
           <p className="text-[11px] text-slate-400 mt-0.5">Managing 247 Organizations &bull; 1,84,562 Employees &bull; 25 Countries</p>
         </div>
         <button type="button" className="flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-600">
@@ -133,19 +136,19 @@ export default function SuperAdminOverviewPage() {
       </div>
 
       {/* Stat tile row */}
-     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-  {STATS.map((s) => (
-    <StatsCard
-      key={s.label}
-      icon={<s.icon size={16} />}
-      accent={s.accent}
-      label={s.label}
-      value={s.value}
-      sub={s.delta}
-      subColor={s.deltaColor}
-    />
-  ))}
-</div>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {STATS.map((s) => (
+          <StatsCard
+            key={s.label}
+            icon={<s.icon size={16} />}
+            accent={s.accent}
+            label={s.label}
+            value={s.value}
+            sub={s.delta}
+            subColor={s.deltaColor}
+          />
+        ))}
+      </div>
 
       {/* Portfolio / AI Insights / Quick Actions */}
       <div className="grid grid-cols-12 gap-3">
@@ -314,22 +317,22 @@ export default function SuperAdminOverviewPage() {
             <CardTitle className="text-[12px] font-semibold text-slate-800">Implementation Tracker</CardTitle>
           </CardHeader>
           <CardContent className="p-3 space-y-3">
-           <div className="grid grid-cols-5 items-start w-full">
-  {IMPLEMENTATION_STAGES.map((s) => (
-    <div key={s.label} className="flex flex-col items-center">
-      <div
-        className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-        style={{ background: "var(--brand-primary)" }}
-      >
-        {s.value}
-      </div>
+            <div className="grid grid-cols-5 items-start w-full">
+              {IMPLEMENTATION_STAGES.map((s) => (
+                <div key={s.label} className="flex flex-col items-center">
+                  <div
+                    className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                    style={{ background: "var(--brand-primary)" }}
+                  >
+                    {s.value}
+                  </div>
 
-      <span className="mt-2 text-center text-[8px] leading-tight text-slate-500">
-        {s.label}
-      </span>
-    </div>
-  ))}
-</div>
+                  <span className="mt-2 text-center text-[8px] leading-tight text-slate-500">
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
               <div>
                 <p className="text-sm font-bold text-slate-900">41</p>

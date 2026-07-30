@@ -18,6 +18,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import PageLayout from "@/components/ui/pageLayout";
+import PageHeader from "@/components/layout/PageHeader";
 
 /* -------------------------------------------------------------------------- */
 /*  Spacing constants — kept tight everywhere per design spec                 */
@@ -183,13 +184,10 @@ const TechnicalAccessRequestDetailsPage = () => {
         {/* Title row */}
         <div className="mb-2 flex flex-col justify-between gap-2 lg:flex-row lg:items-start">
           <div>
-            <h1 className="text-xl font-semibold text-gray-900">
-              Technical Access Request Details
-            </h1>
-            <p className="text-[10px] ">
-              View request information, approval status and access
-              configuration
-            </p>
+         <PageHeader
+  title="Technical Access Request Details"
+  description="View request information, approval status and access configuration"
+/>
           </div>
           <div className={`flex flex-wrap items-center ${GAP}`}>
             <button
