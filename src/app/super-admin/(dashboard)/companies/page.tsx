@@ -14,6 +14,7 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianG
 import api from '@/lib/axios';
 import { generateTempPassword } from '@/lib/generatePassword';
 import { StatsCard } from '@/components/statsCards';
+import PageHeader from '@/components/layout/PageHeader';
 
 /* Portfolio-level charts/side-rail figures are illustrative placeholders matching the
    approved visual design — real analytics wiring lands with the platform-metrics API phase. */
@@ -454,10 +455,10 @@ function SuperAdminCompaniesPageInner() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Company Portfolio</h1>
-          <p className="text-xs text-slate-500">Manage, monitor and grow your client organizations</p>
-        </div>
+       <PageHeader
+  title="Company Portfolio"
+  description="Manage, monitor and grow your client organizations"
+/>
         <div className="flex items-center gap-2">
           <Button asChild className="h-9 text-xs font-semibold text-white" style={{ background: 'var(--brand-primary, #0b1638)' }}>
             <Link href="/super-admin/step-1"><Plus size={14} className="mr-1" /> Add New Company</Link>
