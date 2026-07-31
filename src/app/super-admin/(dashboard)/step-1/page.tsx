@@ -90,7 +90,7 @@ function FieldLabel({ children, required }: { children: React.ReactNode; require
 
 // Inputs use a fixed h-8 height (per spec) instead of py-based padding,
 // so the whole form stays compact and placeholders get full-width room to render.
-function TextField({ label, placeholder, required, icon, value, onChange, type, readOnly }: { label: string; placeholder: string; required?: boolean; icon?: React.ReactNode; value: string; onChange: (v: string) => void; type?: string; readOnly?: boolean }) {
+function TextField({ label, placeholder, required, icon, value, onChange, type, readOnly, pattern, title }: { label: string; placeholder: string; required?: boolean; icon?: React.ReactNode; value: string; onChange: (v: string) => void; type?: string; readOnly?: boolean; pattern?: string; title?: string }) {
     return (
         <div className="flex flex-col gap-0.5 min-w-0">
             <FieldLabel required={required}>{label}</FieldLabel>
@@ -99,9 +99,10 @@ function TextField({ label, placeholder, required, icon, value, onChange, type, 
                 <input
                     type={type || 'text'}
                     placeholder={placeholder}
-                    title={placeholder}
+                    title={title || placeholder}
                     required={required}
                     readOnly={readOnly}
+                    pattern={pattern}
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
                     className={`w-full h-8 rounded-lg border text-[12.5px] placeholder:text-zinc-400 placeholder:truncate shadow-sm transition-colors ${readOnly ? 'bg-zinc-50 border-zinc-200 text-zinc-500 cursor-not-allowed' : 'bg-white border-zinc-200 text-zinc-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500'} ${icon ? 'pl-9 pr-3' : 'px-3'}`}
@@ -363,21 +364,60 @@ function BasicInformationForm() {
 
                     {/* Row 3 */}
                     <div className="xl:col-start-1 xl:row-start-3">
-                        <TextField label="GSTIN / Tax ID" placeholder="Enter GSTIN or Tax ID (Optional)" value={w.gstin} onChange={(v) => w.update({ gstin: v })} />
+                        <TextField
+    label="GSTIN / Tax ID"
+    placeholder="Enter GSTIN or Tax ID"
+    required
+    pattern="^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$"
+    title="Enter a valid GSTIN (e.g. 22AAAAA0000A1Z5)"
+    value={w.gstin}
+    onChange={(v) => w.update({ gstin: v.toUpperCase() })}
+/>
                     </div>
                     <div className="xl:col-start-2 xl:row-start-3">
-                        <TextField label="PAN" placeholder="Enter PAN Number (Optional)" value={w.panNumber} onChange={(v) => w.update({ panNumber: v })} />
+                        <TextField
+    label="PAN"
+    placeholder="Enter PAN Number"
+    required
+    pattern="^[A-Z]{5}[0-9]{4}[A-Z]{1}$"
+    title="Enter a valid PAN (e.g. ABCDE1234F)"
+    value={w.panNumber}
+    onChange={(v) => w.update({ panNumber: v.toUpperCase() })}
+/>
                     </div>
                     <div className="xl:col-start-3 xl:row-start-3">
-                        <TextField label="Registration Number" placeholder="Enter Registration Number (Optional)" value={w.cin} onChange={(v) => w.update({ cin: v })} />
+                        <TextField
+    label="Registration Number"
+    placeholder="Enter CIN (Registration Number)"
+    required
+    pattern="^[LUlu]{1}[0-9]{5}[A-Za-z]{2}[0-9]{4}[A-Za-z]{3}[0-9]{6}$"
+    title="Enter a valid CIN (e.g. L12345MH2020PLC123456)"
+    value={w.cin}
+    onChange={(v) => w.update({ cin: v.toUpperCase() })}
+/>
                     </div>
 
                     {/* Row 4 — no logo column here, just 3 boxes aligned to the same columns above */}
                     <div className="xl:col-start-1 xl:row-start-4">
-                        <TextField label="Website" placeholder="https://example.com" value={w.website} onChange={(v) => w.update({ website: v })} />
+                       <TextField
+    label="Website"
+    placeholder="https://example.com"
+    pattern="^https?:\/\/(www\.)?[a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z]{2,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$"
+    title="Enter a valid URL starting with http:// or https://"
+    value={w.website}
+    onChange={(v) => w.update({ website: v })}
+/>
                     </div>
                     <div className="xl:col-start-2 xl:row-start-4">
-                        <TextField label="Email" placeholder="Enter official email" type="email" value={w.email} onChange={(v) => w.update({ email: v })} />
+                        <TextField
+    label="Email"
+    placeholder="Enter official email"
+    type="email"
+    required
+    title="Enter a valid email address"
+    value={w.email}
+    onChange={(v) => w.update({ email: v })}
+/>
                     </div>
                     <div className="xl:col-start-3 xl:col-span-2 xl:row-start-4 flex flex-col gap-0.5 min-w-0">
                         <FieldLabel>Phone</FieldLabel>

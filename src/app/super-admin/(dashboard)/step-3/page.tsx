@@ -21,10 +21,12 @@ import {
 } from 'lucide-react';
 import { useCompanyWizardStore } from '@/store/companyWizardStore';
 import api from '@/lib/axios';
+import toast from 'react-hot-toast';
+import showToast from '@/components/toast/showToast';
 
 type DocKey = 'incorporationCertUrl' | 'gstCertUrl' | 'panCardUrl' | 'otherDocumentUrl';
 
-function DocumentCard({ icon: Icon, title, url, onUpload, uploading }: { icon: React.ElementType; title: string; url: string; onUpload: (file: File) => void; uploading: boolean }) {
+function DocumentCard({ icon: Icon, title, url, onUpload, uploading, required }: { icon: React.ElementType; title: string; url: string; onUpload: (file: File) => void; uploading: boolean; required?: boolean }) {
     const inputRef = useRef<HTMLInputElement>(null);
     return (
         <div
@@ -43,7 +45,7 @@ function DocumentCard({ icon: Icon, title, url, onUpload, uploading }: { icon: R
             />
             <div className="flex items-center gap-1.5">
                 <Icon size={20} className={url ? 'text-emerald-500' : 'text-zinc-500'} />
-                <h3 className="text-[10px] font-bold text-zinc-800">{title}</h3>
+                <h3 className="text-[10px] font-bold text-zinc-800">{title} {required && <span className="text-red-500">*</span>}</h3>
             </div>
             {url ? (
                 <span className="text-[9px] font-semibold text-emerald-600">Uploaded — click to replace</span>
@@ -65,27 +67,31 @@ export default function AddNewCompany() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const uploadDocument = async (key: DocKey, file: File) => {
-        const data = new FormData();
-        data.append('file', file);
-        setUploadingDoc(key);
-        try {
-            const res = await api.post('/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } });
-            w.update({ [key]: res.data.url } as any);
-        } catch (err) {
-            console.error('Document upload failed', err);
-            alert('Failed to upload document. Max size 5MB.');
-        } finally {
-            setUploadingDoc(null);
-        }
-    };
+const uploadDocument = async (key: DocKey, file: File) => {
+    const data = new FormData();
+    data.append('file', file);
+    setUploadingDoc(key);
+    try {
+        const res = await api.post('/upload', data, { headers: { 'Content-Type': 'multipart/form-data' } });
+        w.update({ [key]: res.data.url } as any);
+        showToast('success', 'Document uploaded', 'Your file has been saved successfully.');
+    } catch (err) {
+        console.error('Document upload failed', err);
+        showToast('error', 'Upload failed', 'File could not be uploaded. Max size allowed is 5MB.');
+    } finally {
+        setUploadingDoc(null);
+    }
+};
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        w.unlockStep(4);
-        router.push('/super-admin/system-configuration');
-    };
-
+const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!w.gstCertUrl || !w.panCardUrl) {
+        showToast('error', 'Documents required', 'Please upload both GST Certificate and PAN Card to proceed.');
+        return;
+    }
+    w.unlockStep(4);
+    router.push('/super-admin/system-configuration');
+};
     return (
         <div className="w-full max-w-[1600px] px-2 py-1 mx-auto space-y-2 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
 
@@ -253,13 +259,13 @@ export default function AddNewCompany() {
                         </div>
 
                         <div className="px-3 py-1.5">
-                            <h2 className="text-[12px] font-bold text-zinc-900">Documents (Optional)</h2>
+                            <h2 className="text-[12px] font-bold text-zinc-900">Documents</h2>
                             <p className="text-[10px] text-zinc-500 mb-3">Upload any relevant documents for verification and reference</p>
 
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
                                 <DocumentCard icon={FileBadge} title="Incorporation" url={w.incorporationCertUrl} uploading={uploadingDoc === 'incorporationCertUrl'} onUpload={(f) => uploadDocument('incorporationCertUrl', f)} />
-                                <DocumentCard icon={FileText} title="GST Certificate" url={w.gstCertUrl} uploading={uploadingDoc === 'gstCertUrl'} onUpload={(f) => uploadDocument('gstCertUrl', f)} />
-                                <DocumentCard icon={CreditCard} title="PAN Card" url={w.panCardUrl} uploading={uploadingDoc === 'panCardUrl'} onUpload={(f) => uploadDocument('panCardUrl', f)} />
+                                <DocumentCard icon={FileText} title="GST Certificate" url={w.gstCertUrl} uploading={uploadingDoc === 'gstCertUrl'} onUpload={(f) => uploadDocument('gstCertUrl', f)} required />
+                                <DocumentCard icon={CreditCard} title="PAN Card" url={w.panCardUrl} uploading={uploadingDoc === 'panCardUrl'} onUpload={(f) => uploadDocument('panCardUrl', f)} required />
                                 <DocumentCard icon={Files} title="Other Document" url={w.otherDocumentUrl} uploading={uploadingDoc === 'otherDocumentUrl'} onUpload={(f) => uploadDocument('otherDocumentUrl', f)} />
                             </div>
                         </div>
