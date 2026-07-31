@@ -686,7 +686,7 @@ function AddNewCompanyPageInner() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         w.unlockStep(2);
-        router.push('/super-admin/step-2');
+        router.push(w.editingTenantId ? `/super-admin/step-2?edit=${w.editingTenantId}` : '/super-admin/step-2');
     };
 
     return (

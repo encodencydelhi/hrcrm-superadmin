@@ -33,14 +33,14 @@ export default function SystemConfiguration() {
   const preferences = w.notificationPreferences;
 
   useEffect(() => {
-    if (w.maxStepReached < 4) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+    if (w.maxStepReached < 4) router.replace(`${STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1'}${w.editingTenantId ? `?edit=${w.editingTenantId}` : ''}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     w.unlockStep(5);
-    router.push('/super-admin/review-confirm');
+    router.push(w.editingTenantId ? `/super-admin/review-confirm?edit=${w.editingTenantId}` : '/super-admin/review-confirm');
   };
 
   const enabledCount = Object.values(activeModules).filter(Boolean).length;
@@ -286,7 +286,7 @@ export default function SystemConfiguration() {
             </div>
 
             <div className="px-3 py-2 border-t border-zinc-100 flex items-center justify-between bg-zinc-50 rounded-b-lg">
-              <button type="button" onClick={() => router.push('/super-admin/step-3')} className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
+              <button type="button" onClick={() => router.push(w.editingTenantId ? `/super-admin/step-3?edit=${w.editingTenantId}` : '/super-admin/step-3')} className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
                 <ArrowLeft size={13} /> Back
               </button>
               <button type="submit" className="flex items-center gap-1.5 bg-[#020b22] text-white text-[11px] font-bold px-5 py-1.5 rounded shadow-sm hover:bg-zinc-800 transition-colors">

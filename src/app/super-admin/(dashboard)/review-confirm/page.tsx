@@ -109,9 +109,11 @@ export default function ReviewConfirmPage() {
     const [draftSaved, setDraftSaved] = useState(false);
 
     useEffect(() => {
-        if (w.maxStepReached < 5) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+        if (w.maxStepReached < 5) router.replace(`${STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1'}${w.editingTenantId ? `?edit=${w.editingTenantId}` : ''}`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    const editSuffix = w.editingTenantId ? `?edit=${w.editingTenantId}` : '';
 
     const [adminFirstName, ...adminLastNameParts] = w.adminFullName.trim().split(' ');
     const adminLastName = adminLastNameParts.join(' ') || adminFirstName || 'Admin';
@@ -251,7 +253,7 @@ export default function ReviewConfirmPage() {
                                     <Building2 className="text-[#3b82f6]" size={18} />
                                     <h2 className="text-[14px] font-bold text-[#1e293b]">Basic Information</h2>
                                 </div>
-                                <Link href="/super-admin/step-1" className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
+                                <Link href={`/super-admin/step-1${editSuffix}`} className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
                                     <Edit2 size={12} /> Edit
                                 </Link>
                             </div>
@@ -310,7 +312,7 @@ export default function ReviewConfirmPage() {
                                     <Crown className="text-[#3b82f6]" size={18} />
                                     <h2 className="text-[14px] font-bold text-[#1e293b]">Subscription & Plan</h2>
                                 </div>
-                                <Link href="/super-admin/step-2" className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
+                                <Link href={`/super-admin/step-2${editSuffix}`} className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
                                     <Edit2 size={12} /> Edit
                                 </Link>
                             </div>
@@ -357,7 +359,7 @@ export default function ReviewConfirmPage() {
                                     <User className="text-[#3b82f6]" size={18} />
                                     <h2 className="text-[14px] font-bold text-[#1e293b]">Admin & Contact Details</h2>
                                 </div>
-                                <Link href="/super-admin/step-3" className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
+                                <Link href={`/super-admin/step-3${editSuffix}`} className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
                                     <Edit2 size={12} /> Edit
                                 </Link>
                             </div>
@@ -406,7 +408,7 @@ export default function ReviewConfirmPage() {
                                     <Settings className="text-[#3b82f6]" size={18} />
                                     <h2 className="text-[14px] font-bold text-[#1e293b]">Configuration Summary</h2>
                                 </div>
-                                <Link href="/super-admin/system-configuration" className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
+                                <Link href={`/super-admin/system-configuration${editSuffix}`} className="text-[#3b82f6] hover:text-blue-700 flex items-center gap-1 text-[12px] font-bold">
                                     <Edit2 size={12} /> Edit
                                 </Link>
                             </div>
@@ -494,7 +496,7 @@ export default function ReviewConfirmPage() {
 
                     {/* Bottom Action Bar */}
                     <div className="flex items-center justify-between pt-2 pb-2">
-                        <button type="button" onClick={() => router.push('/super-admin/system-configuration')} className="flex items-center gap-1.5 px-4 py-2 border border-zinc-200 bg-white rounded-lg text-zinc-700 text-[13px] font-semibold hover:bg-zinc-50 transition-colors shadow-sm">
+                        <button type="button" onClick={() => router.push(w.editingTenantId ? `/super-admin/system-configuration?edit=${w.editingTenantId}` : '/super-admin/system-configuration')} className="flex items-center gap-1.5 px-4 py-2 border border-zinc-200 bg-white rounded-lg text-zinc-700 text-[13px] font-semibold hover:bg-zinc-50 transition-colors shadow-sm">
                             <ArrowLeft size={16} /> Back
                         </button>
                         <div className="flex items-center gap-3">

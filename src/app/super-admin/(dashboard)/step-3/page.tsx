@@ -63,7 +63,7 @@ export default function AddNewCompany() {
     const [uploadingDoc, setUploadingDoc] = useState<DocKey | null>(null);
 
     useEffect(() => {
-        if (w.maxStepReached < 3) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+        if (w.maxStepReached < 3) router.replace(`${STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1'}${w.editingTenantId ? `?edit=${w.editingTenantId}` : ''}`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -90,7 +90,7 @@ const handleSubmit = (e: React.FormEvent) => {
         return;
     }
     w.unlockStep(4);
-    router.push('/super-admin/system-configuration');
+    router.push(w.editingTenantId ? `/super-admin/system-configuration?edit=${w.editingTenantId}` : '/super-admin/system-configuration');
 };
     return (
         <div className="w-full max-w-[1600px] px-2 py-1 mx-auto space-y-2 font-sans text-zinc-900 min-h-screen bg-zinc-50/50">
@@ -271,7 +271,7 @@ const handleSubmit = (e: React.FormEvent) => {
                         </div>
 
                         <div className="px-2 py-1.5 border-t border-zinc-100 flex items-center justify-between bg-zinc-50 rounded-b-lg">
-                            <button type="button" onClick={() => router.push('/super-admin/step-2')} className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
+                            <button type="button" onClick={() => router.push(w.editingTenantId ? `/super-admin/step-2?edit=${w.editingTenantId}` : '/super-admin/step-2')} className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
                                 <ArrowLeft size={13} /> Back
                             </button>
                             <button type="submit" className="flex items-center gap-1.5 bg-[#020b22] text-white text-[11px] font-bold px-4 py-1.5 rounded shadow-sm hover:bg-zinc-800 transition-colors">
