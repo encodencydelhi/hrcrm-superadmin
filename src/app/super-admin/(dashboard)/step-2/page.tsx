@@ -394,7 +394,7 @@ function SubscriptionAndBillingCard({
 
                 {/* Footer actions */}
                 <div className="flex items-center justify-between gap-2">
-                    <button type="button" onClick={() => router.push('/super-admin/step-1')} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-4 py-2 text-[12px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
+                    <button type="button" onClick={() => router.push(w.editingTenantId ? `/super-admin/step-1?edit=${w.editingTenantId}` : '/super-admin/step-1')} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-4 py-2 text-[12px] font-semibold text-zinc-600 shadow-sm hover:bg-zinc-50 transition-colors">
                         <ArrowLeft size={14} /> Back
                     </button>
                     <button type="submit" disabled={!selectedPlanId} className="flex items-center gap-1.5 rounded-md bg-indigo-700 px-5 py-2 text-[12px] font-semibold text-white shadow-sm hover:bg-indigo-800 transition-colors disabled:opacity-50">
@@ -518,7 +518,7 @@ export default function SubscriptionPlanStep() {
     const [employees, setEmployees] = useState(w.estimatedEmployees);
 
     useEffect(() => {
-        if (w.maxStepReached < 2) router.replace(STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1');
+        if (w.maxStepReached < 2) router.replace(`${STEP_ROUTES[w.maxStepReached] || '/super-admin/step-1'}${w.editingTenantId ? `?edit=${w.editingTenantId}` : ''}`);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -550,7 +550,7 @@ export default function SubscriptionPlanStep() {
             estimatedEmployees: employees,
         });
         w.unlockStep(3);
-        router.push('/super-admin/step-3');
+        router.push(w.editingTenantId ? `/super-admin/step-3?edit=${w.editingTenantId}` : '/super-admin/step-3');
     };
 
     return (
