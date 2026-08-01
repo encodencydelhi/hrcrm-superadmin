@@ -16,6 +16,11 @@ api.interceptors.request.use(
       config.headers['x-tenant-id'] = tenantId;
     }
 
+    const token = useAuthStore.getState().token;
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
