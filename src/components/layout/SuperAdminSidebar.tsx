@@ -26,7 +26,8 @@ import {
 } from 'lucide-react';
 import { CrewcamLogo } from '@/components/branding/CrewcamLogo';
 import { LEAD_STAGE_GROUPS, stageGroupQuery } from '@/lib/leadStages';
-
+import Image from 'next/image';
+import logo from '@/assets/logo2.png';
 const LEADS_HREF = '/super-admin/leads';
 
 const PLATFORM_STATUS = [
@@ -44,10 +45,11 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: '/super-admin', icon: LayoutDashboard, label: 'Control Center' },
   { href: '/super-admin/companies', icon: Building2, label: 'Companies' },
-  { href: '/super-admin/term-and-conditions', icon: FileText, label: 'Terms & Conditions' },
-  { href: '/super-admin/credentials-and-instructions', icon: KeyRound, label: 'Credentials & Instructions' },
+  { href: '/super-admin/technical-access-mgt', icon: FileText, label: 'Technical Access Management' },
+  // { href: '/super-admin/term-and-conditions', icon: FileText, label: 'Terms & Conditions' },
+  // { href: '/super-admin/credentials-and-instructions', icon: KeyRound, label: 'Credentials & Instructions' },
   // { href: '/super-admin/create-new-plan-step2', icon: FilePlus, label: 'Create New Plan' },
-  { href: '/super-admin/coming-soon?feature=Workforce', icon: Users2, label: 'Workforce' },
+  { href: '/super-admin/coming-soon?feature=workforce', icon: Users2, label: 'Workforce' },
   { href: '/super-admin/setup-fees', icon: Landmark, label: 'Revenue & Finance' },
   { href: '/super-admin/invoices', icon: Receipt, label: 'Billing & Invoices' },
   { href: '/super-admin/subscriptions/subscription-plan', icon: CreditCard, label: 'Subscriptions' },
@@ -73,7 +75,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: LEADS_HREF, label: 'All Leads' },
     ],
   },
-  { href: '/super-admin/coming-soon?feature=Integrations', icon: Plug, label: 'Integrations' },
+  { href: '/super-admin/coming-soon?feature=integrations', icon: Plug, label: 'Integrations' },
   { href: '/super-admin/reports', icon: BarChart3, label: 'Reports' },
   {
     icon: SettingsIcon, label: 'Settings',
@@ -106,14 +108,13 @@ export default function SuperAdminSidebar() {
         className="w-64 flex-shrink-0 flex flex-col relative z-20"
         style={{ background: 'var(--brand-primary, #0b1638)' }}
       >
-        <div className="h-16 flex items-center px-5" style={{ borderBottom: '1px solid rgba(245,196,81,0.15)' }}>
-          <div className="flex items-center gap-2.5">
-            <CrewcamLogo size={34} className="shrink-0" />
-            <div className="leading-tight">
-              <p className="text-sm font-semibold text-white tracking-tight">Crewcam <span style={{ color: 'var(--brand-secondary, #f5c451)' }}>HRMS</span></p>
-              <p className="text-[8px] text-white/40 uppercase tracking-widest">Insight &bull; Innovation &bull; Impact</p>
-            </div>
-          </div>
+        <div className="w-full flex justify-center h-16 items-center pt-2" style={{ borderBottom: '1px solid rgba(245,196,81,0.15)' }}>
+          <Image src={logo} alt="Logo" style={{ width: '180px', height: 'auto' }} className="object-contain ml-[-12px]" />
+          {/* <CrewcamLogo size={34} className="shrink-0" />
+          <div className="leading-tight">
+            <p className="text-sm font-semibold text-white tracking-tight">Crewcam <span style={{ color: 'var(--brand-secondary, #f5c451)' }}>HRMS</span></p>
+            <p className="text-[8px] text-white/40 uppercase tracking-widest">Insight &bull; Innovation &bull; Impact</p>
+          </div> */}
         </div>
 
         <div className="sa-sidebar-scroll flex-1 overflow-y-auto py-2 px-3">

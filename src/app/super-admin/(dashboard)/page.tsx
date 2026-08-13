@@ -15,6 +15,8 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell,
 } from 'recharts';
+import { StatsCard } from '@/components/statsCards';
+import PageHeader from '@/components/layout/PageHeader';
 
 /* All figures on this page are illustrative placeholders matching the approved
    visual design — real data wiring lands with the platform-metrics API phase. */
@@ -44,8 +46,8 @@ const AI_INSIGHTS = [
 ];
 
 const QUICK_ACTIONS = [
-  { icon: PlusCircle, label: 'Add New\nCompany', href: '/super-admin/companies/new' },
-  { icon: CreditCard, label: 'Create\nSubscription', href: '/super-admin/subscriptions' },
+  { icon: PlusCircle, label: 'Add New\nCompany', href: '/super-admin/step-1' },
+  { icon: CreditCard, label: 'Create\nSubscription', href: '/super-admin/subscriptions/plan-details' },
   { icon: FileText, label: 'Generate\nInvoice', href: '/super-admin/invoices' },
   { icon: Rocket, label: 'Start Free\nTrial', href: '/super-admin/companies/new' },
   { icon: Bell, label: 'Send Renewal\nReminder', href: '/super-admin/subscriptions' },
@@ -122,8 +124,10 @@ export default function SuperAdminOverviewPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-200">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-slate-900">{greeting}, {firstName} 👋</h1>
-          <p className="text-xs text-slate-500">Crewcam HRMS Control Center</p>
+          <PageHeader
+            title={`${greeting}, ${firstName} 👋`}
+            description="Crewcam HRMS Control Center"
+          />
           <p className="text-[11px] text-slate-400 mt-0.5">Managing 247 Organizations &bull; 1,84,562 Employees &bull; 25 Countries</p>
         </div>
         <button type="button" className="flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 bg-white text-xs font-medium text-slate-600">
@@ -134,16 +138,15 @@ export default function SuperAdminOverviewPage() {
       {/* Stat tile row */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {STATS.map((s) => (
-          <Card key={s.label} className="border-slate-200 shadow-sm rounded-xl">
-            <CardContent className="p-3">
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center mb-2" style={{ background: `${s.accent}1a`, color: s.accent }}>
-                <s.icon size={16} />
-              </div>
-              <h3 className="text-lg font-bold tracking-tight text-slate-900 leading-none">{s.value}</h3>
-              <p className="text-[10px] text-slate-500 mt-1.5">{s.label}</p>
-              <p className="text-[9px] font-medium mt-1" style={{ color: s.deltaColor }}>{s.delta}</p>
-            </CardContent>
-          </Card>
+          <StatsCard
+            key={s.label}
+            icon={<s.icon size={16} />}
+            accent={s.accent}
+            label={s.label}
+            value={s.value}
+            sub={s.delta}
+            subColor={s.deltaColor}
+          />
         ))}
       </div>
 
@@ -314,15 +317,20 @@ export default function SuperAdminOverviewPage() {
             <CardTitle className="text-[12px] font-semibold text-slate-800">Implementation Tracker</CardTitle>
           </CardHeader>
           <CardContent className="p-3 space-y-3">
-            <div className="flex items-center justify-between">
-              {IMPLEMENTATION_STAGES.map((s, i) => (
-                <React.Fragment key={s.label}>
-                  <div className="flex flex-col items-center gap-1">
-                    <div className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ background: 'var(--brand-primary)' }}>{s.value}</div>
-                    <span className="text-[8px] text-slate-500 text-center leading-tight max-w-[42px]">{s.label}</span>
+            <div className="grid grid-cols-5 items-start w-full">
+              {IMPLEMENTATION_STAGES.map((s) => (
+                <div key={s.label} className="flex flex-col items-center">
+                  <div
+                    className="h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                    style={{ background: "var(--brand-primary)" }}
+                  >
+                    {s.value}
                   </div>
-                  {i < IMPLEMENTATION_STAGES.length - 1 && <div className="h-px flex-1 bg-slate-200 mb-4" />}
-                </React.Fragment>
+
+                  <span className="mt-2 text-center text-[8px] leading-tight text-slate-500">
+                    {s.label}
+                  </span>
+                </div>
               ))}
             </div>
             <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">

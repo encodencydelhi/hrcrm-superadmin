@@ -13,6 +13,8 @@ import { DataTable, Column } from '@/components/shared/DataTable';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import api from '@/lib/axios';
 import { generateTempPassword } from '@/lib/generatePassword';
+import { StatsCard } from '@/components/statsCards';
+import PageHeader from '@/components/layout/PageHeader';
 
 /* Portfolio-level charts/side-rail figures are illustrative placeholders matching the
    approved visual design — real analytics wiring lands with the platform-metrics API phase. */
@@ -56,11 +58,11 @@ const AI_HEALTH_ALERTS = [
 ];
 
 const TOP_PERFORMERS = [
-  { name: 'TechVision Pvt. Ltd.', score: 98, delta: 12 },
-  { name: 'Greenfield Retail', score: 96, delta: 8 },
-  { name: 'Sunrise Hospital', score: 94, delta: 15 },
-  { name: 'Nova Agencies', score: 93, delta: 10 },
-  { name: 'Abc Infotech Ltd.', score: 92, delta: 7 },
+  { name: 'TechVision Pvt. Ltd.', score: 98, delta: 12, href: '/super-admin/company-dashboard' },
+  { name: 'Greenfield Retail', score: 96, delta: 8, href: '#' },
+  { name: 'Sunrise Hospital', score: 94, delta: 15, href: '#' },
+  { name: 'Nova Agencies', score: 93, delta: 10, href: '#' },
+  { name: 'Abc Infotech Ltd.', score: 92, delta: 7, href: '#' },
 ];
 
 const EMPTY_FORM = {
@@ -350,7 +352,7 @@ function SuperAdminCompaniesPageInner() {
       label: 'COMPANY NAME',
       sortable: true,
       render: (v, row) => (
-        <Link href={`/super-admin/companies/${row._id}/lifecycle`} className="flex items-center gap-2.5 font-medium hover:text-[#0b1638]">
+        <Link href={`/super-admin/company-dashboard?id=${row._id}`} className="flex items-center gap-2.5 font-medium hover:text-[#0b1638]">
           <CompanyAvatar name={v} logoUrl={row.company?.logoUrl} />
           {v}
         </Link>
@@ -453,10 +455,10 @@ function SuperAdminCompaniesPageInner() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Company Portfolio</h1>
-          <p className="text-xs text-slate-500">Manage, monitor and grow your client organizations</p>
-        </div>
+       <PageHeader
+  title="Company Portfolio"
+  description="Manage, monitor and grow your client organizations"
+/>
         <div className="flex items-center gap-2">
           <Button asChild className="h-9 text-xs font-semibold text-white" style={{ background: 'var(--brand-primary, #0b1638)' }}>
             <Link href="/super-admin/step-1"><Plus size={14} className="mr-1" /> Add New Company</Link>
@@ -471,12 +473,12 @@ function SuperAdminCompaniesPageInner() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <CompanyStatTile icon={<Building2 size={16} />} accent="#0b1638" label="Total Companies" value={loading ? '—' : totalCompanies} sub="All Time" />
-        <CompanyStatTile icon={<CheckCircle2 size={16} />} accent="#059669" label="Active Companies" value={loading ? '—' : activeCompanies} sub="▲ 12 This Month" subColor="#059669" />
-        <CompanyStatTile icon={<Hourglass size={16} />} accent="#7c3aed" label="Trial Companies" value={32} sub="▼ 3 This Month" subColor="#dc2626" />
-        <CompanyStatTile icon={<XCircle size={16} />} accent="#dc2626" label="Expired / Inactive" value={loading ? '—' : inactiveCompanies} sub="▲ 5 This Month" subColor="#dc2626" />
-        <CompanyStatTile icon={<Crown size={16} />} accent="#f5c451" label="Enterprise Clients" value={46} sub="18.6% of Total" />
-        <CompanyStatTile icon={<Globe2 size={16} />} accent="#7c3aed" label="Countries Served" value={25} />
+        <StatsCard icon={<Building2 size={16} />} accent="#0b1638" label="Total Companies" value={loading ? '—' : totalCompanies} sub="All Time" />
+        <StatsCard icon={<CheckCircle2 size={16} />} accent="#059669" label="Active Companies" value={loading ? '—' : activeCompanies} sub="▲ 12 This Month" subColor="#059669" />
+        <StatsCard icon={<Hourglass size={16} />} accent="#7c3aed" label="Trial Companies" value={32} sub="▼ 3 This Month" subColor="#dc2626" />
+        <StatsCard icon={<XCircle size={16} />} accent="#dc2626" label="Expired / Inactive" value={loading ? '—' : inactiveCompanies} sub="▲ 5 This Month" subColor="#dc2626" />
+        <StatsCard icon={<Crown size={16} />} accent="#f5c451" label="Enterprise Clients" value={46} sub="18.6% of Total" />
+        <StatsCard icon={<Globe2 size={16} />} accent="#7c3aed" label="Countries Served" value={25} />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-[3.4fr_1fr] gap-4 min-w-0">
@@ -636,12 +638,12 @@ function SuperAdminCompaniesPageInner() {
             </CardHeader>
             <CardContent className="p-0 divide-y divide-white/10">
               {TOP_PERFORMERS.map((p, i) => (
-                <div key={p.name} className="flex items-center gap-2 px-3.5 py-1">
+                <Link key={p.name} href={p.href} className="flex items-center gap-2 px-3.5 py-1">
                   <span className="h-5 w-5 rounded-full bg-white/10 text-white/70 text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</span>
                   <span className="text-[11px] font-medium text-white truncate flex-1">{p.name}</span>
                   <span className="text-[11px] font-semibold text-white/80">{p.score}</span>
                   <span className="text-[9px] font-medium text-emerald-400 flex items-center"><ArrowUpRight size={10} />{p.delta}</span>
-                </div>
+                </Link>
               ))}
               <div className="p-2 text-center">
                 <Link href="#" className="text-[10px] font-medium" style={{ color: 'var(--brand-secondary)' }}>View All Rankings →</Link>

@@ -36,7 +36,7 @@ export const useAuthStore = create<AuthState>()(
           // clear this app's session cookie — cookies aren't port-scoped, only host-scoped.
           document.cookie = "has_session_super_admin=true; path=/; max-age=86400; samesite=lax";
         }
-        set({ user, tenantId: tenantId || null, isAuthenticated: true });
+        set({ user, tenantId: tenantId || null, token: token || null, isAuthenticated: true });
       },
       logout: () => {
         if (typeof window !== 'undefined') {

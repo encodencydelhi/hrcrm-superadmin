@@ -5,8 +5,11 @@ import { PlanProgressBar } from '@/components/layout/PlanProgressBar';
 import Link from 'next/link';
 import {
   Home, ChevronRight, ArrowLeft, ArrowRight, Check, Pencil, Rocket,
-  Sparkles, ShieldCheck, Info, Brain, Users, Wallet,
+  Sparkles, ShieldCheck, Info, Brain, Users, Wallet, Loader2
 } from 'lucide-react';
+import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
+import api from '@/lib/axios';
+import toast from 'react-hot-toast';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const STEPS = [
@@ -39,11 +42,11 @@ const FEATURES_RIGHT = [
   { label: 'Support', value: 'Email & Chat' },
 ];
 
-const ADDON_MODULES = [
-  { name: 'AI & Predictive Analytics', price: '₹ 20 / Employee / Month', icon: Brain, bg: 'bg-purple-50', color: 'text-purple-600' },
-  { name: 'Advanced Recruitment (ATS)', price: '₹ 15 / Employee / Month', icon: Users, bg: 'bg-blue-50', color: 'text-blue-600' },
-  { name: 'Expense Management', price: '₹ 10 / Employee / Month', icon: Wallet, bg: 'bg-amber-50', color: 'text-amber-600' },
-];
+const ADDON_MODULES_MAP: Record<string, any> = {
+  'ai-analytics': { name: 'AI & Predictive Analytics', price: '₹ 20 / Employee / Month', icon: Brain, bg: 'bg-purple-50', color: 'text-purple-600' },
+  'ats': { name: 'Advanced Recruitment (ATS)', price: '₹ 15 / Employee / Month', icon: Users, bg: 'bg-blue-50', color: 'text-blue-600' },
+  'expense': { name: 'Expense Management', price: '₹ 10 / Employee / Month', icon: Wallet, bg: 'bg-amber-50', color: 'text-amber-600' },
+};
 
 const BILLING_LEFT = [
   { label: 'Pricing Model', value: 'Per Employee' },
@@ -61,20 +64,13 @@ const BILLING_RIGHT = [
   { label: 'Trial Period', value: '14 Days' },
 ];
 
-const PREVIEW_FEATURES = [
-  'Up to 200 Employees',
-  'All Starter Features',
-  'Payroll Management',
-  'Advanced Attendance',
-  'Performance Management',
-  'Reports & Analytics',
-  'Priority Support',
-];
+// Preview features dynamic array generated inside component
 
 // ─── Breadcrumb + heading ───────────────────────────────────────────────────
 const BREADCRUMB = ['Home', 'Subscriptions', 'Subscription Plans', 'Create New Plan'];
 
 function PageHeading() {
+  const store = useSubscriptionPlanStore();
   return (
     <section className="space-y-1">
       <div className="flex items-center gap-1.5 text-[12px] text-zinc-500 flex-wrap">
@@ -93,19 +89,19 @@ function PageHeading() {
           </React.Fragment>
         ))}
       </div>
-      <h1 className="text-1xl font-bold text-zinc-900 leading-tight">Create New Plan</h1>
-      <p className="text-[13px] text-zinc-500">Review all details before creating your subscription plan</p>
+      <h1 className="text-1xl font-bold text-zinc-900 leading-tight">{store.id ? 'Edit Plan' : 'Create New Plan'}</h1>
+      <p className="text-[13px] text-zinc-500">Review all details before {store.id ? 'saving changes to' : 'creating'} your subscription plan</p>
     </section>
   );
 }
 
 // ─── Step indicator ─────────────────────────────────────────────────────────
 const STEP_ROUTES: Record<number, string> = {
-  1: '/super-admin/coming-soon?feature=CreateNewPlanStep1',
-  2: '/super-admin/create-new-plan-step2',
-  3: '/super-admin/Create-new-plan-step5',
-  4: '/super-admin/Create-new-plan-step4',
-  5: '/super-admin/create-new-plan-step2',
+  1: '/super-admin/subscriptions/plan-details',
+  2: '/super-admin/subscriptions/features-limits',
+  3: '/super-admin/subscriptions/add-on-modules',
+  4: '/super-admin/subscriptions/billing-pricing',
+  5: '/super-admin/subscriptions/review-create',
 };
 
 function StepIndicator({ current }: { current: number }) {
@@ -141,7 +137,7 @@ function StepIndicator({ current }: { current: number }) {
 }
 
 // ─── Reusable review card shell ─────────────────────────────────────────────
-function ReviewCard({ title, badge, children }: { title: string; badge?: string; children: React.ReactNode }) {
+function ReviewCard({ title, badge, onEdit, children }: { title: string; badge?: string; onEdit?: () => void; children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-3">
       <div className="flex items-center justify-between gap-2 mb-3">
@@ -149,9 +145,11 @@ function ReviewCard({ title, badge, children }: { title: string; badge?: string;
           <h3 className="text-[14px] font-bold text-zinc-900">{title}</h3>
           {badge && <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10.5px] font-bold text-indigo-600">{badge}</span>}
         </div>
-        <button className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
-          <Pencil size={12} /> Edit
-        </button>
+        {onEdit && (
+          <button onClick={onEdit} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+            <Pencil size={12} /> Edit
+          </button>
+        )}
       </div>
       {children}
     </div>
@@ -159,9 +157,10 @@ function ReviewCard({ title, badge, children }: { title: string; badge?: string;
 }
 
 // ─── Review Plan Details ────────────────────────────────────────────────────
-function ReviewPlanDetails() {
+function ReviewPlanDetails({ onEdit }: { onEdit: () => void }) {
+  const store = useSubscriptionPlanStore();
   return (
-    <ReviewCard title="Review Plan Details">
+    <ReviewCard title="Review Plan Details" onEdit={onEdit}>
       <div className="flex items-start gap-3">
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-indigo-50 text-indigo-600">
           <Rocket size={18} />
@@ -169,29 +168,29 @@ function ReviewPlanDetails() {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 flex-1">
           <div>
             <p className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wide">Plan Name</p>
-            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{PLAN_DETAILS.name}</p>
+            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{store.name}</p>
           </div>
           <div>
             <p className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wide">Plan Code</p>
-            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{PLAN_DETAILS.code}</p>
+            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{store.planCode}</p>
           </div>
           <div>
             <p className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wide">Category</p>
-            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{PLAN_DETAILS.category}</p>
+            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{store.targetAudience}</p>
           </div>
           <div>
             <p className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wide">Display Order</p>
-            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{PLAN_DETAILS.displayOrder}</p>
+            <p className="text-[13px] font-bold text-zinc-900 mt-0.5">{store.displayOrder}</p>
           </div>
           <div>
             <p className="text-[10.5px] font-semibold text-zinc-400 uppercase tracking-wide">Status</p>
-            <span className="inline-block mt-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-600">{PLAN_DETAILS.status}</span>
+            <span className="inline-block mt-0.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-600">Active</span>
           </div>
         </div>
       </div>
       <div className="mt-2 pt-2 border-t border-zinc-100">
         <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wide">Description</p>
-        <p className="text-[12px] text-zinc-600 mt-0.5">{PLAN_DETAILS.description}</p>
+        <p className="text-[12px] text-zinc-600 mt-0.5">{store.description}</p>
       </div>
     </ReviewCard>
   );
@@ -210,31 +209,35 @@ function FeatureRow({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ReviewFeaturesLimits() {
+function ReviewFeaturesLimits({ onEdit }: { onEdit: () => void }) {
+  const store = useSubscriptionPlanStore();
   return (
-    <ReviewCard title="Review Features & Limits" badge="8 Features">
+    <ReviewCard title="Review Features & Limits" badge={`${store.features.length} Features`} onEdit={onEdit}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
-        {FEATURES_LEFT.map((f) => <FeatureRow key={f.label} {...f} />)}
-        {FEATURES_RIGHT.map((f) => <FeatureRow key={f.label} {...f} />)}
+        {store.features.map((fId) => <FeatureRow key={fId} label={fId} value="Included" />)}
       </div>
     </ReviewCard>
   );
 }
 
 // ─── Review Add-on Modules ──────────────────────────────────────────────────
-function ReviewAddonModules() {
+function ReviewAddonModules({ onEdit }: { onEdit: () => void }) {
+  const store = useSubscriptionPlanStore();
   return (
-    <ReviewCard title="Review Add-on Modules" badge="3 Selected">
+    <ReviewCard title="Review Add-on Modules" badge={`${store.addOnModules.length} Selected`} onEdit={onEdit}>
       <div className="divide-y divide-zinc-100">
-        {ADDON_MODULES.map((m) => (
-          <div key={m.name} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
-            <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${m.bg} ${m.color}`}>
-              <m.icon size={15} />
-            </span>
-            <span className="flex-1 text-[12.5px] font-semibold text-zinc-800">{m.name}</span>
-            <span className="text-[12px] text-zinc-500 whitespace-nowrap">{m.price}</span>
-          </div>
-        ))}
+        {store.addOnModules.map((mId) => {
+          const m = ADDON_MODULES_MAP[mId] || { name: mId, price: 'N/A', icon: Brain, bg: 'bg-zinc-50', color: 'text-zinc-600' };
+          return (
+            <div key={m.name} className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0">
+              <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${m.bg} ${m.color}`}>
+                <m.icon size={15} />
+              </span>
+              <span className="flex-1 text-[12.5px] font-semibold text-zinc-800">{m.name}</span>
+              <span className="text-[12px] text-zinc-500 whitespace-nowrap">{m.price}</span>
+            </div>
+          );
+        })}
       </div>
     </ReviewCard>
   );
@@ -250,18 +253,23 @@ function BillingRow({ label, value, strong }: { label: string; value: string; st
   );
 }
 
-function ReviewBillingPricing() {
+function ReviewBillingPricing({ onEdit }: { onEdit: () => void }) {
+  const store = useSubscriptionPlanStore();
   return (
-    <ReviewCard title="Review Billing & Pricing">
+    <ReviewCard title="Review Billing & Pricing" onEdit={onEdit}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
         <div className="space-y-2.5">
-          {BILLING_LEFT.map((b) => <BillingRow key={b.label} {...b} />)}
+          <BillingRow label="Pricing Model" value="Per Employee" />
+          <BillingRow label="Billing Cycle" value="Monthly" />
+          <BillingRow label="Base Price (Per Employee / Month)" value={`₹ ${store.pricePerUserMonthlyINR}`} />
           <div className="pt-2 border-t border-zinc-100">
-            <BillingRow label="Total (Per Employee / Month)" value="₹ 212.40" strong />
+            <BillingRow label="Total (Per Employee / Month)" value={`₹ ${store.pricePerUserMonthlyINR}`} strong />
           </div>
         </div>
         <div className="space-y-2.5">
-          {BILLING_RIGHT.map((b) => <BillingRow key={b.label} {...b} />)}
+          <BillingRow label="Minimum Employees" value="10" />
+          <BillingRow label="Maximum Employees" value={store.maxUsers.toString()} />
+          <BillingRow label="Currency" value="INR (₹) - Indian Rupee" />
         </div>
       </div>
     </ReviewCard>
@@ -270,6 +278,11 @@ function ReviewBillingPricing() {
 
 // ─── Right rail: Plan preview ───────────────────────────────────────────────
 function PlanPreviewCard() {
+  const store = useSubscriptionPlanStore();
+  const PREVIEW_FEATURES = [
+    `Up to ${store.maxUsers || 'Unlimited'} Employees`,
+    ...store.features,
+  ];
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm p-3">
       <p className="text-[13px] font-bold text-zinc-900">Plan Preview</p>
@@ -277,17 +290,17 @@ function PlanPreviewCard() {
 
       <div className="relative mt-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
         <span className="absolute -top-2.5 right-3 rounded-full bg-zinc-900 px-2.5 py-1 text-[9px] font-bold text-white whitespace-nowrap">
-          Most Popular
+          {store.planBadge || 'Most Popular'}
         </span>
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-100 text-indigo-600">
           <Rocket size={17} />
         </span>
-        <p className="text-[14px] font-bold text-indigo-700 mt-2">Professional</p>
-        <p className="text-[11.5px] text-zinc-500">Ideal for growing organizations</p>
+        <p className="text-[14px] font-bold text-indigo-700 mt-2">{store.name || 'Plan Name'}</p>
+        <p className="text-[11.5px] text-zinc-500">{store.description ? store.description.slice(0, 50) + (store.description.length > 50 ? '...' : '') : 'Ideal for growing organizations'}</p>
 
         <div className="mt-2 flex items-baseline gap-1">
           <span className="text-sm font-bold text-zinc-900">₹</span>
-          <span className="text-2xl font-extrabold text-zinc-900">150</span>
+          <span className="text-2xl font-extrabold text-zinc-900">{store.pricePerUserMonthlyINR || 0}</span>
         </div>
         <p className="text-[10.5px] text-zinc-400">Per Employee / Month</p>
 
@@ -306,25 +319,18 @@ function PlanPreviewCard() {
 
 // ─── Right rail: Pricing summary ────────────────────────────────────────────
 function PricingSummaryCard() {
+  const store = useSubscriptionPlanStore();
   return (
     <div className="rounded-sm border border-zinc-200 bg-white shadow-sm p-3">
       <p className="text-[13px] font-bold text-zinc-900 mb-3">Pricing Summary</p>
       <div className="space-y-2">
         <div className="flex items-center justify-between text-[11px]">
           <span className="text-zinc-500">Base Price (Per Employee / Month)</span>
-          <span className="font-semibold text-zinc-900">₹ 150</span>
-        </div>
-        <div className="flex items-center justify-between text-[11px]">
-          <span className="text-zinc-500">Add-on Modules (Estimated)</span>
-          <span className="font-semibold text-zinc-900">₹ 30</span>
-        </div>
-        <div className="flex items-center justify-between text-[11px]">
-          <span className="text-zinc-500">GST (18%)</span>
-          <span className="font-semibold text-zinc-900">₹ 32.40</span>
+          <span className="font-semibold text-zinc-900">₹ {store.pricePerUserMonthlyINR || 0}</span>
         </div>
         <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
           <span className="text-[12px] font-semibold text-zinc-700">Total (Per Employee / Month)</span>
-          <span className="text-[12px] font-bold text-indigo-600">₹ 212.40</span>
+          <span className="text-[12px] font-bold text-indigo-600">₹ {store.pricePerUserMonthlyINR || 0}</span>
         </div>
       </div>
     </div>
@@ -357,6 +363,43 @@ function WhatsNextCard() {
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function CreateNewPlanStep5() {
   const router = useRouter();
+  const store = useSubscriptionPlanStore();
+  const [loading, setLoading] = React.useState(false);
+
+  const handleCreatePlan = async () => {
+    try {
+      setLoading(true);
+      const payload = {
+        name: store.name,
+        description: store.description,
+        planCode: store.planCode,
+        planBadge: store.planBadge,
+        displayOrder: store.displayOrder,
+        targetAudience: store.targetAudience,
+        pricePerUserMonthlyINR: store.pricePerUserMonthlyINR,
+        maxUsers: store.maxUsers,
+        features: store.features,
+        addOnModules: store.addOnModules,
+      };
+      
+      if (store.id) {
+        await api.put(`/super-admin/packages/${store.id}`, payload);
+        toast.success('Plan updated successfully');
+      } else {
+        await api.post('/super-admin/packages', payload);
+        toast.success('Plan created successfully');
+      }
+      
+      store.reset();
+      router.push('/super-admin/subscriptions/subscription-plan');
+    } catch (error) {
+      console.error('Error creating plan:', error);
+      toast.error('Failed to create plan');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-4 font-sans text-zinc-900">
       <PageHeading />
@@ -364,18 +407,18 @@ export default function CreateNewPlanStep5() {
 
       <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-4 items-start">
         <div className="min-w-0 space-y-4">
-          <ReviewPlanDetails />
-          <ReviewFeaturesLimits />
-          <ReviewAddonModules />
-          <ReviewBillingPricing />
+          <ReviewPlanDetails onEdit={() => router.push('/super-admin/subscriptions/plan-details')} />
+          <ReviewFeaturesLimits onEdit={() => router.push('/super-admin/subscriptions/features-limits')} />
+          <ReviewAddonModules onEdit={() => router.push('/super-admin/subscriptions/add-on-modules')} />
+          <ReviewBillingPricing onEdit={() => router.push('/super-admin/subscriptions/billing-pricing')} />
 
           {/* Footer actions */}
           <div className="flex items-center justify-between gap-2">
             <button onClick={() => router.push('/super-admin/subscriptions/billing-pricing')} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-5 py-1.5 text-[12px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
               <ArrowLeft size={14} /> Back
             </button>
-            <button onClick={() => router.push('/super-admin/subscriptions/subscription-plan')} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors">
-              Create Plan <ArrowRight size={14} />
+            <button disabled={loading} onClick={handleCreatePlan} className="flex items-center gap-1.5 rounded-lg bg-[#020b22] px-5 py-1.5 text-[12px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors disabled:opacity-50">
+              {loading ? <Loader2 size={14} className="animate-spin" /> : (store.id ? 'Save Changes' : 'Create Plan')} <ArrowRight size={14} />
             </button>
           </div>
         </div>

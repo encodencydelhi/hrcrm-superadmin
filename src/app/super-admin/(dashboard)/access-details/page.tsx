@@ -7,6 +7,7 @@ import {
   Plane, Wallet, Folder, BarChart, Settings, Info,
   X, Phone, Mail, MoreVertical, Plus, Save, AlertTriangle, Check
 } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 
 export default function AccessDetailsPage() {
   return (
@@ -25,10 +26,10 @@ export default function AccessDetailsPage() {
 
       {/* Header */}
       <div className="flex items-start justify-between pb-1">
-        <div>
-          <h1 className="text-[16px] font-bold text-[#020b22]">Access Details</h1>
-          <p className="text-[10px] text-zinc-500">Configure access level, data scope and permissions for the technical team</p>
-        </div>
+        <PageHeader
+          title="Access Details"
+          description="Configure access level, data scope and permissions for the technical team"
+        />
         <div className="flex items-center gap-2 shrink-0">
           <button className="flex items-center gap-1.5 border border-zinc-300 bg-white text-zinc-700 text-[11px] font-bold px-3 py-1.5 rounded shadow-sm hover:bg-zinc-50 transition-colors">
             <ArrowLeft size={13} /> Back to Request Details

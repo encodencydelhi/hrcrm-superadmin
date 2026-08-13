@@ -6,8 +6,11 @@ import { useRouter } from 'next/navigation';
 import {
     ChevronRight, Check, Rocket, HelpCircle, Info,
     Navigation, Crown, Settings2, Plus, ArrowRight,
-    Headset
+    Headset, Loader2
 } from 'lucide-react';
+import api from '@/lib/axios';
+import { toast } from 'react-hot-toast';
+import { useSubscriptionPlanStore } from '@/store/subscriptionPlanStore';
 
 const PLANS = [
     {
@@ -124,10 +127,119 @@ const COMPARE_FEATURES = [
 
 export default function SubscriptionPlansPage() {
     const router = useRouter();
+    const store = useSubscriptionPlanStore();
     const [addons, setAddons] = useState(ADDONS);
+    const [packages, setPackages] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    React.useEffect(() => {
+        fetchPackages();
+    }, []);
+
+    const handleEditPlan = (pkg: any) => {
+        store.update({
+            id: pkg._id,
+            name: pkg.name || '',
+            description: pkg.description || '',
+            planCode: pkg.planCode || '',
+            tier: pkg.tier || 'Starter',
+            targetAudience: pkg.targetAudience || [],
+            planBadge: pkg.planBadge || '',
+            displayOrder: pkg.displayOrder || 1,
+            isActive: pkg.isActive ?? true,
+            maxUsers: pkg.maxUsers || 100,
+            maxCompanies: pkg.maxCompanies || 1,
+            maxBranches: pkg.maxBranches || 1,
+            maxDepartments: pkg.maxDepartments || 5,
+            maxDesignations: pkg.maxDesignations || 10,
+            features: pkg.features || [],
+            addOnModules: pkg.addOnModules || [],
+            priceINR: pkg.priceINR || 0,
+            priceUSD: pkg.priceUSD || 0,
+            pricePerUserMonthlyINR: pkg.pricePerUserMonthlyINR || 0,
+            pricePerUserMonthlyUSD: pkg.pricePerUserMonthlyUSD || 0,
+            pricePerUserYearlyINR: pkg.pricePerUserYearlyINR || 0,
+            pricePerUserYearlyUSD: pkg.pricePerUserYearlyUSD || 0,
+            setupFeeINR: pkg.setupFeeINR || 0,
+            setupFeeUSD: pkg.setupFeeUSD || 0,
+            freeAiCredits: pkg.freeAiCredits || 0,
+            aiCreditTopUpPriceINR: pkg.aiCreditTopUpPriceINR || 0,
+            aiCreditTopUpPriceUSD: pkg.aiCreditTopUpPriceUSD || 0,
+        });
+        router.push('/super-admin/subscriptions/plan-details');
+    };
+
+    const handleCreateNewPlan = () => {
+        store.reset();
+        router.push('/super-admin/subscriptions/plan-details');
+    };
+
+    const fetchPackages = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get('/super-admin/packages');
+            // Depending on the backend wrapper, it could be response.data or response.data.data
+            const data = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+            setPackages(data);
+        } catch (error) {
+            console.error('Error fetching packages:', error);
+            toast.error('Failed to load subscription plans');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const toggleAddon = (id: string) => {
         setAddons(addons.map(a => a.id === id ? { ...a, checked: !a.checked } : a));
+    };
+
+    const getCardStyle = (pkg: any) => {
+        const name = (pkg.name || '').toLowerCase();
+        const tier = (pkg.tier || '').toLowerCase();
+        
+        if (name.includes('start') || tier === 'basic' || tier === 'starter') {
+            return {
+                icon: <Navigation size={20} />,
+                iconColor: 'text-emerald-600',
+                iconBg: 'bg-emerald-50',
+                borderColor: 'border-zinc-200',
+                buttonClass: 'border-emerald-200 text-emerald-600 hover:bg-emerald-50',
+                bgColor: 'bg-green-50/20',
+                checkColor: 'text-emerald-500'
+            };
+        }
+        if (name.includes('pro') || tier === 'professional') {
+            return {
+                icon: <Rocket size={20} />,
+                iconColor: 'text-blue-600',
+                iconBg: 'bg-blue-50',
+                borderColor: 'border-blue-200 shadow-sm',
+                buttonClass: 'bg-blue-50/50 border-blue-200 text-blue-600 font-bold',
+                bgColor: 'bg-blue-50/20',
+                checkColor: 'text-blue-500'
+            };
+        }
+        if (name.includes('enterprise') || tier === 'enterprise') {
+            return {
+                icon: <Crown size={20} />,
+                iconColor: 'text-purple-600',
+                iconBg: 'bg-purple-50',
+                borderColor: 'border-zinc-200',
+                buttonClass: 'border-purple-200 text-purple-600 hover:bg-purple-50',
+                bgColor: 'bg-purple-50/20',
+                checkColor: 'text-purple-500'
+            };
+        }
+        return {
+            // default / custom
+            icon: <Settings2 size={20} />,
+            iconColor: 'text-amber-600',
+            iconBg: 'bg-amber-50',
+            borderColor: 'border-zinc-200',
+            buttonClass: 'border-amber-200 text-amber-600 hover:bg-amber-50',
+            bgColor: 'bg-amber-50/10',
+            checkColor: 'text-amber-500'
+        };
     };
 
     return (
@@ -146,7 +258,7 @@ export default function SubscriptionPlansPage() {
                     <p className="text-[11px] text-zinc-500 mt-0.5">Manage and configure subscription plans for your organization</p>
                 </div>
                 <button
-                    onClick={() => router.push('/super-admin/subscriptions/plan-details')}
+                    onClick={handleCreateNewPlan}
                     className="flex items-center gap-1.5 rounded-md bg-[#020b22] px-4 py-2 text-[11.5px] font-bold text-white shadow-sm hover:bg-zinc-800 transition-colors"
                 >
                     <Plus size={14} /> Create New Plan
@@ -158,64 +270,90 @@ export default function SubscriptionPlansPage() {
                 <div className="xl:col-span-3 flex flex-col gap-1.5">
 
                     {/* Plan Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1.5">
-                        {PLANS.map((plan) => (
-                            <div key={plan.id} className={`${plan.bgColor} rounded-xl border ${plan.borderColor} px-4 py-3 flex flex-col relative`}>
-                                {plan.badge && (
-                                    <div className="absolute -top-2.5 right-4">
-                                        <span className="bg-[#020b22] text-white px-2 py-0.5 rounded text-[9px] font-bold shadow-sm">
-                                            {plan.badge}
-                                        </span>
-                                    </div>
-                                )}
-
-                                <div className="flex items-start gap-3 mb-4">
-                                    <div className={`h-10 w-10 rounded-full bg-white ${plan.iconColor} flex items-center justify-center shrink-0`}>
-                                        {plan.icon}
-                                    </div>
-                                    <div className="pt-0.5">
-                                        <h3 className={`text-[15px] font-bold ${plan.id === 'professional' ? 'text-blue-600' : 'text-zinc-900'}`}>
-                                            {plan.subtitle ? plan.subtitle : plan.name}
-                                        </h3>
-                                        {plan.subtitle && <h4 className="text-[13px] font-bold text-zinc-900 mt-0.5">{plan.name}</h4>}
-                                        <p className="text-[9.5px] text-zinc-500 mt-0.5 leading-tight pr-2">{plan.description}</p>
-                                    </div>
-                                </div>
-
-                                <div className="mb-4">
-                                    {plan.price ? (
-                                        <>
-                                            <div className="flex items-baseline gap-1">
-                                                <span className="text-[16px] font-bold text-zinc-900">₹</span>
-                                                <span className="text-[28px] font-bold text-[#020b22] leading-none">{plan.price}</span>
+                    {loading ? (
+                        <div className="flex items-center justify-center p-12 bg-white rounded-xl border border-zinc-200">
+                            <Loader2 className="animate-spin text-blue-600" size={32} />
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1.5">
+                            {packages.length > 0 ? [...packages].sort((a: any, b: any) => (a.displayOrder || 0) - (b.displayOrder || 0)).map((pkg: any) => {
+                                // Add dynamic styling based on planBadge or just simple rotating styles
+                                const isPopular = pkg.planBadge === 'Most Popular';
+                                const badge = pkg.planBadge || '';
+                                const price = pkg.pricePerUserMonthlyINR || null;
+                                const style = getCardStyle(pkg);
+                                
+                                return (
+                                    <div key={pkg._id} className={`${style.bgColor} rounded-xl border ${style.borderColor} px-4 py-3 flex flex-col relative`}>
+                                        {badge && (
+                                            <div className="absolute -top-2.5 right-4">
+                                                <span className={`px-2 py-0.5 rounded text-[9px] font-bold shadow-sm ${isPopular ? 'bg-[#020b22] text-white' : 'bg-zinc-800 text-white'}`}>
+                                                    {badge}
+                                                </span>
                                             </div>
-                                            <p className="text-[9.5px] text-zinc-500 mt-1">Per Employee / Month</p>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div className="flex items-baseline h-[34px] items-center">
-                                                <span className="text-[18px] font-bold text-[#020b22] leading-none">Custom Pricing</span>
-                                            </div>
-                                            <p className="text-[9.5px] text-zinc-500 mt-1">Let's build for you</p>
-                                        </>
-                                    )}
-                                </div>
+                                        )}
 
-                                <div className="flex-1 space-y-2 mb-5">
-                                    {plan.features.map((feature, idx) => (
-                                        <div key={idx} className="flex items-start gap-1.5">
-                                            <Check size={12} className="text-emerald-500 shrink-0 mt-0.5" strokeWidth={3} />
-                                            <span className="text-[10px] font-medium text-zinc-700 leading-tight">{feature}</span>
+                                        <div className="flex items-start gap-3 mb-4">
+                                            <div className={`h-10 w-10 rounded-full bg-white ${style.iconColor} flex items-center justify-center shrink-0 border border-zinc-100`}>
+                                                {style.icon}
+                                            </div>
+                                            <div className="pt-0.5">
+                                                <h3 className={`text-[15px] font-bold ${style.iconColor}`}>
+                                                    {pkg.name}
+                                                </h3>
+                                                <p className="text-[9.5px] text-zinc-500 mt-0.5 leading-tight pr-2">{pkg.description}</p>
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
 
-                                <button className={`w-full py-2 rounded-md border text-[11px] font-bold transition-colors ${plan.buttonClass}`}>
-                                    {plan.buttonText}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
+                                        <div className="mb-4">
+                                            {price ? (
+                                                <>
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-[16px] font-bold text-zinc-900">₹</span>
+                                                        <span className="text-[28px] font-bold text-[#020b22] leading-none">{price}</span>
+                                                    </div>
+                                                    <p className="text-[9.5px] text-zinc-500 mt-1">Per Employee / Month</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="flex items-baseline h-[34px] items-center">
+                                                        <span className="text-[18px] font-bold text-[#020b22] leading-none">Custom Pricing</span>
+                                                    </div>
+                                                    <p className="text-[9.5px] text-zinc-500 mt-1">Let's build for you</p>
+                                                </>
+                                            )}
+                                        </div>
+
+                                        <div className="flex-1 space-y-2 mb-5">
+                                            <div className="flex items-start gap-1.5">
+                                                <Check size={12} className={`${style.checkColor} shrink-0 mt-0.5`} strokeWidth={3} />
+                                                <span className="text-[10px] font-medium text-zinc-700 leading-tight">Up to {pkg.maxUsers || 'Unlimited'} Employees</span>
+                                            </div>
+                                            {pkg.features?.slice(0, 6).map((feature: string, idx: number) => (
+                                                <div key={idx} className="flex items-start gap-1.5">
+                                                    <Check size={12} className={`${style.checkColor} shrink-0 mt-0.5`} strokeWidth={3} />
+                                                    <span className="text-[10px] font-medium text-zinc-700 leading-tight">{feature}</span>
+                                                </div>
+                                            ))}
+                                            {pkg.features?.length > 6 && (
+                                                <div className="flex items-start gap-1.5">
+                                                    <span className="text-[10px] font-bold text-blue-600 leading-tight cursor-pointer">+ {pkg.features.length - 6} more features</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <button onClick={() => handleEditPlan(pkg)} className={`w-full py-2 rounded-md border text-[11px] transition-colors font-bold ${style.buttonClass}`}>
+                                            Edit Plan
+                                        </button>
+                                    </div>
+                                );
+                            }) : (
+                                <div className="col-span-4 p-8 text-center text-zinc-500 text-sm">
+                                    No subscription plans created yet.
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Compare Plans Table */}
                     <div className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
