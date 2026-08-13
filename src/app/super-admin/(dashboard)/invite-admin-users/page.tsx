@@ -104,21 +104,21 @@ function ProgressBar() {
 // ─── Main Content ─────────────────────────────────────────────────────────
 export default function InviteAdminUsersPage() {
     return (
-        <div className="space-y-4 pb-10">
+        <div className="space-y-3 pb-3">
             <PageHeading />
             <ProgressBar />
 
-            <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-4 items-start">
-                <div className="space-y-4 min-w-0">
-                    
+            <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-3 items-start">
+                <div className="space-y-3 min-w-0">
+
                     {/* Administrator Details */}
                     <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
                         <div className="mb-4">
                             <h2 className="text-[14px] font-bold text-zinc-900">Administrator Details</h2>
                             <p className="text-[12px] text-zinc-500 mt-0.5">Enter administrator information and send invitation</p>
                         </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
                                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">Full Name <span className="text-red-500">*</span></label>
                                 <input type="text" defaultValue="Rohit Mehta" className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
@@ -183,8 +183,8 @@ export default function InviteAdminUsersPage() {
                                 <div>
                                     <label className="block text-[11px] font-bold text-zinc-700 mb-1">Personal Message (Optional)</label>
                                     <div className="relative">
-                                        <textarea 
-                                            rows={4} 
+                                        <textarea
+                                            rows={4}
                                             defaultValue={"Hi Rohit,\nYou have been invited to join TechVision Pvt. Ltd. as a Company Administrator on Crewcam HRMS.\nPlease use the invitation link to activate your account."}
                                             className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500 resize-none text-zinc-700"
                                         />
@@ -340,10 +340,10 @@ export default function InviteAdminUsersPage() {
                     </div>
 
                 </div>
-                
+
                 {/* Right Sidebar */}
-                <div className="space-y-4 min-w-0 xl:sticky xl:top-4">
-                    
+                <div className="space-y-3 min-w-0 xl:sticky xl:top-4">
+
                     {/* Onboarding Progress */}
                     <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
                         <h3 className="text-[13px] font-bold text-zinc-900 mb-4">Onboarding Progress</h3>
@@ -380,7 +380,7 @@ export default function InviteAdminUsersPage() {
                                 <div className="flex items-center gap-2 text-zinc-600">
                                     <div className="w-3.5 h-3.5 rounded-full border-2 border-indigo-500 shrink-0 flex items-center justify-center">
                                         <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
-                                    </div> 
+                                    </div>
                                     Plan
                                 </div>
                                 <span className="font-medium text-zinc-900">Professional</span>
