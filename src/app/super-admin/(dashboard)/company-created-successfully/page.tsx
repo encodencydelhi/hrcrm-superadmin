@@ -1,7 +1,8 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import api from "@/lib/axios";
 import {
     ChevronRight,
     ExternalLink,
@@ -135,26 +136,47 @@ const quickActions = [
 /*  Main Page                                                                 */
 /* -------------------------------------------------------------------------- */
 
-const CompanyCreatedSuccessFully = () => {
+const CompanyCreatedSuccessFullyContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const name = searchParams.get('name') || 'Your company';
-    const corporateId = searchParams.get('corporateId') || '—';
-    const industry = searchParams.get('industry') || '—';
-    const companySize = searchParams.get('companySize') || '—';
-    const adminName = searchParams.get('adminName') || '—';
-    const adminEmail = searchParams.get('adminEmail') || '—';
-    const adminDesignation = searchParams.get('adminDesignation') || '—';
-    const planName = searchParams.get('planName') || '—';
-    const pricePerUser = searchParams.get('pricePerUser');
-    const modulesEnabled = Number(searchParams.get('modulesEnabled') || 0);
-    const modulesTotal = Number(searchParams.get('modulesTotal') || 0);
+    const companyId = searchParams.get('companyId');
+    
+    const [tenant, setTenant] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!companyId) return;
+        const fetchTenant = async () => {
+            try {
+                const res = await api.get(`/super-admin/tenants/${companyId}`);
+                setTenant(res.data);
+            } catch (err) {
+                console.error("Failed to fetch tenant:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTenant();
+    }, [companyId]);
+
+    const name = tenant?.name || 'Your company';
+    const corporateId = tenant?.company?.corporateId || '—';
+    const industry = tenant?.company?.industry || '—';
+    const companySize = tenant?.company?.companySize || '—';
+    const adminName = tenant?.admin ? `${tenant.admin.firstName} ${tenant.admin.lastName}` : '—';
+    const adminEmail = tenant?.admin?.email || '—';
+    const adminDesignation = tenant?.admin?.designation || '—';
+    const planName = tenant?.packageId?.name || '—';
+    const pricePerUser = tenant?.packageId?.pricePerUserMonthlyINR;
+    const modulesEnabled = tenant?.company?.selectedModules?.length || 0;
+    // Assuming 12 default modules as per standard setup
+    const modulesTotal = 12;
     const billing = pricePerUser ? `₹ ${pricePerUser} / Employee / Month` : '—';
 
     const companySummary = [
         { icon: Building2, label: "Company Name", value: name },
         { icon: Tag, label: "Plan", value: planName },
-        { icon: Users, label: "Employees (Estimated)", value: searchParams.get('estimatedEmployees') || '—' },
+        { icon: Users, label: "Employees (Estimated)", value: tenant?.estimatedEmployees || '—' },
         { icon: Wallet, label: "Billing", value: billing },
     ];
 
@@ -166,6 +188,14 @@ const CompanyCreatedSuccessFully = () => {
         { label: "Plan", value: planName },
         { label: "Billing", value: billing },
     ];
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <p className="text-gray-500">Loading company details...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -648,10 +678,12 @@ const CompanyCreatedSuccessFully = () => {
     );
 };
 
-export default function CompanyCreatedSuccessfullyPage() {
+const CompanyCreatedSuccessFully = () => {
     return (
-        <Suspense fallback={null}>
-            <CompanyCreatedSuccessFully />
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-500">Loading...</p></div>}>
+            <CompanyCreatedSuccessFullyContent />
         </Suspense>
     );
-}
+};
+
+export default CompanyCreatedSuccessFully;
