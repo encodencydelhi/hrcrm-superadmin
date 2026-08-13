@@ -175,32 +175,25 @@ function BillingCycleToggle({ value, onChange }: { value: string; onChange: (v: 
     <div>
       <label className="block text-[12px] font-semibold text-zinc-700 mb-2">Billing Cycle</label>
       <div className="flex flex-nowrap items-center gap-1.5">
-        {BILLING_CYCLES.map((c, i) =>
-          i === 0 ? (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => onChange(c.id)}
-              className={`shrink-0 rounded-lg px-4 py-1.5 text-[12px] font-semibold transition-colors ${
-                value === c.id ? 'bg-indigo-600 text-white shadow-sm' : 'border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50'
-              }`}
-            >
-              {c.label}
-            </button>
-          ) : (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => onChange(c.id)}
-              className={`shrink-0 flex items-center gap-1 px-1.5 py-1.5 text-[12px] font-semibold whitespace-nowrap transition-colors ${
-                value === c.id ? 'text-indigo-600' : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              {c.label}
-              {c.save && <span className="text-[10px] font-bold text-emerald-600">{c.save}</span>}
-            </button>
-          )
-        )}
+        {BILLING_CYCLES.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            onClick={() => onChange(c.id)}
+            className={`shrink-0 flex items-center gap-1 rounded-lg px-4 py-1.5 text-[12px] font-semibold whitespace-nowrap transition-colors ${
+              value === c.id
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50'
+            }`}
+          >
+            {c.label}
+            {c.save && (
+              <span className={`text-[10px] font-bold ${
+                value === c.id ? 'text-indigo-200' : 'text-emerald-600'
+              }`}>{c.save}</span>
+            )}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -333,7 +326,7 @@ export default function CreateNewPlanStep4() {
       <PageHeading />
       <StepIndicator current={4} />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-4 items-start">
         <div className="min-w-0 space-y-2">
           <SectionCard title="Billing & Pricing" subtitle="Configure pricing, billing cycle, and tax preferences for this plan">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">

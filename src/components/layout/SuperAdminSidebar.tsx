@@ -85,6 +85,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: '/super-admin/audit-logs', label: 'Audit Logs' },
       { href: '/super-admin/automation', label: 'Automation' },
       { href: '/super-admin/features', label: 'Feature Flags' },
+      { href: '/super-admin/Industry-managements', label: 'Industry Managements' },
     ],
   },
 ];

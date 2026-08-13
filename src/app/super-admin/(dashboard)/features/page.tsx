@@ -16,6 +16,25 @@ export default function SuperAdminFeaturesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState(emptyForm);
   const [error, setError] = useState('');
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const validateForm = () => {
+    const errs: Record<string, string> = {};
+    if (!formData.name.trim()) {
+      errs.name = `${mode === 'features' ? 'Feature name' : 'Permission code'} is required.`;
+    } else if (formData.name.trim().length < 2) {
+      errs.name = 'Must be at least 2 characters.';
+    }
+    if (mode === 'features') {
+      if (!formData.code.trim()) errs.code = 'Feature code is required.';
+      else if (!/^[A-Z0-9_\-]+$/.test(formData.code)) errs.code = 'Only uppercase letters, numbers, hyphens and underscores.';
+    } else {
+      if (!formData.module.trim()) errs.module = 'Module is required.';
+    }
+    if (!formData.description.trim()) errs.description = 'Description is required.';
+    else if (formData.description.trim().length < 5) errs.description = 'Description must be at least 5 characters.';
+    return errs;
+  };
 
   useEffect(() => {
     fetchData();
@@ -37,6 +56,9 @@ export default function SuperAdminFeaturesPage() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    const errs = validateForm();
+    setFormErrors(errs);
+    if (Object.keys(errs).length > 0) return;
     try {
       if (mode === 'features') {
         await api.post('/super-admin/features', {
@@ -68,7 +90,7 @@ export default function SuperAdminFeaturesPage() {
           <h1 className="text-lg font-md tracking-tight text-zinc-900 dark:text-zinc-50">Features & RBAC</h1>
           <p className="text-xs text-zinc-500">Manage package feature flags and global permission codes.</p>
         </div>
-        <Button onClick={() => { setFormData(emptyForm); setIsModalOpen(true); }} className="h-8 text-xs bg-indigo-600 text-white hover:bg-indigo-700">
+        <Button onClick={() => { setFormData(emptyForm); setFormErrors({}); setIsModalOpen(true); }} className="h-8 text-xs bg-indigo-600 text-white hover:bg-indigo-700">
           <Plus size={14} className="mr-1" /> Add {mode === 'features' ? 'Feature' : 'Permission'}
         </Button>
       </div>
@@ -113,13 +135,13 @@ export default function SuperAdminFeaturesPage() {
               </button>
             </div>
             <form onSubmit={handleCreate} className="p-5 space-y-5">
-              <Field label={mode === 'features' ? 'Feature Name' : 'Permission Code'} value={formData.name} onChange={(value) => setFormData({ ...formData, name: mode === 'permissions' ? value.toUpperCase() : value })} required />
+              <Field label={mode === 'features' ? 'Feature Name' : 'Permission Code'} value={formData.name} onChange={(value) => setFormData({ ...formData, name: mode === 'permissions' ? value.toUpperCase() : value })} required error={formErrors.name} />
               {mode === 'features' ? (
-                <Field label="Feature Code" value={formData.code} onChange={(value) => setFormData({ ...formData, code: value.toUpperCase() })} required />
+                <Field label="Feature Code" value={formData.code} onChange={(value) => setFormData({ ...formData, code: value.toUpperCase() })} required error={formErrors.code} />
               ) : (
-                <Field label="Module" value={formData.module} onChange={(value) => setFormData({ ...formData, module: value })} required />
+                <Field label="Module" value={formData.module} onChange={(value) => setFormData({ ...formData, module: value })} required error={formErrors.module} />
               )}
-              <Field label="Description" value={formData.description} onChange={(value) => setFormData({ ...formData, description: value })} required />
+              <Field label="Description" value={formData.description} onChange={(value) => setFormData({ ...formData, description: value })} required error={formErrors.description} />
               <div className="pt-3 flex justify-end gap-3">
                 <Button type="button" variant="outline" className="h-9 px-4 text-xs" onClick={() => setIsModalOpen(false)}>Cancel</Button>
                 <Button type="submit" className="h-9 px-4 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">Create</Button>
@@ -136,13 +158,20 @@ type FieldProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange' |
   label: string;
   value: string;
   onChange: (value: string) => void;
+  error?: string;
 };
 
-function Field({ label, value, onChange, ...props }: FieldProps) {
+function Field({ label, value, onChange, error, ...props }: FieldProps) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs font-md text-zinc-700">{label}</label>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full border border-zinc-200 rounded-lg text-sm px-3.5 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" {...props} />
+      <label className="block text-xs font-md text-zinc-700">{label}{props.required && <span className="text-rose-500 ml-0.5">*</span>}</label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`w-full border ${error ? 'border-rose-400 focus:ring-rose-100' : 'border-zinc-200 focus:ring-indigo-500/20'} rounded-lg text-sm px-3.5 py-2 focus:outline-none focus:ring-2 transition-colors`}
+        {...props}
+      />
+      {error && <p className="text-[10.5px] text-rose-500">{error}</p>}
     </div>
   );
 }
