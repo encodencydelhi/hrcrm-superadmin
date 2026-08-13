@@ -348,8 +348,8 @@ export default function InviteAdminUsersPage() {
                     <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
                         <h3 className="text-[13px] font-bold text-zinc-900 mb-4">Onboarding Progress</h3>
                         <div className="flex items-center gap-4">
-                            <div className="relative shrink-0 w-14 h-14 rounded-full border-[3px] border-zinc-100 flex items-center justify-center">
-                                <div className="absolute inset-0 rounded-full border-[3px] border-[#0B1B3D]" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 67%)' }}></div>
+                            <div className="relative shrink-0 w-14 h-14 rounded-full border-[5px] border-zinc-100 flex items-center justify-center">
+                                <div className="absolute inset-0 rounded-full border-[5px] border-[#0B1B3D]" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 67%)' }}></div>
                                 <span className="text-[13px] font-bold text-zinc-900">33%</span>
                             </div>
                             <div>
