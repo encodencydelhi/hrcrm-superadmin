@@ -455,10 +455,10 @@ function SuperAdminCompaniesPageInner() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-       <PageHeader
-  title="Company Portfolio"
-  description="Manage, monitor and grow your client organizations"
-/>
+        <PageHeader
+          title="Company Portfolio"
+          description="Manage, monitor and grow your client organizations"
+        />
         <div className="flex items-center gap-2">
           <Button asChild className="h-9 text-xs font-semibold text-white" style={{ background: 'var(--brand-primary, #0b1638)' }}>
             <Link href="/super-admin/step-1"><Plus size={14} className="mr-1" /> Add New Company</Link>

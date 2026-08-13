@@ -79,6 +79,7 @@ const nextSteps = [
         sub: "manage the company",
         state: "current",
         button: "Invite Now",
+        href: "/super-admin/invite-admin-users",
     },
     {
         step: 3,
@@ -211,42 +212,42 @@ const CompanyCreatedSuccessFully = () => {
                         {/* Hero banner */}
                         <div className="relative overflow-hidden rounded-lg bg-[#000d2a] p-3 border border-gray-300 flex-row flex gap-2">
                             <Image src={celebration} width={100} height={100} alt="celebrate" className="object-contain" />
-                          <div className="pl-2 relative z-10">
-                            <h2 className="text-white font-semibold">Congratulatios! Your Company is now live.</h2>
-                            <p className="text-white text-xs pt-1">Company ID: {corporateId}</p>
-                            <div className="relative mt-5 grid grid-cols-2 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
-                                {[
-                                    ...companySummary,
-                                    {
-                                        label: "Go Live Status",
-                                        icon: Zap,
-                                        value: null, // handled separately below
-                                    },
-                                ].map((item, idx, arr) => {
-                                    const Icon = item.icon;
-                                    const isLast = idx === arr.length - 1;
-                                    return (
-                                        <div
-                                            key={item.label}
-                                            className={`px-4 first:pl-0 ${!isLast ? "border-r border-white/30" : ""}`}
-                                        >
-                                            <div className="mb-1 flex items-center gap-1.5 text-[8px] text-white">
-                                                <Icon className="h-3 w-3 text-white" />
-                                                {item.label}
+                            <div className="pl-2 relative z-10">
+                                <h2 className="text-white font-semibold">Congratulatios! Your Company is now live.</h2>
+                                <p className="text-white text-xs pt-1">Company ID: {corporateId}</p>
+                                <div className="relative mt-5 grid grid-cols-2 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+                                    {[
+                                        ...companySummary,
+                                        {
+                                            label: "Go Live Status",
+                                            icon: Zap,
+                                            value: null, // handled separately below
+                                        },
+                                    ].map((item, idx, arr) => {
+                                        const Icon = item.icon;
+                                        const isLast = idx === arr.length - 1;
+                                        return (
+                                            <div
+                                                key={item.label}
+                                                className={`px-4 first:pl-0 ${!isLast ? "border-r border-white/30" : ""}`}
+                                            >
+                                                <div className="mb-1 flex items-center gap-1.5 text-[8px] text-white">
+                                                    <Icon className="h-3 w-3 text-white" />
+                                                    {item.label}
+                                                </div>
+                                                {item.value ? (
+                                                    <p className="text-[8px] font-semibold text-white">{item.value}</p>
+                                                ) : (
+                                                    <span className="inline-block rounded-md bg-amber-500/20 border border-amber-500/50 px-2 py-1 text-[8px] font-semibold text-amber-400">
+                                                        Setup Pending
+                                                    </span>
+                                                )}
                                             </div>
-                                            {item.value ? (
-                                                <p className="text-[8px] font-semibold text-white">{item.value}</p>
-                                            ) : (
-                                                <span className="inline-block rounded-md bg-amber-500/20 border border-amber-500/50 px-2 py-1 text-[8px] font-semibold text-amber-400">
-                                                    Setup Pending
-                                                </span>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                    })}
+                                </div>
                             </div>
-                          </div>
-<Image src={building} width={100} height={100} alt="building" className="absolute right-0 bottom-0 z-0" />
+                            <Image src={building} width={100} height={100} alt="building" className="absolute right-0 bottom-0 z-0" />
                         </div>
 
                         {/* What's Next */}
@@ -281,8 +282,8 @@ const CompanyCreatedSuccessFully = () => {
                                             </p>
                                             <p
                                                 className={`text-[10px] ${step.state === "done"
-                                                        ? "text-green-600"
-                                                        : ""
+                                                    ? "text-green-600"
+                                                    : ""
                                                     }`}
                                             >
                                                 {step.desc}
@@ -293,9 +294,14 @@ const CompanyCreatedSuccessFully = () => {
                                             {step.button && (
                                                 <button
                                                     className={`w-auto rounded-md px-2 py-1 text-[11px] font-medium ${step.state === "current"
-                                                            ? "bg-[#0B1D3A] text-white"
-                                                            : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+                                                        ? "bg-[#0B1D3A] text-white"
+                                                        : "border border-gray-300 text-gray-600 hover:bg-gray-50"
                                                         }`}
+                                                    onClick={() => {
+                                                        if (step.href) {
+                                                            router.push(step.href);
+                                                        }
+                                                    }}
                                                 >
                                                     {step.button}
                                                 </button>
@@ -576,8 +582,8 @@ const CompanyCreatedSuccessFully = () => {
                                                 </p>
                                                 <p
                                                     className={`whitespace-nowrap text-[11px] ${step.state === "done"
-                                                            ? "text-white"
-                                                            : "text-white"
+                                                        ? "text-white"
+                                                        : "text-white"
                                                         }`}
                                                 >
                                                     {step.status}
@@ -616,9 +622,9 @@ const CompanyCreatedSuccessFully = () => {
                         </div>
 
                         {/* You're in Good Hands */}
-                         <div className="rounded-lg bg-[#0B1D3A] p-3 flex gap-2 items-start">
-                          
-                                <Award className="h-16 w-24 text-amber-400" />
+                        <div className="rounded-lg bg-[#0B1D3A] p-3 flex gap-2 items-start">
+
+                            <Award className="h-16 w-24 text-amber-400" />
                             <div>
 
                                 <p className="mb-2 text-xs font-semibold text-amber-400">

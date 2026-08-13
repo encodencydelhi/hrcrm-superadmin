@@ -87,6 +87,9 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>April - March (FY 2025-26)</option>
+                      <option>January - December (CY 2025)</option>
+                      <option>July - June (FY 2025-26)</option>
+                      <option>October - September (FY 2025-26)</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -96,6 +99,8 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>Monday</option>
+                      <option>Sunday</option>
+                      <option>Saturday</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -105,6 +110,9 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>DD MMM YYYY</option>
+                      <option>DD/MM/YYYY</option>
+                      <option>MM/DD/YYYY</option>
+                      <option>YYYY-MM-DD</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -114,6 +122,7 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>12 Hours (01:30 PM)</option>
+                      <option>24 Hours (13:30)</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -123,6 +132,9 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>1st</option>
+                      <option>10th</option>
+                      <option>15th</option>
+                      <option>Last day of month</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -135,6 +147,10 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>(GMT+05:30) Asia/Kolkata</option>
+                      <option>(GMT+00:00) UTC</option>
+                      <option>(GMT-05:00) America/New_York</option>
+                      <option>(GMT+01:00) Europe/London</option>
+                      <option>(GMT+04:00) Asia/Dubai</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -144,6 +160,10 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>INR (₹) - Indian Rupee</option>
+                      <option>USD ($) - US Dollar</option>
+                      <option>EUR (€) - Euro</option>
+                      <option>GBP (£) - British Pound</option>
+                      <option>AED (د.إ) - UAE Dirham</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -153,6 +173,10 @@ export default function SystemConfiguration() {
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
                       <option>1,23,456.78</option>
+                      <option>123,456.78</option>
+                      <option>123 456,78</option>
+                      <option>123 456.78</option>
+                      <option>123,456,789.00</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -161,7 +185,18 @@ export default function SystemConfiguration() {
                   <label className="text-[10px] font-semibold text-zinc-700">Leave Year Start Month</label>
                   <div className="relative">
                     <select className="h-8 px-2 w-full border border-zinc-300 rounded-md text-[11px] text-zinc-900 appearance-none focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 bg-white">
+                      <option>January</option>
+                      <option>February</option>
+                      <option>March</option>
                       <option>April</option>
+                      <option>May</option>
+                      <option>June</option>
+                      <option>July</option>
+                      <option>August</option>
+                      <option>September</option>
+                      <option>October</option>
+                      <option>November</option>
+                      <option>December</option>
                     </select>
                     <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
                   </div>
@@ -412,73 +447,73 @@ export default function SystemConfiguration() {
 }
 
 const STEP_ROUTES: Record<number, string> = {
-    1: '/super-admin/step-1',
-    2: '/super-admin/step-2',
-    3: '/super-admin/step-3',
-    4: '/super-admin/system-configuration',
-    5: '/super-admin/review-confirm',
+  1: '/super-admin/step-1',
+  2: '/super-admin/step-2',
+  3: '/super-admin/step-3',
+  4: '/super-admin/system-configuration',
+  5: '/super-admin/review-confirm',
 };
 
 function StepIndicator({ current, maxStepReached }: { current: number; maxStepReached: number }) {
-    const steps = [
-        { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
-        { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
-        { id: 3, title: 'Admin & Contact', subtitle: 'Primary contact details' },
-        { id: 4, title: 'Configuration', subtitle: 'System preferences' },
-        { id: 5, title: 'Review & Confirm', subtitle: 'Verify and create' },
-    ];
+  const steps = [
+    { id: 1, title: 'Basic Information', subtitle: 'Enter details' },
+    { id: 2, title: 'Subscription & Plan', subtitle: 'Select package' },
+    { id: 3, title: 'Admin & Contact', subtitle: 'Primary contact details' },
+    { id: 4, title: 'Configuration', subtitle: 'System preferences' },
+    { id: 5, title: 'Review & Confirm', subtitle: 'Verify and create' },
+  ];
 
-    return (
-        <div className="bg-white rounded-lg shadow-sm border border-zinc-200 p-3 flex items-center justify-between">
-            {steps.map((step, index) => {
-                const isCompleted = step.id < current;
-                const isActive = step.id === current;
-                const isPending = step.id > current;
-                const isUnlocked = step.id <= maxStepReached;
-                const stepLink = STEP_ROUTES[step.id];
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-zinc-200 p-3 flex items-center justify-between">
+      {steps.map((step, index) => {
+        const isCompleted = step.id < current;
+        const isActive = step.id === current;
+        const isPending = step.id > current;
+        const isUnlocked = step.id <= maxStepReached;
+        const stepLink = STEP_ROUTES[step.id];
 
-                const content = (
-                    <>
-                        {isCompleted && (
-                            <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
-                                <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
-                                    <Check size={14} strokeWidth={3} />
-                                </div>
-                            </div>
-                        )}
-                        {isActive && (
-                            <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
-                                {step.id}
-                            </div>
-                        )}
-                        {isPending && (
-                            <div className={`h-10 w-10 rounded-full border flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm transition-colors ${isUnlocked ? 'bg-slate-100 border-slate-200 text-[#020b22] group-hover:bg-slate-200' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
-                                {step.id}
-                            </div>
-                        )}
+        const content = (
+          <>
+            {isCompleted && (
+              <div className="h-10 w-10 rounded-full bg-emerald-100/80 flex items-center justify-center shrink-0 group-hover:bg-emerald-200 transition-colors">
+                <div className="h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                  <Check size={14} strokeWidth={3} />
+                </div>
+              </div>
+            )}
+            {isActive && (
+              <div className="h-10 w-10 rounded-full bg-[#020b22] text-white flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm">
+                {step.id}
+              </div>
+            )}
+            {isPending && (
+              <div className={`h-10 w-10 rounded-full border flex items-center justify-center shrink-0 font-bold text-[14px] shadow-sm transition-colors ${isUnlocked ? 'bg-slate-100 border-slate-200 text-[#020b22] group-hover:bg-slate-200' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                {step.id}
+              </div>
+            )}
 
-                        <div className="flex flex-col">
-                            <span className={`text-[12px] font-bold transition-colors ${isUnlocked ? 'text-[#020b22] group-hover:text-indigo-600' : 'text-slate-300'}`}>{step.title}</span>
-                            <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
-                                {isCompleted ? 'Completed' : step.subtitle}
-                            </span>
-                        </div>
-                    </>
-                );
+            <div className="flex flex-col">
+              <span className={`text-[12px] font-bold transition-colors ${isUnlocked ? 'text-[#020b22] group-hover:text-indigo-600' : 'text-slate-300'}`}>{step.title}</span>
+              <span className="text-[11px] text-slate-500 leading-tight mt-0.5">
+                {isCompleted ? 'Completed' : step.subtitle}
+              </span>
+            </div>
+          </>
+        );
 
-                return (
-                    <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
-                        {isUnlocked ? (
-                            <Link href={stepLink} className="flex items-center gap-3 group">{content}</Link>
-                        ) : (
-                            <div className="flex items-center gap-3 cursor-not-allowed">{content}</div>
-                        )}
-                        {index < steps.length - 1 && (
-                            <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
-                        )}
-                    </div>
-                );
-            })}
-        </div>
-    );
+        return (
+          <div key={step.id} className={`flex items-center gap-3 ${index < steps.length - 1 ? 'flex-1' : ''}`}>
+            {isUnlocked ? (
+              <Link href={stepLink} className="flex items-center gap-3 group">{content}</Link>
+            ) : (
+              <div className="flex items-center gap-3 cursor-not-allowed">{content}</div>
+            )}
+            {index < steps.length - 1 && (
+              <div className="flex-1 h-px bg-slate-200 mx-4 hidden lg:block"></div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }

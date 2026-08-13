@@ -26,6 +26,7 @@ import {
     ClipboardCheck,
     UserCircle2,
     Calendar,
+    Shield,
 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -212,6 +213,10 @@ const PageHeader = ({ companyName, status, id }: { companyName: string; status: 
             </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+            <Link href={`/super-admin/technical-access-mgt?companyId=${id}`} className="flex items-center gap-2 text-[10px] font-medium border border-gray-300 rounded-md px-3 py-2 hover:bg-gray-50">
+                <Shield className="w-3.5 h-3.5" />
+                Technical Access
+            </Link>
             <Link href={`/super-admin/companies/${id}/lifecycle`} className="flex items-center gap-2 text-[10px] font-medium border border-gray-300 rounded-md px-3 py-2  hover:bg-gray-50">
                 <Settings className="w-3.5 h-3.5" />
                 Company Settings
