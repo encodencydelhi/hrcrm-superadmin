@@ -200,19 +200,6 @@ export default function ReviewConfirmPage() {
             w.reset();
             const params = new URLSearchParams({
                 companyId: created._id,
-                name: payload.name,
-                corporateId: payload.corporateId,
-                industry: payload.industry,
-                companySize: payload.companySize,
-                adminName: `${payload.adminFirstName} ${payload.adminLastName}`,
-                adminEmail: payload.adminEmail,
-                adminDesignation: payload.adminDesignation,
-                planName: pkg.name,
-                pricePerUser: String(planPricePerUser),
-                estimatedEmployees: String(payload.estimatedEmployees),
-                modulesEnabled: String(payload.selectedModules.length),
-                modulesTotal: String(Object.keys(w.selectedModules).length),
-                credentialsEmailSent: String(!!created.credentialsEmailSent),
             });
             router.push(`/super-admin/company-created-successfully?${params.toString()}`);
         } catch (e: any) {

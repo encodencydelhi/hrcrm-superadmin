@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
+import api from "@/lib/axios";
 import {
   ArrowLeft,
   Download,
@@ -55,14 +57,28 @@ const tabs = [
 
 const TechnicalAccessRequestDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("Request Overview");
+  const searchParams = useSearchParams();
+  const companyId = searchParams.get('companyId');
+  const [companyData, setCompanyData] = useState<any>(null);
+
+  useEffect(() => {
+    if (companyId) {
+      api.get(`/super-admin/tenants/${companyId}`).then(res => {
+        setCompanyData(res.data.data || res.data);
+      }).catch(err => console.error(err));
+    }
+  }, [companyId]);
+
+  const companyName = companyData?.company?.legalName || companyData?.name || "TechVision Pvt. Ltd.";
+  const companyInitial = companyName.charAt(0).toUpperCase();
 
   const requestData: RequestSummaryData = {
     requestId: "TAR-2025-028",
     requestStatus: "Pending",
     requestStatusColor: "text-orange-600 bg-orange-100",
     requestedOn: "30 May 2025, 11:20 AM",
-    companyInitial: "T",
-    companyName: "TechVision Pvt. Ltd.",
+    companyInitial: companyInitial,
+    companyName: companyName,
     requestedByAvatar: "https://i.pravatar.cc/64?img=12",
     requestedByName: "Rahul Verma",
     requestedByRole: "Sr. Support Engineer",

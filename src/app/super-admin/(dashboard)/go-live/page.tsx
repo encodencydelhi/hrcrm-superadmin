@@ -5,6 +5,7 @@ import {
     DollarSign, UserCircle, CalendarDays, ExternalLink, FileText, Video, HelpCircle,
     Phone, ArrowRight, ArrowLeft, Rocket, BarChart2, Headset, Info
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const BREADCRUMB = ['Home', 'Companies', 'TechVision Pvt. Ltd.', 'Onboarding', 'Go Live'];
@@ -98,7 +99,12 @@ function ProgressBar() {
     );
 }
 
-export default function GoLivePage() {
+export default function GoLivePage({ companyId }: { companyId: string }) {
+    const router = useRouter();
+    const onGoLiveNow = () => {
+        alert(`Company is Live Now`);
+        router.push(`/super-admin/companies`);
+    };
     return (
         <div className="space-y-3 pb-3">
             <PageHeading />
@@ -221,14 +227,14 @@ export default function GoLivePage() {
 
                     {/* Footer Actions */}
                     <div className="flex items-center justify-between pt-1">
-                        <button className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                        <button onClick={() => router.push(`/super-admin/run-payroll-setup?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                             <ArrowLeft size={14} /> Back to Previous Step
                         </button>
                         <div className="flex items-center gap-3">
                             <button className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                                 <CalendarDays size={14} /> Schedule Go Live Later
                             </button>
-                            <button className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
+                            <button onClick={onGoLiveNow} className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
                                 <Rocket size={14} /> Go Live Now
                             </button>
                         </div>

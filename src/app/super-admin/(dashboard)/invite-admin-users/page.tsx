@@ -1,9 +1,10 @@
 'use client';
-import React from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Home, ChevronRight, Check, CheckCircle2, Search, XCircle, Building2, User, Users, FileText, Settings, Briefcase, Calendar, ShieldCheck, Mail, MessageCircle, MessageSquare, RefreshCw, Send, Eye, Trash2, MoreVertical, ArrowLeft, ArrowRight, PlayCircle, HelpCircle, Phone, Globe, Info, Clock, CheckCircle } from 'lucide-react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import api from '@/lib/axios';
 
 // ─── Static data ────────────────────────────────────────────────────────────
-const BREADCRUMB = ['Home', 'Companies', 'TechVision Pvt. Ltd.', 'Onboarding', 'Invite Admin Users'];
 
 const STEPS = [
     { num: 1, label: 'Company Created', status: 'Completed' },
@@ -27,44 +28,25 @@ const PERMISSIONS = [
     'All Modules Access',
 ];
 
-const ADMINS = [
-    {
-        name: 'Rohit Mehta', role: 'HR Manager', email: 'rohit.mehta@techvision.com',
-        adminRole: 'Company Admin', roleColor: 'bg-blue-100 text-blue-700',
-        via: ['email'], status: 'Pending', statusColor: 'bg-amber-100 text-amber-700',
-        sentOn: 'May 23, 2025 11:45 AM', expiresOn: 'May 25, 2025 11:45 AM'
-    },
-    {
-        name: 'Priya Sharma', role: 'HR Executive', email: 'priya.sharma@techvision.com',
-        adminRole: 'HR Admin', roleColor: 'bg-purple-100 text-purple-700',
-        via: ['email', 'whatsapp'], status: 'Accepted', statusColor: 'bg-emerald-100 text-emerald-700',
-        sentOn: 'May 22, 2025 04:20 PM', expiresOn: '-'
-    },
-    {
-        name: 'Amit Verma', role: 'Payroll Specialist', email: 'amit.verma@techvision.com',
-        adminRole: 'Payroll Admin', roleColor: 'bg-orange-100 text-orange-700',
-        via: ['email'], status: 'Expired', statusColor: 'bg-red-100 text-red-700',
-        sentOn: 'May 20, 2025 10:10 AM', expiresOn: 'May 22, 2025 10:10 AM'
-    },
-];
-
 // ─── Breadcrumb + heading ───────────────────────────────────────────────────
-function PageHeading() {
+function PageHeading({ companyName }: { companyName: string }) {
+    const breadcrumb = ['Home', 'Companies', companyName, 'Onboarding', 'Invite Admin Users'];
+
     return (
         <section className="space-y-3 mb-4">
             <div className="flex items-center gap-1.5 text-[12px] text-zinc-500 flex-wrap">
-                {BREADCRUMB.map((crumb, i) => (
+                {breadcrumb.map((crumb, i) => (
                     <React.Fragment key={crumb}>
                         {i === 0 ? (
                             <span className="flex items-center gap-1 text-indigo-600 font-medium hover:underline cursor-pointer">
                                 <Home size={12} /> {crumb}
                             </span>
-                        ) : i === BREADCRUMB.length - 1 ? (
+                        ) : i === breadcrumb.length - 1 ? (
                             <span className="text-zinc-900 font-semibold">{crumb}</span>
                         ) : (
                             <span className="text-indigo-600 font-medium hover:underline cursor-pointer">{crumb}</span>
                         )}
-                        {i < BREADCRUMB.length - 1 && <ChevronRight size={12} />}
+                        {i < breadcrumb.length - 1 && <ChevronRight size={12} />}
                     </React.Fragment>
                 ))}
             </div>
@@ -102,10 +84,179 @@ function ProgressBar() {
 }
 
 // ─── Main Content ─────────────────────────────────────────────────────────
-export default function InviteAdminUsersPage() {
+function InviteAdminUsersContent() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const companyId = searchParams.get('companyId');
+
+    const [tenant, setTenant] = useState<any>(null);
+    const [roles, setRoles] = useState<any[]>([]);
+    const [admins, setAdmins] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
+    const [editData, setEditData] = useState<any>({});
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        designation: '',
+        phone: '',
+        roleId: '',
+        sendEmail: true,
+        customMessage: ''
+    });
+
+    const fetchAdmins = () => {
+        if (!companyId) return;
+        api.get(`/super-admin/tenants/${companyId}/admins`).then(res => setAdmins(res.data)).catch(console.error);
+    };
+
+    useEffect(() => {
+        if (!companyId) {
+            setLoading(false);
+            return;
+        }
+        Promise.all([
+            api.get(`/super-admin/tenants/${companyId}`),
+            api.get(`/super-admin/tenants/${companyId}/roles`),
+            api.get(`/super-admin/tenants/${companyId}/admins`)
+        ])
+            .then(([tenantRes, rolesRes, adminsRes]) => {
+                setTenant(tenantRes.data);
+                setRoles(rolesRes.data.filter((r: any) => r.isActive === true));
+                setAdmins(adminsRes.data);
+                if (rolesRes.data.length > 0) {
+                    setFormData(prev => ({ ...prev, roleId: rolesRes.data[0]._id }));
+                }
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, [companyId]);
+
+    const companyName = tenant?.name || 'TechVision Pvt. Ltd.';
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value, type } = e.target;
+        if (type === 'checkbox') {
+            const checked = (e.target as HTMLInputElement).checked;
+            setFormData(prev => ({ ...prev, [name]: checked }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (!formData.firstName || !formData.email || !formData.roleId) {
+            alert('Please fill all required fields');
+            return;
+        }
+
+        const nameParts = formData.firstName.trim().split(' ');
+        const fName = nameParts[0];
+        const lName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : ' ';
+
+        setSubmitting(true);
+        try {
+            await api.post(`/super-admin/tenants/${companyId}/admins/invite`, {
+                ...formData,
+                firstName: fName,
+                lastName: lName
+            });
+            setFormData({
+                firstName: '', lastName: '', email: '', designation: '', phone: '', roleId: roles[0]?._id || '', sendEmail: true, customMessage: ''
+            });
+            fetchAdmins();
+        } catch (error: any) {
+            console.error(error);
+            alert(error.response?.data?.message || 'Failed to invite admin');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleEditAdmin = (admin: any) => {
+        setEditingId(admin._id);
+        setFormData({
+            firstName: `${admin.firstName || ''} ${admin.lastName || ''}`.trim(),
+            lastName: '',
+            email: admin.email || '',
+            designation: admin.designation || '',
+            phone: admin.mobileNumber || '',
+            roleId: admin.roleId?._id || admin.roleId || roles[0]?._id,
+            sendEmail: false,
+            customMessage: ''
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleSaveAdmin = async () => {
+        if (!editingId) return;
+        if (!formData.firstName || !formData.email || !formData.roleId) {
+            alert('Please fill all required fields');
+            return;
+        }
+
+        const nameParts = formData.firstName.trim().split(' ');
+        const fName = nameParts[0];
+        const lName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : ' ';
+
+        setSubmitting(true);
+        try {
+            await api.put(`/super-admin/tenants/${companyId}/admins/${editingId}`, {
+                ...formData,
+                firstName: fName,
+                lastName: lName
+            });
+            setEditingId(null);
+            setFormData({
+                firstName: '', lastName: '', email: '', designation: '', phone: '', roleId: roles[0]?._id || '', sendEmail: true, customMessage: ''
+            });
+            fetchAdmins();
+        } catch (error: any) {
+            alert(error.response?.data?.message || 'Failed to update admin');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setFormData({
+            firstName: '', lastName: '', email: '', designation: '', phone: '', roleId: roles[0]?._id || '', sendEmail: true, customMessage: ''
+        });
+    };
+
+    const handleDeleteAdmin = async (adminId: string) => {
+        if (!confirm('Are you sure you want to delete this admin?')) return;
+        try {
+            await api.delete(`/super-admin/tenants/${companyId}/admins/${adminId}`);
+            fetchAdmins();
+        } catch (error: any) {
+            alert(error.response?.data?.message || 'Failed to delete admin');
+        }
+    };
+
+    if (loading) {
+        return <div className="p-8 text-center text-sm font-medium">Loading details...</div>;
+    }
+
+    const indexOfLastRow = currentPage * rowsPerPage;
+    const indexOfFirstRow = indexOfLastRow - rowsPerPage;
+    const currentAdmins = admins.slice(indexOfFirstRow, indexOfLastRow);
+    const totalPages = Math.ceil(admins.length / rowsPerPage) || 1;
+
+    const formatDate = (dateStr: string) => {
+        return new Intl.DateTimeFormat('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(dateStr));
+    };
+
     return (
         <div className="space-y-3 pb-3">
-            <PageHeading />
+            <PageHeading companyName={companyName} />
             <ProgressBar />
 
             <div className="grid grid-cols-1 xl:grid-cols-[2.6fr_1fr] gap-3 items-start">
@@ -114,22 +265,22 @@ export default function InviteAdminUsersPage() {
                     {/* Administrator Details */}
                     <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
                         <div className="mb-4">
-                            <h2 className="text-[14px] font-bold text-zinc-900">Administrator Details</h2>
-                            <p className="text-[12px] text-zinc-500 mt-0.5">Enter administrator information and send invitation</p>
+                            <h2 className="text-[14px] font-bold text-zinc-900">{editingId ? 'Edit Administrator Details' : 'Administrator Details'}</h2>
+                            <p className="text-[12px] text-zinc-500 mt-0.5">{editingId ? 'Modify administrator information' : 'Enter administrator information and send invitation'}</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
                                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">Full Name <span className="text-red-500">*</span></label>
-                                <input type="text" defaultValue="Rohit Mehta" className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
+                                <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">Email Address <span className="text-red-500">*</span></label>
-                                <input type="email" defaultValue="rohit.mehta@techvision.com" className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
+                                <input type="email" name="email" value={formData.email} onChange={handleInputChange} className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">Designation <span className="text-red-500">*</span></label>
-                                <input type="text" defaultValue="HR Manager" className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
+                                <input type="text" name="designation" value={formData.designation} onChange={handleInputChange} className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
                             </div>
                             <div>
                                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">Phone Number</label>
@@ -138,19 +289,22 @@ export default function InviteAdminUsersPage() {
                                         <span className="text-[12px] font-medium flex items-center gap-1"><span className="text-[14px]">🇮🇳</span> +91</span>
                                         <ChevronRight size={12} className="text-zinc-400 rotate-90" />
                                     </div>
-                                    <input type="text" defaultValue="98765 43210" className="w-full border border-l-0 border-zinc-200 rounded-r-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
+                                    <input type="text" name="phone" value={formData.phone} onChange={handleInputChange} className="w-full border border-l-0 border-zinc-200 rounded-r-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500" />
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">Department</label>
                                 <select className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                     <option>Human Resources</option>
+                                    <option>IT</option>
+                                    <option>Finance</option>
+                                    <option>Marketing</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="block text-[11px] font-bold text-zinc-700 mb-1">Admin Role <span className="text-red-500">*</span></label>
-                                <select className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500 appearance-none bg-white">
-                                    <option>Company Admin</option>
+                                <select name="roleId" value={formData.roleId} onChange={handleInputChange} className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                    {roles.map(r => <option key={r._id} value={r._id}>{r.name}</option>)}
                                 </select>
                             </div>
                             <div>
@@ -167,7 +321,7 @@ export default function InviteAdminUsersPage() {
                                     <label className="block text-[11px] font-bold text-zinc-700 mb-2">Send Invitation Via</label>
                                     <div className="flex items-center gap-4">
                                         <label className="flex items-center gap-1.5 cursor-pointer">
-                                            <input type="checkbox" defaultChecked className="rounded text-indigo-600 focus:ring-indigo-500 h-3.5 w-3.5 border-zinc-300" />
+                                            <input type="checkbox" name="sendEmail" checked={formData.sendEmail} onChange={handleInputChange} className="rounded text-indigo-600 focus:ring-indigo-500 h-3.5 w-3.5 border-zinc-300" />
                                             <span className="text-[12px] font-medium text-zinc-700">Email</span>
                                         </label>
                                         <label className="flex items-center gap-1.5 cursor-pointer">
@@ -185,7 +339,10 @@ export default function InviteAdminUsersPage() {
                                     <div className="relative">
                                         <textarea
                                             rows={4}
-                                            defaultValue={"Hi Rohit,\nYou have been invited to join TechVision Pvt. Ltd. as a Company Administrator on Crewcam HRMS.\nPlease use the invitation link to activate your account."}
+                                            name="customMessage"
+                                            value={formData.customMessage}
+                                            onChange={handleInputChange}
+                                            placeholder={`Hi ${formData.firstName || 'User'},\nYou have been invited to join ${companyName} as a Company Administrator on Crewcam HRMS.\nPlease use the invitation link to activate your account.`}
                                             className="w-full border border-zinc-200 rounded-md px-3 py-2 text-[12px] focus:outline-none focus:border-indigo-500 resize-none text-zinc-700"
                                         />
                                         <div className="absolute bottom-2 right-2 text-[10px] text-zinc-400">162/500</div>
@@ -218,12 +375,25 @@ export default function InviteAdminUsersPage() {
                         </div>
 
                         <div className="flex items-center justify-end gap-3 mt-4 border-t border-zinc-100 pt-4">
-                            <button className="flex items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
-                                <span className="text-[14px]">+</span> Add Another Admin
-                            </button>
-                            <button className="flex items-center justify-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
-                                Send Invitation <Send size={14} className="ml-1" />
-                            </button>
+                            {editingId ? (
+                                <>
+                                    <button onClick={cancelEdit} className="flex items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                                        Cancel Edit
+                                    </button>
+                                    <button onClick={handleSaveAdmin} disabled={submitting} className="flex items-center justify-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors disabled:opacity-50">
+                                        {submitting ? 'Updating...' : 'Update Administrator'} <Check size={14} className="ml-1" />
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button onClick={() => setFormData({ firstName: '', lastName: '', email: '', designation: '', phone: '', roleId: roles[0]?._id || '', sendEmail: true, customMessage: '' })} className="flex items-center justify-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                                        <span className="text-[14px]">+</span> Add Another Admin
+                                    </button>
+                                    <button onClick={handleSubmit} disabled={submitting} className="flex items-center justify-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors disabled:opacity-50">
+                                        {submitting ? 'Sending...' : 'Send Invitation'} <Send size={14} className="ml-1" />
+                                    </button>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -238,79 +408,47 @@ export default function InviteAdminUsersPage() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="border-b border-zinc-200">
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900">Admin</th>
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900">Email</th>
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900">Role</th>
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900">Invitation Via</th>
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900">Status</th>
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900">Sent On</th>
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900">Expires On</th>
-                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-right">Actions</th>
+                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-center">Admin Name</th>
+                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-center">Email</th>
+                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-center">Role</th>
+                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-center">Designation</th>
+                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-center">Status</th>
+                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-center">Sent On</th>
+                                        <th className="pb-2 text-[11px] font-bold text-zinc-900 text-center">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {ADMINS.map((admin, idx) => (
-                                        <tr key={idx} className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50/50">
-                                            <td className="py-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[12px] shrink-0">
-                                                        {admin.name.split(' ').map(n => n[0]).join('')}
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[12px] font-bold text-zinc-900">{admin.name}</p>
-                                                        <p className="text-[11px] text-zinc-500">{admin.role}</p>
-                                                    </div>
-                                                </div>
+                                    {currentAdmins.map((admin, idx) => (
+                                        <tr key={admin._id || idx} className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50/50">
+                                            <td className="py-3 text-center">
+                                                <p className="text-[12px] font-bold text-zinc-900 capitalize whitespace-nowrap">{admin.firstName} {admin.lastName}</p>
                                             </td>
-                                            <td className="py-3 text-[12px] text-zinc-600">{admin.email}</td>
-                                            <td className="py-3">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${admin.roleColor}`}>
-                                                    {admin.adminRole}
+                                            <td className="py-3 text-[12px] text-zinc-600 text-center">
+                                                {admin.email}
+                                            </td>
+                                            <td className="py-3 text-center">
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap bg-blue-100 text-blue-700">
+                                                    {admin.roleId?.name || 'Admin'}
                                                 </span>
                                             </td>
-                                            <td className="py-3">
-                                                <div className="flex items-center gap-1.5">
-                                                    {admin.via.includes('email') && <Mail size={13} className="text-zinc-500" />}
-                                                    {admin.via.includes('whatsapp') && <MessageCircle size={13} className="text-emerald-500" />}
-                                                </div>
+                                            <td className="py-3 text-[12px] text-zinc-600 text-center">
+                                                {admin.designation || '-'}
                                             </td>
-                                            <td className="py-3">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap ${admin.statusColor}`}>
-                                                    {admin.status}
+                                            <td className="py-3 text-center">
+                                                <span className="px-2 py-0.5 rounded text-[10px] font-bold whitespace-nowrap bg-emerald-100 text-emerald-700">
+                                                    {admin.isActive ? 'Active' : 'Pending'}
                                                 </span>
                                             </td>
-                                            <td className="py-3">
-                                                <p className="text-[11.5px] font-medium text-zinc-800">{admin.sentOn.split(' ')[0]} {admin.sentOn.split(' ')[1]}, {admin.sentOn.split(' ')[2]}</p>
-                                                <p className="text-[10px] text-zinc-500">{admin.sentOn.split(' ')[3]} {admin.sentOn.split(' ')[4]}</p>
+                                            <td className="py-3 text-center">
+                                                <p className="text-[11.5px] font-medium text-zinc-800">{formatDate(admin.createdAt)}</p>
                                             </td>
                                             <td className="py-3">
-                                                {admin.expiresOn !== '-' ? (
-                                                    <>
-                                                        <p className="text-[11.5px] font-medium text-zinc-800">{admin.expiresOn.split(' ')[0]} {admin.expiresOn.split(' ')[1]}, {admin.expiresOn.split(' ')[2]}</p>
-                                                        <p className="text-[10px] text-zinc-500">{admin.expiresOn.split(' ')[3]} {admin.expiresOn.split(' ')[4]}</p>
-                                                    </>
-                                                ) : (
-                                                    <span className="text-[12px] text-zinc-400">-</span>
-                                                )}
-                                            </td>
-                                            <td className="py-3">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    {admin.status !== 'Accepted' ? (
-                                                        <button className="p-1.5 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors">
-                                                            <Send size={14} />
-                                                        </button>
-                                                    ) : (
-                                                        <button className="p-1.5 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors">
-                                                            <Eye size={14} />
-                                                        </button>
-                                                    )}
-                                                    {admin.status !== 'Accepted' && (
-                                                        <button className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    )}
-                                                    <button className="p-1.5 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 rounded transition-colors">
-                                                        <MoreVertical size={14} />
+                                                <div className="flex items-center justify-center gap-1">
+                                                    <button onClick={() => handleEditAdmin(admin)} className="p-1.5 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors" title="Edit">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                                    </button>
+                                                    <button onClick={() => handleDeleteAdmin(admin._id)} className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                                                        <Trash2 size={14} />
                                                     </button>
                                                 </div>
                                             </td>
@@ -319,8 +457,36 @@ export default function InviteAdminUsersPage() {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="mt-3 text-[11px] text-zinc-500">
-                            Showing 1 to 3 of 3 results
+                        <div className="mt-3 flex items-center justify-between text-[11px] text-zinc-500">
+                            <div>
+                                Showing {admins.length === 0 ? 0 : indexOfFirstRow + 1} to {Math.min(indexOfLastRow, admins.length)} of {admins.length} results
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span>Rows per page:</span>
+                                <select
+                                    className="border border-zinc-200 rounded px-1 py-0.5 outline-none bg-white"
+                                    value={rowsPerPage}
+                                    onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                                >
+                                    <option value={5}>5</option>
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                </select>
+                                <button
+                                    disabled={currentPage === 1}
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    className="ml-2 px-2 py-1 border border-zinc-200 rounded hover:bg-zinc-50 disabled:opacity-50"
+                                >
+                                    Prev
+                                </button>
+                                <button
+                                    disabled={currentPage >= totalPages}
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    className="px-2 py-1 border border-zinc-200 rounded hover:bg-zinc-50 disabled:opacity-50"
+                                >
+                                    Next
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -330,11 +496,11 @@ export default function InviteAdminUsersPage() {
                             <ArrowLeft size={14} /> Back
                         </button>
                         <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                            <button onClick={() => router.push(`/super-admin/import-employees?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                                 Skip for Now
                             </button>
-                            <button className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
-                                Continue <ArrowRight size={14} />
+                            <button onClick={() => router.push(`/super-admin/import-employees?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
+                                Continue to Next Step <ArrowRight size={14} />
                             </button>
                         </div>
                     </div>
@@ -348,9 +514,22 @@ export default function InviteAdminUsersPage() {
                     <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
                         <h3 className="text-[13px] font-bold text-zinc-900 mb-4">Onboarding Progress</h3>
                         <div className="flex items-center gap-4">
-                            <div className="relative shrink-0 w-14 h-14 rounded-full border-[5px] border-zinc-100 flex items-center justify-center">
-                                <div className="absolute inset-0 rounded-full border-[5px] border-[#0B1B3D]" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 0 67%)' }}></div>
-                                <span className="text-[13px] font-bold text-zinc-900">33%</span>
+                            <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+                                <svg className="h-14 w-14 -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="42" fill="none" stroke="#F4F4F5" strokeWidth="12" />
+                                    <circle
+                                        cx="50"
+                                        cy="50"
+                                        r="42"
+                                        fill="none"
+                                        stroke="#10b981"
+                                        strokeWidth="12"
+                                        strokeDasharray={2 * Math.PI * 42}
+                                        strokeDashoffset={2 * Math.PI * 42 * (1 - 0.33)}
+                                        strokeLinecap="round"
+                                    />
+                                </svg>
+                                <span className="absolute text-[13px] font-bold text-[#0B1B3D]">33%</span>
                             </div>
                             <div>
                                 <p className="text-[11px] font-bold text-zinc-900 mb-0.5">Step 2 of 6</p>
@@ -368,13 +547,13 @@ export default function InviteAdminUsersPage() {
                                 <div className="flex items-center gap-2 text-zinc-600">
                                     <Building2 size={14} /> Company Name
                                 </div>
-                                <span className="font-medium text-zinc-900">TechVision Pvt. Ltd.</span>
+                                <span className="font-medium text-zinc-900">{companyName}</span>
                             </div>
                             <div className="flex items-center justify-between text-[11.5px]">
                                 <div className="flex items-center gap-2 text-zinc-600">
                                     <Globe size={14} /> Company ID
                                 </div>
-                                <span className="font-bold text-zinc-900">TECHVISION_001</span>
+                                <span className="font-bold text-zinc-900">{tenant?.corporateId || '-'}</span>
                             </div>
                             <div className="flex items-center justify-between text-[11.5px]">
                                 <div className="flex items-center gap-2 text-zinc-600">
@@ -383,25 +562,13 @@ export default function InviteAdminUsersPage() {
                                     </div>
                                     Plan
                                 </div>
-                                <span className="font-medium text-zinc-900">Professional</span>
+                                <span className="font-medium text-zinc-900">{tenant?.planName || '-'}</span>
                             </div>
                             <div className="flex items-center justify-between text-[11.5px]">
                                 <div className="flex items-center gap-2 text-zinc-600">
                                     <Users size={14} /> Employees (Estimated)
                                 </div>
-                                <span className="font-medium text-zinc-900">100</span>
-                            </div>
-                            <div className="flex items-center justify-between text-[11.5px]">
-                                <div className="flex items-center gap-2 text-zinc-600">
-                                    <User size={14} /> Primary Admin
-                                </div>
-                                <span className="font-medium text-zinc-900">Rohit Mehta</span>
-                            </div>
-                            <div className="flex items-center justify-between text-[11.5px]">
-                                <div className="flex items-center gap-2 text-zinc-600">
-                                    <Settings size={14} /> Modules Enabled
-                                </div>
-                                <span className="font-medium text-zinc-900">10 / 12</span>
+                                <span className="font-medium text-zinc-900">{tenant?.estimatedEmployees || '-'}</span>
                             </div>
                         </div>
                     </div>
@@ -414,31 +581,13 @@ export default function InviteAdminUsersPage() {
                                 <div className="flex items-center gap-2 text-zinc-600">
                                     <Users size={14} /> Total Admins
                                 </div>
-                                <span className="font-bold text-zinc-900">3</span>
+                                <span className="font-bold text-zinc-900">{admins.length}</span>
                             </div>
                             <div className="flex items-center justify-between text-[11.5px]">
                                 <div className="flex items-center gap-2 text-zinc-600">
                                     <Mail size={14} /> Sent
                                 </div>
-                                <span className="font-bold text-zinc-900">3</span>
-                            </div>
-                            <div className="flex items-center justify-between text-[11.5px]">
-                                <div className="flex items-center gap-2 text-emerald-600">
-                                    <CheckCircle size={14} /> Accepted
-                                </div>
-                                <span className="font-bold text-zinc-900">1</span>
-                            </div>
-                            <div className="flex items-center justify-between text-[11.5px]">
-                                <div className="flex items-center gap-2 text-amber-600">
-                                    <Clock size={14} /> Pending
-                                </div>
-                                <span className="font-bold text-zinc-900">1</span>
-                            </div>
-                            <div className="flex items-center justify-between text-[11.5px]">
-                                <div className="flex items-center gap-2 text-red-600">
-                                    <XCircle size={14} /> Expired
-                                </div>
-                                <span className="font-bold text-zinc-900">1</span>
+                                <span className="font-bold text-zinc-900">{admins.length}</span>
                             </div>
                         </div>
                     </div>
@@ -473,5 +622,13 @@ export default function InviteAdminUsersPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function InviteAdminUsersPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+            <InviteAdminUsersContent />
+        </Suspense>
     );
 }

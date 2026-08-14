@@ -1,7 +1,8 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import api from "@/lib/axios";
 import {
     ChevronRight,
     ExternalLink,
@@ -79,6 +80,7 @@ const nextSteps = [
         sub: "manage the company",
         state: "current",
         button: "Invite Now",
+        href: "/super-admin/invite-admin-users",
     },
     {
         step: 3,
@@ -134,26 +136,47 @@ const quickActions = [
 /*  Main Page                                                                 */
 /* -------------------------------------------------------------------------- */
 
-const CompanyCreatedSuccessFully = () => {
+const CompanyCreatedSuccessFullyContent = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const name = searchParams.get('name') || 'Your company';
-    const corporateId = searchParams.get('corporateId') || '—';
-    const industry = searchParams.get('industry') || '—';
-    const companySize = searchParams.get('companySize') || '—';
-    const adminName = searchParams.get('adminName') || '—';
-    const adminEmail = searchParams.get('adminEmail') || '—';
-    const adminDesignation = searchParams.get('adminDesignation') || '—';
-    const planName = searchParams.get('planName') || '—';
-    const pricePerUser = searchParams.get('pricePerUser');
-    const modulesEnabled = Number(searchParams.get('modulesEnabled') || 0);
-    const modulesTotal = Number(searchParams.get('modulesTotal') || 0);
+    const companyId = searchParams.get('companyId');
+    
+    const [tenant, setTenant] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (!companyId) return;
+        const fetchTenant = async () => {
+            try {
+                const res = await api.get(`/super-admin/tenants/${companyId}`);
+                setTenant(res.data);
+            } catch (err) {
+                console.error("Failed to fetch tenant:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTenant();
+    }, [companyId]);
+
+    const name = tenant?.name || 'Your company';
+    const corporateId = tenant?.company?.corporateId || '—';
+    const industry = tenant?.company?.industry || '—';
+    const companySize = tenant?.company?.companySize || '—';
+    const adminName = tenant?.admin ? `${tenant.admin.firstName} ${tenant.admin.lastName}` : '—';
+    const adminEmail = tenant?.admin?.email || '—';
+    const adminDesignation = tenant?.admin?.designation || '—';
+    const planName = tenant?.packageId?.name || '—';
+    const pricePerUser = tenant?.packageId?.pricePerUserMonthlyINR;
+    const modulesEnabled = tenant?.company?.selectedModules?.length || 0;
+    // Assuming 12 default modules as per standard setup
+    const modulesTotal = 12;
     const billing = pricePerUser ? `₹ ${pricePerUser} / Employee / Month` : '—';
 
     const companySummary = [
         { icon: Building2, label: "Company Name", value: name },
         { icon: Tag, label: "Plan", value: planName },
-        { icon: Users, label: "Employees (Estimated)", value: searchParams.get('estimatedEmployees') || '—' },
+        { icon: Users, label: "Employees (Estimated)", value: tenant?.estimatedEmployees || '—' },
         { icon: Wallet, label: "Billing", value: billing },
     ];
 
@@ -165,6 +188,14 @@ const CompanyCreatedSuccessFully = () => {
         { label: "Plan", value: planName },
         { label: "Billing", value: billing },
     ];
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <p className="text-gray-500">Loading company details...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -211,42 +242,42 @@ const CompanyCreatedSuccessFully = () => {
                         {/* Hero banner */}
                         <div className="relative overflow-hidden rounded-lg bg-[#000d2a] p-3 border border-gray-300 flex-row flex gap-2">
                             <Image src={celebration} width={100} height={100} alt="celebrate" className="object-contain" />
-                          <div className="pl-2 relative z-10">
-                            <h2 className="text-white font-semibold">Congratulatios! Your Company is now live.</h2>
-                            <p className="text-white text-xs pt-1">Company ID: {corporateId}</p>
-                            <div className="relative mt-5 grid grid-cols-2 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
-                                {[
-                                    ...companySummary,
-                                    {
-                                        label: "Go Live Status",
-                                        icon: Zap,
-                                        value: null, // handled separately below
-                                    },
-                                ].map((item, idx, arr) => {
-                                    const Icon = item.icon;
-                                    const isLast = idx === arr.length - 1;
-                                    return (
-                                        <div
-                                            key={item.label}
-                                            className={`px-4 first:pl-0 ${!isLast ? "border-r border-white/30" : ""}`}
-                                        >
-                                            <div className="mb-1 flex items-center gap-1.5 text-[8px] text-white">
-                                                <Icon className="h-3 w-3 text-white" />
-                                                {item.label}
+                            <div className="pl-2 relative z-10">
+                                <h2 className="text-white font-semibold">Congratulatios! Your Company is now live.</h2>
+                                <p className="text-white text-xs pt-1">Company ID: {corporateId}</p>
+                                <div className="relative mt-5 grid grid-cols-2 gap-y-4 sm:grid-cols-3 lg:grid-cols-5">
+                                    {[
+                                        ...companySummary,
+                                        {
+                                            label: "Go Live Status",
+                                            icon: Zap,
+                                            value: null, // handled separately below
+                                        },
+                                    ].map((item, idx, arr) => {
+                                        const Icon = item.icon;
+                                        const isLast = idx === arr.length - 1;
+                                        return (
+                                            <div
+                                                key={item.label}
+                                                className={`px-4 first:pl-0 ${!isLast ? "border-r border-white/30" : ""}`}
+                                            >
+                                                <div className="mb-1 flex items-center gap-1.5 text-[8px] text-white">
+                                                    <Icon className="h-3 w-3 text-white" />
+                                                    {item.label}
+                                                </div>
+                                                {item.value ? (
+                                                    <p className="text-[8px] font-semibold text-white">{item.value}</p>
+                                                ) : (
+                                                    <span className="inline-block rounded-md bg-amber-500/20 border border-amber-500/50 px-2 py-1 text-[8px] font-semibold text-amber-400">
+                                                        Setup Pending
+                                                    </span>
+                                                )}
                                             </div>
-                                            {item.value ? (
-                                                <p className="text-[8px] font-semibold text-white">{item.value}</p>
-                                            ) : (
-                                                <span className="inline-block rounded-md bg-amber-500/20 border border-amber-500/50 px-2 py-1 text-[8px] font-semibold text-amber-400">
-                                                    Setup Pending
-                                                </span>
-                                            )}
-                                        </div>
-                                    );
-                                })}
+                                        );
+                                    })}
+                                </div>
                             </div>
-                          </div>
-<Image src={building} width={100} height={100} alt="building" className="absolute right-0 bottom-0 z-0" />
+                            <Image src={building} width={100} height={100} alt="building" className="absolute right-0 bottom-0 z-0" />
                         </div>
 
                         {/* What's Next */}
@@ -281,8 +312,8 @@ const CompanyCreatedSuccessFully = () => {
                                             </p>
                                             <p
                                                 className={`text-[10px] ${step.state === "done"
-                                                        ? "text-green-600"
-                                                        : ""
+                                                    ? "text-green-600"
+                                                    : ""
                                                     }`}
                                             >
                                                 {step.desc}
@@ -293,9 +324,17 @@ const CompanyCreatedSuccessFully = () => {
                                             {step.button && (
                                                 <button
                                                     className={`w-auto rounded-md px-2 py-1 text-[11px] font-medium ${step.state === "current"
-                                                            ? "bg-[#0B1D3A] text-white"
-                                                            : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+                                                        ? "bg-[#0B1D3A] text-white"
+                                                        : "border border-gray-300 text-gray-600 hover:bg-gray-50"
                                                         }`}
+                                                    onClick={() => {
+                                                        if (step.href) {
+                                                            const targetUrl = step.href.includes('?') 
+                                                                ? `${step.href}&companyId=${companyId}`
+                                                                : `${step.href}?companyId=${companyId}`;
+                                                            router.push(targetUrl);
+                                                        }
+                                                    }}
                                                 >
                                                     {step.button}
                                                 </button>
@@ -576,8 +615,8 @@ const CompanyCreatedSuccessFully = () => {
                                                 </p>
                                                 <p
                                                     className={`whitespace-nowrap text-[11px] ${step.state === "done"
-                                                            ? "text-white"
-                                                            : "text-white"
+                                                        ? "text-white"
+                                                        : "text-white"
                                                         }`}
                                                 >
                                                     {step.status}
@@ -616,9 +655,9 @@ const CompanyCreatedSuccessFully = () => {
                         </div>
 
                         {/* You're in Good Hands */}
-                         <div className="rounded-lg bg-[#0B1D3A] p-3 flex gap-2 items-start">
-                          
-                                <Award className="h-16 w-24 text-amber-400" />
+                        <div className="rounded-lg bg-[#0B1D3A] p-3 flex gap-2 items-start">
+
+                            <Award className="h-16 w-24 text-amber-400" />
                             <div>
 
                                 <p className="mb-2 text-xs font-semibold text-amber-400">
@@ -642,10 +681,12 @@ const CompanyCreatedSuccessFully = () => {
     );
 };
 
-export default function CompanyCreatedSuccessfullyPage() {
+const CompanyCreatedSuccessFully = () => {
     return (
-        <Suspense fallback={null}>
-            <CompanyCreatedSuccessFully />
+        <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-500">Loading...</p></div>}>
+            <CompanyCreatedSuccessFullyContent />
         </Suspense>
     );
-}
+};
+
+export default CompanyCreatedSuccessFully;

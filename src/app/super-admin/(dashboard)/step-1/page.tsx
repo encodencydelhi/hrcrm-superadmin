@@ -119,11 +119,15 @@ function SelectField({ label, options, required, value, onChange }: { label: str
             <div className="relative">
                 <select
                     required={required}
-                    value={value}
+                    value={value || ""}
                     onChange={(e) => onChange(e.target.value)}
                     className="w-full h-8 appearance-none rounded-lg border border-zinc-200 bg-white px-3 pr-8 text-[12.5px] font-medium text-zinc-700 shadow-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors cursor-pointer"
                 >
-                    {options.map((opt) => <option key={opt}>{opt}</option>)}
+                    {options.map((opt) => (
+                        <option key={opt} value={opt.startsWith('Select ') ? "" : opt} disabled={opt.startsWith('Select ')} hidden={opt.startsWith('Select ')}>
+                            {opt}
+                        </option>
+                    ))}
                 </select>
                 <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             </div>
@@ -271,8 +275,8 @@ function BasicInformationForm() {
             const activeSizes = sizeRes.data.data.filter((i: any) => i.isActive).map((i: any) => i.name);
             const activeTzs = tzRes.data.data.filter((i: any) => i.isActive).map((i: any) => `(${i.offset}) ${i.identifier}`);
 
-            if (activeIndustries.length > 0) setIndustries(activeIndustries);
-            if (activeSizes.length > 0) setCompanySizes(activeSizes);
+            if (activeIndustries.length > 0) setIndustries(['Select Industry', ...activeIndustries]);
+            if (activeSizes.length > 0) setCompanySizes(['Select Company Size', ...activeSizes]);
             if (activeTzs.length > 0) setTimeZones(activeTzs);
         }).catch(err => console.error('Failed to fetch master data:', err));
     }, []);
@@ -356,10 +360,10 @@ function BasicInformationForm() {
 
                     {/* Row 2 */}
                     <div className="xl:col-start-1 xl:row-start-2">
-                        <SelectField label="Industry" options={industries} required value={w.industry || industries[0]} onChange={(v) => w.update({ industry: v })} />
+                        <SelectField label="Industry" options={industries} required value={w.industry || ""} onChange={(v) => w.update({ industry: v })} />
                     </div>
                     <div className="xl:col-start-2 xl:row-start-2">
-                        <SelectField label="Company Size" options={companySizes} required value={w.companySize || companySizes[0]} onChange={(v) => w.update({ companySize: v })} />
+                        <SelectField label="Company Size" options={companySizes} required value={w.companySize || ""} onChange={(v) => w.update({ companySize: v })} />
                     </div>
 
                     {/* Row 3 */}
