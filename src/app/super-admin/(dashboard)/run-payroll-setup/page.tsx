@@ -147,7 +147,7 @@ const inputClass = 'w-full h-9 px-2.5 border border-zinc-200 rounded-md text-[12
 
 // ---------------------------------------------------------------------------
 
-export default function RunPayrollSetupPage() {
+export default function RunPayrollSetupPage({ companyId }: { companyId: string }) {
     const [components, setComponents] = useState<PayrollComponent[]>(INITIAL_COMPONENTS);
     const [compliance, setCompliance] = useState<ComplianceItem[]>(INITIAL_COMPLIANCE);
     const [isRunningTest, setIsRunningTest] = useState(false);
@@ -191,6 +191,7 @@ export default function RunPayrollSetupPage() {
         try {
             // await api.post('/onboarding/payroll', { form, components, compliance });
             await new Promise((r) => setTimeout(r, 600));
+            router.push(`/super-admin/go-live?companyId=${companyId}`);
         } finally {
             setIsSaving(false);
         }
