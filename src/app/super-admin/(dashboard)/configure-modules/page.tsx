@@ -8,7 +8,9 @@ import {
     ArrowRight, LifeBuoy,
     Link,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import api from '@/lib/axios';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -141,11 +143,36 @@ function StepBadge({ step, index }: { step: OnboardingStep; index: number }) {
 
 // ---------------------------------------------------------------------------
 
-export default function ConfigureModulesPage({ companyId }: { companyId: string }) {
+export default function ConfigureModulesPage() {
+    const searchParams = useSearchParams();
+    const companyId = searchParams?.get('companyId');
     const [modules, setModules] = useState<ModuleItem[]>(INITIAL_MODULES);
     const [preferences, setPreferences] = useState<PreferenceItem[]>(INITIAL_PREFERENCES);
     const [isSaving, setIsSaving] = useState(false);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
+
+    useEffect(() => {
+        if (!companyId) return;
+        api.get(`/super-admin/tenants/${companyId}`)
+            .then(res => {
+                const tenant = res.data;
+                if (tenant.modules && tenant.modules.length > 0) {
+                    setModules(prev => prev.map(m => {
+                        const saved = tenant.modules.find((sm: any) => sm.key === m.key);
+                        return saved ? { ...m, enabled: saved.enabled } : m;
+                    }));
+                }
+                if (tenant.preferences && tenant.preferences.length > 0) {
+                    setPreferences(prev => prev.map(p => {
+                        const saved = tenant.preferences.find((sp: any) => sp.key === p.key);
+                        return saved ? { ...p, enabled: saved.enabled } : p;
+                    }));
+                }
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, [companyId]);
     const toggleModule = (key: string) => {
         setModules((prev) => prev.map((m) => (m.key === key && m.available ? { ...m, enabled: !m.enabled } : m)));
     };
@@ -171,11 +198,20 @@ export default function ConfigureModulesPage({ companyId }: { companyId: string 
         };
     }, [modules]);
 
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center text-sm font-medium">Loading details...</div>;
+    }
+
     const handleSaveAndContinue = async () => {
         setIsSaving(true);
         try {
-            // await api.post('/onboarding/modules', { modules, preferences });
-            await new Promise((r) => setTimeout(r, 600));
+            const modulesPayload = modules.map(m => ({ key: m.key, enabled: m.enabled }));
+            const preferencesPayload = preferences.map(p => ({ key: p.key, enabled: p.enabled }));
+            await api.put(`/super-admin/tenants/${companyId}`, {
+                modules: modulesPayload,
+                preferences: preferencesPayload,
+                lifecycleStatus: 'CONFIGURATION'
+            });
             router.push(`/super-admin/run-payroll-setup?companyId=${companyId}`);
         } finally {
             setIsSaving(false);

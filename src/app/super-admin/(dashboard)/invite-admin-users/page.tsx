@@ -420,10 +420,10 @@ function InviteAdminUsersContent() {
                                 <tbody>
                                     {currentAdmins.map((admin, idx) => (
                                         <tr key={admin._id || idx} className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50/50">
-                                            <td className="py-3 text-center">
+                                            <td className="py-3">
                                                 <p className="text-[12px] font-bold text-zinc-900 capitalize whitespace-nowrap">{admin.firstName} {admin.lastName}</p>
                                             </td>
-                                            <td className="py-3 text-[12px] text-zinc-600 text-center">
+                                            <td className="py-3 text-[12px] text-zinc-600">
                                                 {admin.email}
                                             </td>
                                             <td className="py-3 text-center">
@@ -431,7 +431,7 @@ function InviteAdminUsersContent() {
                                                     {admin.roleId?.name || 'Admin'}
                                                 </span>
                                             </td>
-                                            <td className="py-3 text-[12px] text-zinc-600 text-center">
+                                            <td className="py-3 text-[12px] text-zinc-600">
                                                 {admin.designation || '-'}
                                             </td>
                                             <td className="py-3 text-center">
@@ -553,7 +553,7 @@ function InviteAdminUsersContent() {
                                 <div className="flex items-center gap-2 text-zinc-600">
                                     <Globe size={14} /> Company ID
                                 </div>
-                                <span className="font-bold text-zinc-900">{tenant?.corporateId || '-'}</span>
+                                <span className="font-bold text-zinc-900">{tenant?.company?.corporateId || '-'}</span>
                             </div>
                             <div className="flex items-center justify-between text-[11.5px]">
                                 <div className="flex items-center gap-2 text-zinc-600">
@@ -562,7 +562,7 @@ function InviteAdminUsersContent() {
                                     </div>
                                     Plan
                                 </div>
-                                <span className="font-medium text-zinc-900">{tenant?.planName || '-'}</span>
+                                <span className="font-medium text-zinc-900">{tenant?.packageId?.name || '-'}</span>
                             </div>
                             <div className="flex items-center justify-between text-[11.5px]">
                                 <div className="flex items-center gap-2 text-zinc-600">
