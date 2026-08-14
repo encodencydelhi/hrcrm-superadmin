@@ -1,5 +1,5 @@
 'use client';
-import React, { Suspense, useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +8,10 @@ import {
   Plus, X, Mail, RefreshCw, Copy, Check, AlertTriangle, Sparkles, Building2, CheckCircle2, XCircle, Receipt,
   ChevronRight, Hourglass, Crown, Globe2, Download, ChevronDown, Filter, ShieldAlert, TrendingDown,
   UserX, FileWarning, Trophy, ArrowUpRight, Rocket,
+  Edit2,
+  Trash2,
+  UserPlus,
+  MoreVertical,
 } from 'lucide-react';
 import { DataTable, Column } from '@/components/shared/DataTable';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
@@ -15,6 +19,69 @@ import api from '@/lib/axios';
 import { generateTempPassword } from '@/lib/generatePassword';
 import { StatsCard } from '@/components/statsCards';
 import PageHeader from '@/components/layout/PageHeader';
+
+const ActionMenu = ({ row, handleResendCredentials, resendingId, openTopUpModal, setDeleteConfirmId }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+
+  const toggleMenu = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuStyle({
+        position: 'fixed',
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+        zIndex: 9999,
+      });
+    }
+    setIsOpen(!isOpen);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node) && buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    const handleScroll = () => setIsOpen(false);
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, []);
+
+  return (
+    <>
+      <button ref={buttonRef} onClick={toggleMenu} className="p-1.5 text-zinc-400 hover:text-[#0b1638] rounded-md transition-colors">
+        <MoreVertical size={16} />
+      </button>
+      {isOpen && (
+        <div ref={menuRef} style={menuStyle} className="w-52 bg-white border border-gray-200 rounded-md shadow-lg py-1 flex flex-col gap-1">
+          <button onClick={() => { setIsOpen(false); openTopUpModal(row); }} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-left w-full text-zinc-700">
+            <Sparkles size={14} /> Top up AI credits
+          </button>
+          <button onClick={() => { setIsOpen(false); handleResendCredentials(row); }} disabled={resendingId === row._id} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-left w-full disabled:opacity-50 text-zinc-700">
+            {resendingId === row._id ? <RefreshCw size={14} className="animate-spin" /> : <Mail size={14} />} Resend credentials
+          </button>
+          <Link href={`/super-admin/invite-admin-users?companyId=${row._id}`} onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-indigo-600">
+            <UserPlus size={14} /> Onboarding
+          </Link>
+          <Link href={`/super-admin/step-1?edit=${row._id}`} onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-zinc-700">
+            <Edit2 size={14} /> Edit Company
+          </Link>
+          <button onClick={() => { setIsOpen(false); setDeleteConfirmId(row._id); }} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-left w-full text-rose-600">
+            <Trash2 size={14} /> Delete Company
+          </button>
+        </div>
+      )}
+    </>
+  );
+};
 
 /* Portfolio-level charts/side-rail figures are illustrative placeholders matching the
    approved visual design — real analytics wiring lands with the platform-metrics API phase. */
@@ -416,24 +483,14 @@ function SuperAdminCompaniesPageInner() {
       sortable: false,
       filterable: false,
       render: (_v, row) => (
-        <div className="flex justify-end gap-1.5">
-          <button
-            onClick={() => openTopUpModal(row)}
-            title="Top up AI credits"
-            className="p-1.5 text-zinc-400 hover:text-[#0b1638] hover:bg-[#f5c451]/10 rounded-md transition-colors"
-          >
-            <Sparkles size={14} />
-          </button>
-          <button
-            onClick={() => handleResendCredentials(row)}
-            disabled={resendingId === row._id}
-            title="Resend login credentials"
-            className="p-1.5 text-zinc-400 hover:text-[#0b1638] hover:bg-[#f5c451]/10 rounded-md transition-colors disabled:opacity-40"
-          >
-            {resendingId === row._id ? <RefreshCw size={14} className="animate-spin" /> : <Mail size={14} />}
-          </button>
-          <Link href={`/super-admin/step-1?edit=${row._id}`} className="text-xs font-medium text-[#0b1638] hover:text-[#0a1330] px-1.5">Edit</Link>
-          <button onClick={() => setDeleteConfirmId(row._id)} className="text-xs font-medium text-rose-600 hover:text-rose-700 px-1.5">Delete</button>
+        <div className="flex justify-end">
+          <ActionMenu
+            row={row}
+            handleResendCredentials={handleResendCredentials}
+            resendingId={resendingId}
+            openTopUpModal={openTopUpModal}
+            setDeleteConfirmId={setDeleteConfirmId}
+          />
         </div>
       ),
     },

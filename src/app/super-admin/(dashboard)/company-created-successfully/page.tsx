@@ -329,7 +329,10 @@ const CompanyCreatedSuccessFullyContent = () => {
                                                         }`}
                                                     onClick={() => {
                                                         if (step.href) {
-                                                            router.push(step.href);
+                                                            const targetUrl = step.href.includes('?') 
+                                                                ? `${step.href}&companyId=${companyId}`
+                                                                : `${step.href}?companyId=${companyId}`;
+                                                            router.push(targetUrl);
                                                         }
                                                     }}
                                                 >
