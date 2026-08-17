@@ -5,7 +5,9 @@ import {
     DollarSign, UserCircle, CalendarDays, ExternalLink, FileText, Video, HelpCircle,
     Phone, ArrowRight, ArrowLeft, Rocket, BarChart2, Headset, Info
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+import api from '@/lib/axios';
 
 // ─── Static data ────────────────────────────────────────────────────────────
 const BREADCRUMB = ['Home', 'Companies', 'TechVision Pvt. Ltd.', 'Onboarding', 'Go Live'];
@@ -99,11 +101,28 @@ function ProgressBar() {
     );
 }
 
-export default function GoLivePage({ companyId }: { companyId: string }) {
+export default function GoLivePage() {
+    const searchParams = useSearchParams();
+    const companyId = searchParams?.get('companyId');
     const router = useRouter();
-    const onGoLiveNow = () => {
-        alert(`Company is Live Now`);
-        router.push(`/super-admin/companies`);
+    const [isSaving, setIsSaving] = useState(false);
+
+    const onGoLiveNow = async () => {
+        if (!companyId) return;
+        setIsSaving(true);
+        try {
+            await api.put(`/super-admin/tenants/${companyId}`, {
+                lifecycleStatus: 'LIVE',
+                setupFeeStatus: 'PAID'
+            });
+            alert(`Company is Live Now`);
+            router.push(`/super-admin/companies`);
+        } catch (err) {
+            console.error('Error going live:', err);
+            alert('Failed to go live. Please try again.');
+        } finally {
+            setIsSaving(false);
+        }
     };
     return (
         <div className="space-y-3 pb-3">
@@ -234,8 +253,12 @@ export default function GoLivePage({ companyId }: { companyId: string }) {
                             <button className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
                                 <CalendarDays size={14} /> Schedule Go Live Later
                             </button>
-                            <button onClick={onGoLiveNow} className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
-                                <Rocket size={14} /> Go Live Now
+                            <button
+                                onClick={onGoLiveNow}
+                                disabled={isSaving}
+                                className="flex items-center gap-2 h-10 px-5 bg-emerald-500 rounded-md text-[13px] font-bold text-white hover:bg-emerald-600 transition-colors shadow-sm disabled:opacity-60"
+                            >
+                                <Rocket size={16} /> {isSaving ? 'Going Live...' : 'Go Live Now'}
                             </button>
                         </div>
                     </div>

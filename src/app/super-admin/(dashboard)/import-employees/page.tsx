@@ -24,7 +24,7 @@ const GUIDELINES = [
 
 // Removed static RECENT_IMPORTS array in favor of dynamic state
 
-const ADDED_EMPLOYEES = [
+const INITIAL_ADDED_EMPLOYEES = [
     { name: 'Rohit Singh', id: 'EMP1000', email: 'rohit.singh@techvision.com', role: 'HR Manager', initials: 'RS', color: 'bg-emerald-100 text-emerald-700' },
     { name: 'Priya Sharma', id: 'EMP1001', email: 'priya.sharma@techvision.com', role: 'HR Executive', initials: 'PS', color: 'bg-emerald-100 text-emerald-700' },
 ];
@@ -96,6 +96,128 @@ export default function ImportEmployeesPage() {
     const [parsedData, setParsedData] = useState<any[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [recentImports, setRecentImports] = useState<any[]>([]);
+    const [addedEmployees, setAddedEmployees] = useState<any[]>(INITIAL_ADDED_EMPLOYEES);
+    const [editingEmployeeId, setEditingEmployeeId] = useState<string | null>(null);
+    const formRef = useRef<HTMLFormElement>(null);
+
+
+    const handleManualSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const empData = Object.fromEntries(formData.entries());
+
+        try {
+            const payload = {
+                firstName: empData.firstName,
+                lastName: empData.lastName,
+                employeeId: empData.employeeId,
+                email: empData.emailAddress,
+                mobile: empData.mobileNumber,
+                dob: empData.dateOfBirth,
+                gender: empData.gender,
+                maritalStatus: empData.maritalStatus,
+                department: empData.department,
+                designation: empData.designation,
+                employmentType: empData.employmentType,
+                dateOfJoining: empData.dateOfJoining,
+                reportingManager: empData.reportingManager,
+                workLocation: empData.workLocation,
+                probationPeriod: empData.probationPeriod,
+                addressLine1: empData.addressLine1,
+                addressLine2: empData.addressLine2,
+                country: empData.country,
+                state: empData.state,
+                city: empData.city,
+                pincode: empData.pinCode
+            };
+
+            if (editingEmployeeId) {
+                await api.put(`/super-admin/tenants/${companyId}/employees/${editingEmployeeId}`, payload);
+                setAddedEmployees(prev => prev.map(emp => emp._id === editingEmployeeId ? {
+                    ...emp,
+                    name: `${empData.firstName} ${empData.lastName}`,
+                    email: empData.emailAddress as string,
+                    role: empData.designation as string,
+                    initials: (empData.firstName as string)?.[0] + (empData.lastName as string)?.[0],
+                    raw: payload
+                } : emp));
+                setEditingEmployeeId(null);
+                alert("Employee updated successfully!");
+            } else {
+                await api.post(`/super-admin/tenants/${companyId}/employees/bulk`, { employees: [payload] });
+                const newEmp = {
+                    _id: 'temp-' + Date.now(),
+                    id: (empData.employeeId as string) || `EMP${1000 + addedEmployees.length}`,
+                    name: `${empData.firstName} ${empData.lastName}`,
+                    email: empData.emailAddress as string,
+                    role: empData.designation as string,
+                    initials: (empData.firstName as string)?.[0] + (empData.lastName as string)?.[0],
+                    color: 'bg-indigo-100 text-indigo-700',
+                    raw: payload
+                };
+                setAddedEmployees(prev => [newEmp, ...prev]);
+                alert("Employee added successfully!");
+            }
+
+            (e.target as HTMLFormElement).reset();
+        } catch (error) {
+            console.error("Failed to save employee:", error);
+            alert("Failed to add employee");
+        }
+    };
+
+
+    const handleDeleteEmployee = async (empId: string) => {
+        if (!confirm('Are you sure you want to delete this employee?')) return;
+        try {
+            await api.delete(`/super-admin/tenants/${companyId}/employees/${empId}`);
+            setAddedEmployees(prev => prev.filter(emp => emp._id !== empId));
+        } catch (error) {
+            console.error(error);
+            alert('Failed to delete employee');
+        }
+    };
+
+    const handleEditClick = (emp: any) => {
+        if (!formRef.current) return;
+        setEditingEmployeeId(emp._id);
+        const form = formRef.current;
+        const raw = emp.raw || {};
+
+        const setVal = (name: string, val: string) => {
+            const input = form.elements.namedItem(name) as HTMLInputElement;
+            if (input) input.value = val || '';
+        };
+
+        setVal('firstName', raw.firstName);
+        setVal('lastName', raw.lastName);
+        setVal('employeeId', raw.employeeId);
+        setVal('emailAddress', raw.email || raw.emailAddress);
+        setVal('mobileNumber', raw.mobile || raw.mobileNumber);
+
+        if (raw.dob) {
+            try { setVal('dateOfBirth', new Date(raw.dob).toISOString().split('T')[0]); } catch (e) { }
+        }
+        setVal('gender', raw.gender);
+        setVal('maritalStatus', raw.maritalStatus);
+        setVal('department', raw.department);
+        setVal('designation', raw.designation);
+        setVal('employmentType', raw.employmentType);
+        if (raw.dateOfJoining) {
+            try { setVal('dateOfJoining', new Date(raw.dateOfJoining).toISOString().split('T')[0]); } catch (e) { }
+        }
+        setVal('reportingManager', raw.reportingManager);
+        setVal('workLocation', raw.workLocation);
+        setVal('probationPeriod', raw.probationPeriod);
+        setVal('addressLine1', raw.addressLine1);
+        setVal('addressLine2', raw.addressLine2);
+        setVal('country', raw.country);
+        setVal('state', raw.state);
+        setVal('city', raw.city);
+        setVal('pinCode', raw.pincode || raw.pinCode);
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -104,9 +226,24 @@ export default function ImportEmployeesPage() {
             setLoading(false);
             return;
         }
-        api.get(`/super-admin/tenants/${companyId}`)
-            .then(res => {
-                setTenant(res.data);
+        Promise.all([
+            api.get(`/super-admin/tenants/${companyId}`),
+            api.get(`/super-admin/tenants/${companyId}/employees`)
+        ])
+            .then(([tenantRes, empRes]) => {
+                setTenant(tenantRes.data);
+
+                const mappedEmployees = (empRes.data || []).map((emp: any, index: number) => ({
+                    id: emp.employeeId || `EMP${1000 + index}`,
+                    name: `${emp.firstName || ''} ${emp.lastName || ''}`.trim() || 'Unknown',
+                    email: emp.email || '',
+                    role: emp.roleId?.name || emp.designation || 'Employee',
+                    initials: ((emp.firstName?.[0] || '') + (emp.lastName?.[0] || '')).toUpperCase() || 'E',
+                    color: 'bg-emerald-100 text-emerald-700',
+                    _id: emp._id || emp.employeeId || `EMP${1000 + index}`,
+                    raw: emp
+                }));
+                setAddedEmployees(mappedEmployees);
             })
             .catch(console.error)
             .finally(() => setLoading(false));
@@ -189,18 +326,20 @@ export default function ImportEmployeesPage() {
     const validCount = parsedData.filter(d => d.email && d.firstName).length;
     const invalidCount = parsedData.length - validCount;
 
-    const [activeMethod, setActiveMethod] = useState<'import' | 'manual' | 'hris' | 'template'>('manual');
+    const [activeMethod, setActiveMethod] = useState<'import' | 'manual' | 'hris' | 'template'>('import');
 
     if (loading) {
         return <div className="p-8 text-center text-sm font-medium">Loading details...</div>;
     }
+    const saveEmployee = () => {
 
+    }
     return (
         <div className="space-y-3 pb-3">
             <PageHeading companyName={tenant?.name || 'TechVision Pvt. Ltd.'} />
             <ProgressBar />
 
-            <div className={`grid grid-cols-1 gap-3 items-start ${activeMethod === 'manual' ? 'xl:grid-cols-[3.8fr_1fr]' : 'xl:grid-cols-[2.6fr_1fr]'}`}>
+            <div className="grid grid-cols-1 gap-3 items-start xl:grid-cols-[2.6fr_1fr]">
                 <div className="space-y-3 min-w-0">
 
                     {/* Choose Import Method */}
@@ -466,13 +605,18 @@ export default function ImportEmployeesPage() {
                             )}
                         </>
                     ) : activeMethod === 'manual' ? (
-                        <div className="grid grid-cols-1 xl:grid-cols-[2.5fr_1fr] gap-3 items-start">
+                        <div className="flex flex-col gap-4">
                             {/* Manual Entry Form */}
-                            <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-5">
+                            <form ref={formRef} onSubmit={handleManualSubmit} className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-5">
                                 <div className="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h2 className="text-[15px] font-bold text-[#1a1f36]">Employee Information</h2>
-                                        <p className="text-[12.5px] text-zinc-500 mt-1">Enter employee details.</p>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700">
+                                            <UserPlus size={16} />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-[15px] font-bold text-[#1a1f36]">Employee Information</h2>
+                                            <p className="text-[12.5px] text-zinc-500 mt-1">Enter employee details.</p>
+                                        </div>
                                     </div>
                                     <button className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-4 py-2 text-[12.5px] font-bold text-indigo-700 shadow-sm hover:bg-zinc-50 transition-colors">
                                         <Users size={14} /> Bulk Add Multiple Employees
@@ -482,20 +626,20 @@ export default function ImportEmployeesPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-x-3 gap-y-3">
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">First Name <span className="text-red-500">*</span></label>
-                                        <input type="text" defaultValue="Priya" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                        <input type="text" name="firstName" placeholder="Priya" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                     </div>
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Last Name <span className="text-red-500">*</span></label>
-                                        <input type="text" defaultValue="Sharma" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                        <input type="text" name="lastName" placeholder="Sharma" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                     </div>
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Employee ID <span className="text-red-500">*</span></label>
-                                        <input type="text" defaultValue="EMP1001" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 mb-1" />
+                                        <input type="text" name="employeeId" placeholder="EMP1001" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 mb-1" />
                                         <p className="text-[9.5px] text-zinc-500 font-medium">Unique ID will be auto generated if left blank.</p>
                                     </div>
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Email Address <span className="text-red-500">*</span></label>
-                                        <input type="email" defaultValue="priya.sharma@techvision.com" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                        <input type="email" name="emailAddress" placeholder="priya.sharma@techvision.com" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                     </div>
 
                                     <div>
@@ -505,20 +649,19 @@ export default function ImportEmployeesPage() {
                                                 <span className="text-[12.5px] font-medium flex items-center gap-1"><span className="text-[14px]">🇮🇳</span> +91</span>
                                                 <ChevronRight size={12} className="text-zinc-400 rotate-90" />
                                             </div>
-                                            <input type="text" defaultValue="98765 43211" className="w-full border border-l-0 border-zinc-200 rounded-r-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                            <input type="text" name="mobileNumber" placeholder="98765 43211" className="w-full border border-l-0 border-zinc-200 rounded-r-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Date of Birth <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <input type="text" defaultValue="12 May 1992" className="w-full border border-zinc-200 rounded-md pl-3 pr-8 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
-                                            <Calendar size={14} className="absolute right-3 top-[11px] text-zinc-400" />
+                                            <input type="date" name="dateOfBirth" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                         </div>
                                     </div>
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Gender <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="gender" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Female</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -527,7 +670,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Marital Status</label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="maritalStatus" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Married</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -537,7 +680,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Department <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="department" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Human Resources</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -546,7 +689,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Designation <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="designation" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>HR Executive</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -555,7 +698,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Employment Type <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="employmentType" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Full Time</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -564,15 +707,14 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Date of Joining <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <input type="text" defaultValue="20 May 2025" className="w-full border border-zinc-200 rounded-md pl-3 pr-8 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
-                                            <Calendar size={14} className="absolute right-3 top-[11px] text-zinc-400" />
+                                            <input type="date" name="dateOfJoining" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                         </div>
                                     </div>
 
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Reporting Manager</label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="reportingManager" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Rohit Mehta</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -581,7 +723,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Work Location <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="workLocation" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Mumbai</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -590,7 +732,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Department Head</label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="departmentHead" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Rohit Mehta</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -598,7 +740,7 @@ export default function ImportEmployeesPage() {
                                     </div>
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Probation Period (Days)</label>
-                                        <input type="text" defaultValue="90" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                        <input type="text" name="probationPeriod" placeholder="90" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                     </div>
                                 </div>
 
@@ -609,17 +751,17 @@ export default function ImportEmployeesPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-x-3 gap-y-3 mb-4">
                                     <div className="md:col-span-2">
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Address Line 1 <span className="text-red-500">*</span></label>
-                                        <input type="text" defaultValue="301, Business Park, Sector 62" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                        <input type="text" name="addressLine1" placeholder="301, Business Park, Sector 62" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Address Line 2 (Optional)</label>
-                                        <input type="text" defaultValue="Near Infocity" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                        <input type="text" name="addressLine2" placeholder="Near Infocity" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                     </div>
 
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">Country <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="country" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>India</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -628,7 +770,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">State <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="state" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Maharashtra</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -637,7 +779,7 @@ export default function ImportEmployeesPage() {
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">City <span className="text-red-500">*</span></label>
                                         <div className="relative">
-                                            <select className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
+                                            <select name="city" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500 appearance-none bg-white">
                                                 <option>Mumbai</option>
                                             </select>
                                             <ChevronRight size={14} className="absolute right-3 top-[11px] text-zinc-400 rotate-90 pointer-events-none" />
@@ -645,7 +787,7 @@ export default function ImportEmployeesPage() {
                                     </div>
                                     <div>
                                         <label className="block text-[11.5px] font-bold text-[#1a1f36] mb-1.5">PIN Code <span className="text-red-500">*</span></label>
-                                        <input type="text" defaultValue="400062" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
+                                        <input type="text" name="pinCode" placeholder="400062" className="w-full border border-zinc-200 rounded-md px-3 py-1.5 text-[13px] text-zinc-800 focus:outline-none focus:border-indigo-500" />
                                     </div>
                                 </div>
 
@@ -657,30 +799,30 @@ export default function ImportEmployeesPage() {
                                     </label>
 
                                     <div className="flex items-center gap-3">
-                                        <button className="px-5 py-1.5 text-[13px] font-bold text-zinc-700 hover:bg-zinc-50 rounded-md border border-zinc-200 transition-colors bg-white shadow-sm">
+                                        <button type="button" onClick={() => router.back()} className="px-5 py-1.5 text-[13px] font-bold text-zinc-700 hover:bg-zinc-50 rounded-md border border-zinc-200 transition-colors bg-white shadow-sm">
                                             Cancel
                                         </button>
-                                        <button className="flex items-center gap-1.5 px-5 py-1.5 text-[13px] font-bold text-zinc-700 hover:bg-zinc-50 rounded-md border border-zinc-200 transition-colors bg-white shadow-sm">
+                                        <button type="button" className="flex items-center gap-1.5 px-5 py-1.5 text-[13px] font-bold text-zinc-700 hover:bg-zinc-50 rounded-md border border-zinc-200 transition-colors bg-white shadow-sm">
                                             <Save size={14} /> Save & Add Another
                                         </button>
-                                        <button className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-1.5 text-[13px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
+                                        <button type="submit" onClick={saveEmployee} className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-1.5 text-[13px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
                                             Save Employee <ArrowRight size={14} className="text-yellow-500" />
                                         </button>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
 
                             {/* Added Employees Card */}
                             <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-5">
-                                <h3 className="text-[14px] font-bold text-[#1a1f36] mb-4">Added Employees (2)</h3>
+                                <h3 className="text-[14px] font-bold text-[#1a1f36] mb-4">Added Employees ({addedEmployees.length})</h3>
 
                                 <div className="space-y-3 mb-4">
-                                    {ADDED_EMPLOYEES.map((emp) => (
+                                    {addedEmployees.map((emp) => (
                                         <div key={emp.id} className="p-3 border border-zinc-100 bg-zinc-50/50 rounded-lg flex items-start gap-3 relative group hover:border-zinc-200 transition-colors">
                                             <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-[12.5px] shrink-0 ${emp.color}`}>
                                                 {emp.initials}
                                             </div>
-                                            <div className="pr-8">
+                                            <div className="pr-12 flex flex-col gap-1 w-full">
                                                 <h4 className="text-[13px] font-bold text-zinc-900 leading-tight">{emp.name}</h4>
                                                 <p className="text-[11.5px] text-zinc-500 mt-0.5">{emp.id}</p>
                                                 <p className="text-[11.5px] text-zinc-500">{emp.email}</p>
@@ -688,10 +830,10 @@ export default function ImportEmployeesPage() {
                                             </div>
 
                                             <div className="absolute top-3 right-3 flex flex-col gap-2">
-                                                <button className="text-zinc-400 hover:text-indigo-600 transition-colors">
+                                                <button onClick={() => handleEditClick(emp)} type="button" className="text-zinc-400 hover:text-indigo-600 transition-colors">
                                                     <Edit2 size={13} />
                                                 </button>
-                                                <button className="text-zinc-400 hover:text-red-600 transition-colors">
+                                                <button onClick={() => handleDeleteEmployee(emp._id)} type="button" className="text-zinc-400 hover:text-red-600 transition-colors">
                                                     <Trash2 size={13} />
                                                 </button>
                                             </div>
@@ -708,30 +850,33 @@ export default function ImportEmployeesPage() {
                         <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4 text-center text-[13px] text-zinc-500">
                             Select an import method or add manually.
                         </div>
-                    )}
+                    )
+                    }
 
                     {/* Bottom Actions (Only for import page) */}
-                    {activeMethod === 'import' && (
-                        <div className="flex items-center justify-between mt-4">
-                            <button onClick={() => router.push(`/super-admin/invite-admin-users?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
-                                <ArrowLeft size={14} /> Back to Previous Step
-                            </button>
-                            <div className="flex items-center gap-3">
-                                <button onClick={() => router.push(`/super-admin/configure-modules?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
-                                    Skip for Now
+                    {
+                        activeMethod === 'import' && (
+                            <div className="flex items-center justify-between mt-4">
+                                <button onClick={() => router.push(`/super-admin/invite-admin-users?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                                    <ArrowLeft size={14} /> Back to Previous Step
                                 </button>
-                                <button onClick={() => router.push(`/super-admin/configure-modules?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
-                                    Continue <ArrowRight size={14} color='#10b981' />
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <button onClick={() => router.push(`/super-admin/configure-modules?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-5 py-2.5 text-[12.5px] font-bold text-zinc-700 shadow-sm hover:bg-zinc-50 transition-colors">
+                                        Skip for Now
+                                    </button>
+                                    <button onClick={() => router.push(`/super-admin/configure-modules?companyId=${companyId}`)} className="flex items-center gap-1.5 rounded-md bg-[#0B1B3D] px-6 py-2.5 text-[12.5px] font-bold text-white shadow-sm hover:bg-[#0B1B3D]/90 transition-colors">
+                                        Continue <ArrowRight size={14} color='#10b981' />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )
+                    }
+                </div >
 
                 {/* Right Sidebar */}
-                <div className="space-y-3 min-w-0 xl:sticky xl:top-4">
+                < div className="space-y-3 min-w-0 xl:sticky xl:top-4" >
                     {/* Onboarding Progress */}
-                    <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
+                    < div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4" >
                         <h3 className="text-[13px] font-bold text-zinc-900 mb-4">Onboarding Progress</h3>
                         <div className="flex items-center gap-4">
                             <div className="relative shrink-0 w-14 h-14 rounded-full border-[5px] border-zinc-100 flex items-center justify-center">
@@ -744,10 +889,10 @@ export default function ImportEmployeesPage() {
                                 <p className="text-[10px] text-zinc-500 leading-snug">Upload your employee data to get started.</p>
                             </div>
                         </div>
-                    </div>
+                    </div >
 
                     {/* Onboarding Steps */}
-                    <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
+                    < div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4" >
                         <h3 className="text-[13px] font-bold text-zinc-900 mb-4">Onboarding Steps</h3>
                         <div className="space-y-3">
                             {STEPS.map((step) => (
@@ -766,10 +911,10 @@ export default function ImportEmployeesPage() {
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </div >
 
                     {/* Employee Summary */}
-                    <div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4">
+                    < div className="rounded-sm border border-zinc-200/80 bg-white shadow-sm p-4" >
                         <h3 className="text-[13px] font-bold text-zinc-900 mb-3">Employee Summary</h3>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between text-[11.5px]">
@@ -791,10 +936,10 @@ export default function ImportEmployeesPage() {
                                 <span className="font-bold text-zinc-900">{parsedData.length ? invalidCount : '-'}</span>
                             </div>
                         </div>
-                    </div>
+                    </div >
 
                     {/* Need Help */}
-                    <div className="rounded-lg bg-[#0B1B3D] text-white p-4">
+                    < div className="rounded-lg bg-[#0B1B3D] text-white p-4" >
                         <div className="flex gap-3 mb-4">
                             <div className="w-8 h-8 rounded bg-white/10 flex items-center justify-center shrink-0">
                                 <Phone size={16} className="text-white" />
@@ -807,9 +952,9 @@ export default function ImportEmployeesPage() {
                         <button className="w-full flex items-center justify-center gap-1.5 rounded-md border border-white/20 bg-transparent py-2.5 text-[12px] font-medium text-[#10b981] hover:bg-white/10 transition-colors">
                             <Phone size={14} /> Schedule a Call
                         </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    </div >
+                </div >
+            </div >
+        </div >
     );
 }

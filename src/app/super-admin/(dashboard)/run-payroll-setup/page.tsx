@@ -5,7 +5,9 @@ import {
     Info, AlertTriangle, Users, UserCheck, Wallet, MinusCircle,
     Landmark, ShieldCheck, Receipt, FileCheck2, LifeBuoy, Phone,
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import api from '@/lib/axios';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -147,12 +149,41 @@ const inputClass = 'w-full h-9 px-2.5 border border-zinc-200 rounded-md text-[12
 
 // ---------------------------------------------------------------------------
 
-export default function RunPayrollSetupPage({ companyId }: { companyId: string }) {
+export default function RunPayrollSetupPage() {
+    const searchParams = useSearchParams();
+    const companyId = searchParams?.get('companyId');
     const [components, setComponents] = useState<PayrollComponent[]>(INITIAL_COMPONENTS);
     const [compliance, setCompliance] = useState<ComplianceItem[]>(INITIAL_COMPLIANCE);
     const [isRunningTest, setIsRunningTest] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
+
+    useEffect(() => {
+        if (!companyId) return;
+        api.get(`/super-admin/tenants/${companyId}`)
+            .then(res => {
+                const tenant = res.data;
+                if (tenant.payrollSetup) {
+                    if (tenant.payrollSetup.form) setForm(tenant.payrollSetup.form);
+                    if (tenant.payrollSetup.components && tenant.payrollSetup.components.length > 0) {
+                        setComponents(prev => prev.map(c => {
+                            const saved = tenant.payrollSetup.components.find((sc: any) => sc.key === c.key);
+                            return saved ? { ...c, included: saved.included } : c;
+                        }));
+                    }
+                    if (tenant.payrollSetup.compliance && tenant.payrollSetup.compliance.length > 0) {
+                        setCompliance(prev => prev.map(c => {
+                            const saved = tenant.payrollSetup.compliance.find((sc: any) => sc.key === c.key);
+                            return saved ? { ...c, enabled: saved.enabled } : c;
+                        }));
+                    }
+                }
+            })
+            .catch(console.error)
+            .finally(() => setLoading(false));
+    }, [companyId]);
+
     const [form, setForm] = useState({
         payrollFrequency: 'Monthly',
         processingDate: '28',
@@ -189,8 +220,12 @@ export default function RunPayrollSetupPage({ companyId }: { companyId: string }
     const handleContinue = async () => {
         setIsSaving(true);
         try {
-            // await api.post('/onboarding/payroll', { form, components, compliance });
-            await new Promise((r) => setTimeout(r, 600));
+            const componentsPayload = components.map(c => ({ key: c.key, included: c.included }));
+            const compliancePayload = compliance.map(c => ({ key: c.key, enabled: c.enabled }));
+            await api.put(`/super-admin/tenants/${companyId}`, {
+                payrollSetup: { form, components: componentsPayload, compliance: compliancePayload },
+                lifecycleStatus: 'QA_VERIFICATION'
+            });
             router.push(`/super-admin/go-live?companyId=${companyId}`);
         } finally {
             setIsSaving(false);
@@ -208,6 +243,10 @@ export default function RunPayrollSetupPage({ companyId }: { companyId: string }
         if (isNaN(d.getTime())) return form.effectiveFrom;
         return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
     }, [form.effectiveFrom]);
+
+    if (loading) {
+        return <div className="min-h-screen flex items-center justify-center text-sm font-medium">Loading details...</div>;
+    }
 
     return (
         <div className="flex flex-col gap-2 animate-in fade-in duration-300 p-2 w-full font-sans text-zinc-800 bg-[#f8f9fc] min-h-screen">
