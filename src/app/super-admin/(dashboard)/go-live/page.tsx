@@ -112,7 +112,8 @@ export default function GoLivePage() {
         setIsSaving(true);
         try {
             await api.put(`/super-admin/tenants/${companyId}`, {
-                lifecycleStatus: 'LIVE'
+                lifecycleStatus: 'LIVE',
+                setupFeeStatus: 'PAID'
             });
             alert(`Company is Live Now`);
             router.push(`/super-admin/companies`);

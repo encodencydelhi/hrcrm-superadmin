@@ -167,10 +167,16 @@ export default function RunPayrollSetupPage() {
                 if (tenant.payrollSetup) {
                     if (tenant.payrollSetup.form) setForm(tenant.payrollSetup.form);
                     if (tenant.payrollSetup.components && tenant.payrollSetup.components.length > 0) {
-                        setComponents(tenant.payrollSetup.components);
+                        setComponents(prev => prev.map(c => {
+                            const saved = tenant.payrollSetup.components.find((sc: any) => sc.key === c.key);
+                            return saved ? { ...c, included: saved.included } : c;
+                        }));
                     }
                     if (tenant.payrollSetup.compliance && tenant.payrollSetup.compliance.length > 0) {
-                        setCompliance(tenant.payrollSetup.compliance);
+                        setCompliance(prev => prev.map(c => {
+                            const saved = tenant.payrollSetup.compliance.find((sc: any) => sc.key === c.key);
+                            return saved ? { ...c, enabled: saved.enabled } : c;
+                        }));
                     }
                 }
             })
@@ -214,8 +220,10 @@ export default function RunPayrollSetupPage() {
     const handleContinue = async () => {
         setIsSaving(true);
         try {
+            const componentsPayload = components.map(c => ({ key: c.key, included: c.included }));
+            const compliancePayload = compliance.map(c => ({ key: c.key, enabled: c.enabled }));
             await api.put(`/super-admin/tenants/${companyId}`, {
-                payrollSetup: { form, components, compliance },
+                payrollSetup: { form, components: componentsPayload, compliance: compliancePayload },
                 lifecycleStatus: 'QA_VERIFICATION'
             });
             router.push(`/super-admin/go-live?companyId=${companyId}`);
