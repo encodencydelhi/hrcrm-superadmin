@@ -84,6 +84,7 @@ const NAV_ITEMS: NavItem[] = [
       { href: '/super-admin/settings/industry-management', label: 'Industry Management' },
       { href: '/super-admin/settings/company-size-management', label: 'Company Size Management' },
       { href: '/super-admin/settings/time-zone-management', label: 'Time Zone Management' },
+      { href: '/super-admin/settings/sidebar-management', label: 'Company Sidebar' },
       { href: '/super-admin/audit-logs', label: 'Audit Logs' },
       { href: '/super-admin/automation', label: 'Automation' },
       { href: '/super-admin/features', label: 'Feature Flags' },
