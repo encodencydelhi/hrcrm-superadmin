@@ -79,6 +79,7 @@ export default function SidebarManagementPage() {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddingCustomMode, setIsAddingCustomMode] = useState(false);
+  const [isAddingCustomParentMode, setIsAddingCustomParentMode] = useState(false);
 
   const uniqueSections = Array.from(new Set((items || []).map(i => i.section).filter(Boolean)));
   const uniqueParents = Array.from(new Set((items || []).map(i => i.label).filter(Boolean)));
@@ -104,6 +105,7 @@ export default function SidebarManagementPage() {
   const resetForm = () => {
     setEditId(null);
     setIsAddingCustomMode(false);
+    setIsAddingCustomParentMode(false);
     setFormData({
       label: '',
       href: '',
@@ -120,6 +122,7 @@ export default function SidebarManagementPage() {
   const handleEdit = (item: SidebarItem) => {
     setEditId(item._id);
     setIsAddingCustomMode(false);
+    setIsAddingCustomParentMode(false);
     setFormData({
       label: item.label,
       href: item.href,
@@ -142,6 +145,7 @@ export default function SidebarManagementPage() {
   };
 
   const isCustomSection = isAddingCustomMode || (!uniqueSections.includes(formData.section) && formData.section !== '');
+  const isCustomParent = isAddingCustomParentMode || (!uniqueParents.includes(formData.parent) && formData.parent !== '');
 
   return (
     <div className="flex flex-col gap-2 animate-in fade-in duration-300 p-2 w-full font-sans text-slate-800">
@@ -243,16 +247,35 @@ export default function SidebarManagementPage() {
 
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-zinc-900">Parent Menu</label>
-                <select
-                  value={formData.parent}
-                  onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
-                  className="h-8 text-[12px] flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900/20"
-                >
-                  <option value="">-- None (Root) --</option>
-                  {uniqueParents.map((parentLabel) => (
-                    <option key={parentLabel} value={parentLabel}>{parentLabel}</option>
-                  ))}
-                </select>
+                <div className="flex gap-2">
+                  <select
+                    value={isCustomParent ? 'CUSTOM' : formData.parent}
+                    onChange={(e) => {
+                      if (e.target.value === 'CUSTOM') {
+                        setIsAddingCustomParentMode(true);
+                        setFormData({ ...formData, parent: '' });
+                      } else {
+                        setIsAddingCustomParentMode(false);
+                        setFormData({ ...formData, parent: e.target.value });
+                      }
+                    }}
+                    className="h-8 text-[12px] flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900/20"
+                  >
+                    <option value="">-- None (Root) --</option>
+                    {uniqueParents.map((parentLabel) => (
+                      <option key={parentLabel} value={parentLabel}>{parentLabel}</option>
+                    ))}
+                    <option value="CUSTOM">+ Add New Parent</option>
+                  </select>
+                  {isCustomParent && (
+                    <Input
+                      placeholder="New Parent"
+                      value={formData.parent}
+                      onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
+                      className="h-8 text-[12px] border-zinc-200 focus-visible:ring-zinc-900/20"
+                    />
+                  )}
+                </div>
               </div>
 
               <div className="flex flex-col gap-1 mt-1">
