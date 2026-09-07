@@ -167,8 +167,12 @@ export function DataTable<T extends { id?: string | number; _id?: string | numbe
     return result;
   }, [data, columnFilters, sortConfig, searchValue, columns]);
 
-  const displayData = processedData;
-  const totalPages = totalItems ? Math.ceil(totalItems / pageSize) : Math.ceil(displayData.length / pageSize);
+  const totalPages = totalItems !== undefined ? Math.ceil(totalItems / pageSize) : Math.ceil(processedData.length / pageSize);
+  
+  const displayData = (totalItems !== undefined && onPageChange) 
+    ? processedData 
+    : processedData.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   const isAllSelected = selectable && displayData.length > 0 && displayData.every(r => selectedIds.has(getId(r)));
 
   return (
@@ -300,7 +304,7 @@ export function DataTable<T extends { id?: string | number; _id?: string | numbe
                 </td>
               </tr>
             ) : (
-              (totalItems !== undefined ? displayData : displayData.slice((currentPage - 1) * pageSize, currentPage * pageSize)).map((row, rowIndex) => {
+              displayData.map((row, rowIndex) => {
                 const id = getId(row);
                 const isChecked = selectable && selectedIds.has(id);
                 const isRowSelected = selectedId === (row as any).id || (row as any)._id === selectedId;
@@ -439,7 +443,7 @@ export function DataTable<T extends { id?: string | number; _id?: string | numbe
       {showPagination && onPageChange && (
         <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-1.5 bg-slate-50 border-t border-slate-200 gap-4 mt-auto w-full">
           <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            Showing <span className="text-slate-900">{totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1}</span> to <span className="text-slate-900">{Math.min(currentPage * pageSize, totalItems ?? displayData.length)}</span> of <span className="text-slate-900">{totalItems ?? displayData.length}</span> entries
+            Showing <span className="text-slate-900">{(totalItems ?? processedData.length) === 0 ? 0 : (currentPage - 1) * pageSize + 1}</span> to <span className="text-slate-900">{Math.min(currentPage * pageSize, totalItems ?? processedData.length)}</span> of <span className="text-slate-900">{totalItems ?? processedData.length}</span> entries
           </div>
 
           <div className="flex items-center border border-slate-200 bg-white rounded-[2px] overflow-hidden shadow-sm">

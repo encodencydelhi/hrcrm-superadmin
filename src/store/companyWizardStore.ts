@@ -74,6 +74,7 @@ interface CompanyWizardState {
 
   // Step 4 — System Configuration
   selectedModules: Record<string, boolean>;
+  allowedSections: string[];
   notificationPreferences: {
     biometric: boolean;
     sso: boolean;
@@ -91,6 +92,7 @@ interface CompanyWizardState {
 
   update: (patch: Partial<CompanyWizardState>) => void;
   toggleModule: (id: string) => void;
+  toggleSectionAccess: (sectionName: string) => void;
   toggleAddon: (id: string) => void;
   togglePreference: (key: keyof CompanyWizardState['notificationPreferences']) => void;
   unlockStep: (step: number) => void;
@@ -127,6 +129,7 @@ const initialState = {
   incorporationCertUrl: '', gstCertUrl: '', panCardUrl: '', otherDocumentUrl: '',
 
   selectedModules: DEFAULT_MODULES,
+  allowedSections: [] as string[],
   notificationPreferences: {
     biometric: true, sso: true, sms: false, geoTracking: true, email: true, whatsapp: true,
   },
@@ -140,6 +143,11 @@ export const useCompanyWizardStore = create<CompanyWizardState>()(
       ...initialState,
       update: (patch) => set(patch),
       toggleModule: (id) => set((s) => ({ selectedModules: { ...s.selectedModules, [id]: !s.selectedModules[id] } })),
+      toggleSectionAccess: (sectionName) => set((s) => ({
+        allowedSections: s.allowedSections.includes(sectionName)
+          ? s.allowedSections.filter((name) => name !== sectionName)
+          : [...s.allowedSections, sectionName],
+      })),
       toggleAddon: (id) => set((s) => ({
         addonModules: s.addonModules.includes(id) ? s.addonModules.filter((a) => a !== id) : [...s.addonModules, id],
       })),
@@ -210,6 +218,7 @@ export const useCompanyWizardStore = create<CompanyWizardState>()(
           selectedModules: Object.fromEntries(
             Object.keys(DEFAULT_MODULES).map((id) => [id, Array.isArray(company.selectedModules) ? company.selectedModules.includes(id) : DEFAULT_MODULES[id]])
           ),
+          allowedSections: tenant.allowedSections || [],
           notificationPreferences: company.notificationPreferences || initialState.notificationPreferences,
           weekStartsOn: company.weekStartsOn || initialState.weekStartsOn,
           dateFormat: company.dateFormat || initialState.dateFormat,
