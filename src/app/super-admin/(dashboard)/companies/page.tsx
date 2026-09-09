@@ -20,7 +20,7 @@ import { generateTempPassword } from '@/lib/generatePassword';
 import { StatsCard } from '@/components/statsCards';
 import PageHeader from '@/components/layout/PageHeader';
 
-const ActionMenu = ({ row, handleResendCredentials, resendingId, openTopUpModal, setDeleteConfirmId }: any) => {
+const ActionMenu = ({ row, handleResendCredentials, resendingId, openTopUpModal, setDeleteConfirmTarget }: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -74,7 +74,7 @@ const ActionMenu = ({ row, handleResendCredentials, resendingId, openTopUpModal,
           <Link href={`/super-admin/step-1?edit=${row._id}`} onClick={() => setIsOpen(false)} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-zinc-700">
             <Edit2 size={14} /> Edit Company
           </Link>
-          <button onClick={() => { setIsOpen(false); setDeleteConfirmId(row._id); }} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-left w-full text-rose-600">
+          <button onClick={() => { setIsOpen(false); setDeleteConfirmTarget(row); }} className="flex items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 text-left w-full text-rose-600">
             <Trash2 size={14} /> Delete Company
           </button>
         </div>
@@ -201,7 +201,18 @@ function SuperAdminCompaniesPageInner() {
   const [pageSize, setPageSize] = useState(10);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<any>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [deleteReason, setDeleteReason] = useState('');
+  const [deleteOtp, setDeleteOtp] = useState('');
+  const [isDeleteOtpSent, setIsDeleteOtpSent] = useState(false);
+  const [deleteOtpSubmitting, setDeleteOtpSubmitting] = useState(false);
+  const [deleteOtpError, setDeleteOtpError] = useState('');
+
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [activityLogsPage, setActivityLogsPage] = useState(1);
+  const [activityLogsPageSize, setActivityLogsPageSize] = useState(5);
+  const [loadingLogs, setLoadingLogs] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
   const [formData, setFormData] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState('');
@@ -244,17 +255,21 @@ function SuperAdminCompaniesPageInner() {
 
   const fetchData = async () => {
     setLoading(true);
+    setLoadingLogs(true);
     try {
-      const [tRes, pRes] = await Promise.all([
+      const [tRes, pRes, logsRes] = await Promise.all([
         api.get('/super-admin/tenants'),
-        api.get('/super-admin/packages')
+        api.get('/super-admin/packages'),
+        api.get('/super-admin/activity-logs').catch(() => ({ data: [] }))
       ]);
       setTenants(tRes.data || tRes.data.data || []);
       setPackages(pRes.data || pRes.data.data || []);
+      setActivityLogs(logsRes.data || []);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
+      setLoadingLogs(false);
     }
   };
 
@@ -285,15 +300,39 @@ function SuperAdminCompaniesPageInner() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!deleteConfirmId) return;
+  const handleRequestDeleteOtp = async () => {
+    if (!deleteConfirmTarget) return;
+    setDeleteOtpError('');
+    setDeleteOtpSubmitting(true);
     try {
-      await api.delete(`/super-admin/tenants/${deleteConfirmId}`);
+      await api.post(`/super-admin/tenants/${deleteConfirmTarget._id}/delete-otp`);
+      setIsDeleteOtpSent(true);
+    } catch (e: any) {
+      setDeleteOtpError(e?.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setDeleteOtpSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirmTarget) return;
+    setDeleteOtpSubmitting(true);
+    setDeleteOtpError('');
+    try {
+      await api.delete(`/super-admin/tenants/${deleteConfirmTarget._id}`, {
+        data: { reason: deleteReason, otp: deleteOtp }
+      });
       fetchData();
-      setDeleteConfirmId(null);
-    } catch (e) {
+      setDeleteConfirmTarget(null);
+      setDeleteConfirmName('');
+      setDeleteReason('');
+      setDeleteOtp('');
+      setIsDeleteOtpSent(false);
+    } catch (e: any) {
       console.error(e);
-      alert('Failed to delete company');
+      setDeleteOtpError(e?.response?.data?.message || 'Failed to delete company');
+    } finally {
+      setDeleteOtpSubmitting(false);
     }
   };
 
@@ -431,8 +470,8 @@ function SuperAdminCompaniesPageInner() {
       width: '160px',
       render: (v) => <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${lifecycleColor(v)}`}>{lifecycleLabel(v || 'ACTIVATION_PENDING')}</span>,
     },
-    { key: 'admin.email', label: 'ADMIN EMAIL', render: (_v, row) => row.admin?.email || 'N/A' },
-    { key: 'packageId.name', label: 'PACKAGE', render: (_v, row) => row.packageId?.name || 'Custom' },
+    { key: 'admin.email', label: 'ADMIN EMAIL', align: 'left', render: (_v, row) => row.admin?.email || 'N/A' },
+    { key: 'packageId.name', label: 'PACKAGE', align: 'left', render: (_v, row) => row.packageId?.name || 'Custom' },
     {
       key: 'setupFeeStatus',
       label: 'SETUP FEE',
@@ -489,7 +528,7 @@ function SuperAdminCompaniesPageInner() {
             handleResendCredentials={handleResendCredentials}
             resendingId={resendingId}
             openTopUpModal={openTopUpModal}
-            setDeleteConfirmId={setDeleteConfirmId}
+            setDeleteConfirmTarget={setDeleteConfirmTarget}
           />
         </div>
       ),
@@ -500,6 +539,64 @@ function SuperAdminCompaniesPageInner() {
   const activeCompanies = tenants.filter((t: any) => t.isActive).length;
   const inactiveCompanies = totalCompanies - activeCompanies;
   const pendingSetupFees = tenants.filter((t: any) => t.setupFeeStatus === 'PENDING').length;
+
+  const activityLogColumns: Column<any>[] = [
+    {
+      key: 'createdAt',
+      label: 'Date',
+      sortable: true,
+      render: (v: any) => <span className="text-slate-500 whitespace-nowrap">{new Date(v).toLocaleString()}</span>
+    },
+    {
+      key: 'action',
+      label: 'Activity',
+      sortable: true,
+      filterable: true,
+      render: (v: any, log: any) => (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium whitespace-nowrap ${log.action === 'DELETE_COMPANY' ? 'bg-rose-100 text-rose-700' :
+          log.action === 'UPDATE_COMPANY' ? 'bg-blue-100 text-blue-700' :
+            log.action === 'CREATE_COMPANY' ? 'bg-emerald-100 text-emerald-700' :
+              'bg-slate-100 text-slate-700'
+          }`}>
+          {log.action}
+        </span>
+      )
+    },
+    {
+      key: 'details.name',
+      label: 'Company',
+      filterable: true,
+      align: 'left',
+      render: (v: any, log: any) => <span className="font-medium whitespace-nowrap">{log.details?.name || 'N/A'}</span>
+    },
+    {
+      key: 'details.reason',
+      label: 'Reason/Details',
+      filterable: true,
+      align: 'left',
+      render: (v: any, log: any) => (
+        <div className="text-slate-500 max-w-xs truncate" title={log.details?.reason || JSON.stringify(log.details)}>
+          {log.details?.reason || (
+            log.action === 'UPDATE_COMPANY' ? 'Updated company details' :
+              log.action === 'CREATE_COMPANY' ? `Created company (Admin: ${log.details?.adminEmail})` :
+                JSON.stringify(log.details)
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'userId',
+      label: 'User',
+      filterable: true,
+      align: 'left',
+      render: (v: any, log: any) => (
+        <div className="whitespace-nowrap">
+          {log.userId ? `${log.userId.firstName} ${log.userId.lastName}` : 'System'}
+          {log.userId?.email && <div className="text-[10px] text-slate-400">{log.userId.email}</div>}
+        </div>
+      )
+    },
+  ];
 
   return (
     <div className="space-y-4 max-w-[1600px] mx-auto">
@@ -643,6 +740,27 @@ function SuperAdminCompaniesPageInner() {
                 onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
                 emptyMessage="No companies found. Create one."
               />
+            </CardContent>
+          </Card>
+
+          <Card className="border-slate-200 shadow-sm rounded-xl overflow-hidden mt-6">
+            <CardHeader className="px-3 py-2 border-b border-slate-100 bg-slate-50/60 flex flex-row items-center justify-between">
+              <CardTitle className="text-[13px] font-semibold text-slate-800">Activity Logs</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              {loadingLogs ? (
+                <div className="p-8 text-center text-sm text-slate-400">Loading logs...</div>
+              ) : (
+                <DataTable
+                  columns={activityLogColumns}
+                  data={activityLogs}
+                  rowKey="_id"
+                  currentPage={activityLogsPage}
+                  onPageChange={setActivityLogsPage}
+                  pageSize={activityLogsPageSize}
+                  onPageSizeChange={(s) => { setActivityLogsPageSize(s); setActivityLogsPage(1); }}
+                />
+              )}
             </CardContent>
           </Card>
         </div>
@@ -834,15 +952,91 @@ function SuperAdminCompaniesPageInner() {
       )}
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirmId && (
+      {deleteConfirmTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-900/40 backdrop-blur-sm transition-all duration-200 py-10">
           <div className="bg-white dark:bg-zinc-900 rounded-xl shadow-2xl w-full max-w-sm border border-zinc-200/50 dark:border-zinc-800 animate-in fade-in zoom-in-95 duration-200">
             <div className="p-5">
               <h3 className="text-lg font-md text-zinc-900 dark:text-zinc-50 mb-2">Delete Company?</h3>
-              <p className="text-sm text-zinc-500 mb-6">Are you sure you want to delete this company? This action cannot be undone and will erase all associated data.</p>
+              <p className="text-sm text-zinc-500 mb-4">
+                Are you sure you want to delete <strong>{deleteConfirmTarget.name}</strong>? This action cannot be undone and will erase all associated data.
+              </p>
+
+              {deleteOtpError && (
+                <div className="mb-4 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{deleteOtpError}</div>
+              )}
+
+              <div className="space-y-4 mb-6">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                    Type company name to confirm
+                  </label>
+                  <input
+                    type="text"
+                    className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full disabled:opacity-50"
+                    value={deleteConfirmName}
+                    onChange={(e) => setDeleteConfirmName(e.target.value)}
+                    placeholder={deleteConfirmTarget.name}
+                    disabled={isDeleteOtpSent}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                    Reason for deletion
+                  </label>
+                  <textarea
+                    className="w-full min-h-[80px] p-3 text-sm border-zinc-300 rounded-md focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:border-rose-500 resize-none disabled:opacity-50"
+                    value={deleteReason}
+                    onChange={(e) => setDeleteReason(e.target.value)}
+                    placeholder="Required for auditing..."
+                    disabled={isDeleteOtpSent}
+                  />
+                </div>
+
+                {isDeleteOtpSent && (
+                  <div className="space-y-1.5 animate-in slide-in-from-top-2">
+                    <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                      Enter OTP sent to your Email/WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full"
+                      value={deleteOtp}
+                      onChange={(e) => setDeleteOtp(e.target.value)}
+                      placeholder="6-digit OTP"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end gap-3">
-                <Button variant="outline" size="sm" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
-                <Button size="sm" className="bg-rose-600 hover:bg-rose-700 text-white" onClick={handleDelete}>Delete</Button>
+                <Button variant="outline" size="sm" onClick={() => {
+                  setDeleteConfirmTarget(null);
+                  setDeleteConfirmName('');
+                  setDeleteReason('');
+                  setDeleteOtp('');
+                  setIsDeleteOtpSent(false);
+                  setDeleteOtpError('');
+                }}>Cancel</Button>
+
+                {!isDeleteOtpSent ? (
+                  <Button
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={handleRequestDeleteOtp}
+                    disabled={deleteConfirmName !== deleteConfirmTarget.name || deleteReason.trim().length === 0 || deleteOtpSubmitting}
+                  >
+                    {deleteOtpSubmitting ? 'Sending OTP...' : 'Send OTP'}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="bg-rose-600 hover:bg-rose-700 text-white"
+                    onClick={handleDelete}
+                    disabled={deleteOtp.trim().length === 0 || deleteOtpSubmitting}
+                  >
+                    {deleteOtpSubmitting ? 'Deleting...' : 'Confirm Delete'}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

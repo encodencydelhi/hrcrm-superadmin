@@ -17,7 +17,8 @@ import {
     FileBadge2,
     FileBadge,
     CreditCard,
-    Files
+    Files,
+    Eye
 } from 'lucide-react';
 import { useCompanyWizardStore } from '@/store/companyWizardStore';
 import api from '@/lib/axios';
@@ -31,7 +32,7 @@ function DocumentCard({ icon: Icon, title, url, onUpload, uploading, required }:
     return (
         <div
             onClick={() => inputRef.current?.click()}
-            className="border border-zinc-200 rounded-md p-2 flex flex-col items-center justify-center text-center gap-1.5 hover:border-indigo-300 transition-colors cursor-pointer group"
+            className="border border-zinc-200 rounded-md p-2 flex flex-col items-center justify-center text-center gap-1.5 hover:border-indigo-300 transition-colors cursor-pointer group relative"
         >
             <input
                 ref={inputRef}
@@ -43,6 +44,19 @@ function DocumentCard({ icon: Icon, title, url, onUpload, uploading, required }:
                     if (file) onUpload(file);
                 }}
             />
+            {url && (
+                <button
+                    type="button"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(url, '_blank');
+                    }}
+                    className="absolute top-1.5 right-1.5 p-1 bg-zinc-50 hover:bg-zinc-200 text-zinc-600 rounded z-10 cursor-pointer transition-colors"
+                    title="View Document"
+                >
+                    <Eye size={12} />
+                </button>
+            )}
             <div className="flex items-center gap-1.5">
                 <Icon size={20} className={url ? 'text-emerald-500' : 'text-zinc-500'} />
                 <h3 className="text-[10px] font-bold text-zinc-800">{title} {required && <span className="text-red-500">*</span>}</h3>

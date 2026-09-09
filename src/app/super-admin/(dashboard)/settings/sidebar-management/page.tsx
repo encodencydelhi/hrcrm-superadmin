@@ -19,9 +19,21 @@ interface SidebarItem {
   sectionOrder?: number;
   requiredPermission?: string;
   requiredFeature?: string;
+  itemType?: 'SECTION' | 'LINK';
   roleIds: Array<{ _id: string; name: string } | string>;
   isActive: boolean;
 }
+
+const COMMON_ICONS = [
+  'Circle', 'Home', 'Users', 'Settings', 'Briefcase', 'FileText', 
+  'ClipboardList', 'TrendingUp', 'CheckCircle', 'Clock', 'MapPin', 
+  'Building', 'Star', 'Mail', 'Phone', 'Calendar', 'LayoutDashboard', 
+  'Database', 'Shield', 'Lock', 'Activity', 'ArrowRight', 'ArrowLeft', 
+  'ChevronDown', 'ChevronRight', 'Menu', 'Plus', 'Trash2', 'Edit2', 
+  'Check', 'X', 'AlertCircle', 'Eye', 'Download', 'Search', 'Command', 
+  'Sliders', 'Box', 'Layers', 'Monitor', 'Server', 'Cloud', 'Zap',
+  'UserPlus', 'Target', 'Folder', 'List', 'Grid', 'Hash', 'User', 'Users2'
+].sort();
 
 export default function SidebarManagementPage() {
   const queryClient = useQueryClient();
@@ -61,6 +73,7 @@ export default function SidebarManagementPage() {
 
   const [editId, setEditId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    itemType: 'LINK' as 'SECTION' | 'LINK',
     label: '',
     href: '',
     section: 'MAIN',
@@ -79,9 +92,14 @@ export default function SidebarManagementPage() {
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddingCustomMode, setIsAddingCustomMode] = useState(false);
+  const [isAddingCustomParentMode, setIsAddingCustomParentMode] = useState(false);
 
-  const uniqueSections = Array.from(new Set((items || []).map(i => i.section).filter(Boolean)));
-  const uniqueParents = Array.from(new Set((items || []).map(i => i.label).filter(Boolean)));
+  const uniqueSections = Array.from(new Set(
+    (items || []).filter(i => i.itemType === 'SECTION').map(i => i.label)
+      .concat((items || []).map(i => i.section))
+  )).filter(Boolean);
+  
+  const uniqueParents = Array.from(new Set((items || []).filter(i => i.itemType !== 'SECTION').map(i => i.label).filter(Boolean)));
 
   const filteredItems = (items || []).filter(item => {
     const matchesSearch = item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -104,7 +122,9 @@ export default function SidebarManagementPage() {
   const resetForm = () => {
     setEditId(null);
     setIsAddingCustomMode(false);
+    setIsAddingCustomParentMode(false);
     setFormData({
+      itemType: 'LINK',
       label: '',
       href: '',
       section: 'MAIN',
@@ -120,9 +140,11 @@ export default function SidebarManagementPage() {
   const handleEdit = (item: SidebarItem) => {
     setEditId(item._id);
     setIsAddingCustomMode(false);
+    setIsAddingCustomParentMode(false);
     setFormData({
+      itemType: item.itemType || 'LINK',
       label: item.label,
-      href: item.href,
+      href: item.href || '',
       section: item.section || 'MAIN',
       icon: item.icon || 'Circle',
       parent: item.parent || '',
@@ -134,14 +156,22 @@ export default function SidebarManagementPage() {
   };
 
   const handleSave = () => {
+    const payload = { ...formData };
+    if (payload.itemType === 'SECTION') {
+      payload.href = '';
+      payload.parent = '';
+      payload.section = payload.label; // For sections, section is its own label
+    }
+
     if (editId) {
-      updateMutation.mutate({ id: editId, payload: { ...formData } });
+      updateMutation.mutate({ id: editId, payload });
     } else {
-      createMutation.mutate({ ...formData });
+      createMutation.mutate(payload);
     }
   };
 
   const isCustomSection = isAddingCustomMode || (!uniqueSections.includes(formData.section) && formData.section !== '');
+  const isCustomParent = isAddingCustomParentMode || (!uniqueParents.includes(formData.parent) && formData.parent !== '');
 
   return (
     <div className="flex flex-col gap-2 animate-in fade-in duration-300 p-2 w-full font-sans text-slate-800">
@@ -167,68 +197,91 @@ export default function SidebarManagementPage() {
               </p>
             </CardHeader>
             <CardContent className="pt-2 flex flex-col gap-2">
+              <div className="flex bg-zinc-100 p-1 rounded-md mb-2">
+                <button
+                  onClick={() => setFormData({ ...formData, itemType: 'SECTION' })}
+                  className={`flex-1 text-[11px] font-semibold py-1.5 rounded transition-all ${formData.itemType === 'SECTION' ? 'bg-white shadow-sm text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}
+                >
+                  Create Section
+                </button>
+                <button
+                  onClick={() => setFormData({ ...formData, itemType: 'LINK' })}
+                  className={`flex-1 text-[11px] font-semibold py-1.5 rounded transition-all ${formData.itemType === 'LINK' ? 'bg-white shadow-sm text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'}`}
+                >
+                  Create Link
+                </button>
+              </div>
+
               <div className="flex flex-col gap-1">
                 <label className="text-[12px] font-medium text-zinc-900">Label <span className="text-red-500">*</span></label>
                 <Input
-                  placeholder="Menu Label"
+                  placeholder={formData.itemType === 'SECTION' ? "Section Name" : "Menu Label"}
                   value={formData.label}
                   onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                   className="h-8 text-[12px] border-zinc-200 focus-visible:ring-zinc-900/20"
                 />
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-[12px] font-medium text-zinc-900">Path <span className="text-red-500">*</span></label>
-                <Input
-                  placeholder="/route-path"
-                  value={formData.href}
-                  onChange={(e) => setFormData({ ...formData, href: e.target.value })}
-                  className="h-8 text-[12px] border-zinc-200 focus-visible:ring-zinc-900/20"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-[12px] font-medium text-zinc-900">Section <span className="text-red-500">*</span></label>
-                <div className="flex gap-2">
-                  <select
-                    value={isCustomSection ? 'CUSTOM' : formData.section}
-                    onChange={(e) => {
-                      if (e.target.value === 'CUSTOM') {
-                        setIsAddingCustomMode(true);
-                        setFormData({ ...formData, section: '' });
-                      } else {
-                        setIsAddingCustomMode(false);
-                        setFormData({ ...formData, section: e.target.value });
-                      }
-                    }}
-                    className="h-8 text-[11px] flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900/20"
-                  >
-                    <option value="" disabled>Select Section</option>
-                    {uniqueSections.map((sec) => (
-                      <option key={sec} value={sec}>{sec}</option>
-                    ))}
-                    <option value="CUSTOM">+ Add New Section</option>
-                  </select>
-                  {isCustomSection && (
+              {formData.itemType === 'LINK' && (
+                <>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[12px] font-medium text-zinc-900">Path <span className="text-red-500">*</span></label>
                     <Input
-                      placeholder="New Section"
-                      value={formData.section}
-                      onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                      placeholder="/route-path"
+                      value={formData.href}
+                      onChange={(e) => setFormData({ ...formData, href: e.target.value })}
                       className="h-8 text-[12px] border-zinc-200 focus-visible:ring-zinc-900/20"
                     />
-                  )}
-                </div>
-              </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[12px] font-medium text-zinc-900">Section <span className="text-red-500">*</span></label>
+                    <div className="flex gap-2">
+                      <select
+                        value={isCustomSection ? 'CUSTOM' : formData.section}
+                        onChange={(e) => {
+                          if (e.target.value === 'CUSTOM') {
+                            setIsAddingCustomMode(true);
+                            setFormData({ ...formData, section: '' });
+                          } else {
+                            setIsAddingCustomMode(false);
+                            setFormData({ ...formData, section: e.target.value });
+                          }
+                        }}
+                        className="h-8 text-[11px] flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900/20"
+                      >
+                        <option value="" disabled>Select Section</option>
+                        {uniqueSections.map((sec) => (
+                          <option key={sec} value={sec}>{sec}</option>
+                        ))}
+                        <option value="CUSTOM">+ Add New Section</option>
+                      </select>
+                      {isCustomSection && (
+                        <Input
+                          placeholder="New Section"
+                          value={formData.section}
+                          onChange={(e) => setFormData({ ...formData, section: e.target.value })}
+                          className="h-8 text-[12px] border-zinc-200 focus-visible:ring-zinc-900/20"
+                        />
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-1">
                   <label className="text-[12px] font-medium text-zinc-900">Icon</label>
-                  <Input
-                    placeholder="Icon Name"
+                  <select
                     value={formData.icon}
                     onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="h-8 text-[12px] border-zinc-200 focus-visible:ring-zinc-900/20"
-                  />
+                    className="h-8 text-[11px] flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900/20"
+                  >
+                    <option value="" disabled>Select Icon</option>
+                    {COMMON_ICONS.map((ico) => (
+                      <option key={ico} value={ico}>{ico}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="flex flex-col gap-1">
                   <label className="text-[12px] font-medium text-zinc-900">Order</label>
@@ -241,19 +294,40 @@ export default function SidebarManagementPage() {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1">
-                <label className="text-[12px] font-medium text-zinc-900">Parent Menu</label>
-                <select
-                  value={formData.parent}
-                  onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
-                  className="h-8 text-[12px] flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900/20"
-                >
-                  <option value="">-- None (Root) --</option>
-                  {uniqueParents.map((parentLabel) => (
-                    <option key={parentLabel} value={parentLabel}>{parentLabel}</option>
-                  ))}
-                </select>
-              </div>
+              {formData.itemType === 'LINK' && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-[12px] font-medium text-zinc-900">Parent Menu</label>
+                  <div className="flex gap-2">
+                    <select
+                      value={isCustomParent ? 'CUSTOM' : formData.parent}
+                      onChange={(e) => {
+                        if (e.target.value === 'CUSTOM') {
+                          setIsAddingCustomParentMode(true);
+                          setFormData({ ...formData, parent: '' });
+                        } else {
+                          setIsAddingCustomParentMode(false);
+                          setFormData({ ...formData, parent: e.target.value });
+                        }
+                      }}
+                      className="h-8 text-[12px] flex w-full rounded-md border border-zinc-200 bg-white px-3 py-1 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-900/20"
+                    >
+                      <option value="">-- None (Root) --</option>
+                      {uniqueParents.map((parentLabel) => (
+                        <option key={parentLabel} value={parentLabel}>{parentLabel}</option>
+                      ))}
+                      <option value="CUSTOM">+ Add New Parent</option>
+                    </select>
+                    {isCustomParent && (
+                      <Input
+                        placeholder="New Parent"
+                        value={formData.parent}
+                        onChange={(e) => setFormData({ ...formData, parent: e.target.value })}
+                        className="h-8 text-[12px] border-zinc-200 focus-visible:ring-zinc-900/20"
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col gap-1 mt-1">
                 <label className="text-[12px] font-medium text-zinc-900">Status <span className="text-red-500">*</span></label>
@@ -307,7 +381,7 @@ export default function SidebarManagementPage() {
                 </Button>
                 <Button
                   className="flex-1 h-8 text-[12px] bg-zinc-900 hover:bg-zinc-800 text-white font-medium"
-                  disabled={!formData.label || !formData.href || createMutation.isPending || updateMutation.isPending}
+                  disabled={!formData.label || (formData.itemType === 'LINK' && !formData.href) || createMutation.isPending || updateMutation.isPending}
                   onClick={handleSave}
                 >  {(createMutation.isPending || updateMutation.isPending) ? <Loader2 size={14} className="animate-spin" /> : editId ? 'Update Item' : 'Add Item'}
                 </Button>
@@ -406,12 +480,17 @@ export default function SidebarManagementPage() {
                         </tr>
                       ) : (
                         paginatedItems.map((item, index) => (
-                          <tr key={item._id} className="hover:bg-zinc-50/50 transition-colors bg-white whitespace-nowrap">
+                          <tr key={item._id} className={`transition-colors whitespace-nowrap ${item.itemType === 'SECTION' ? 'bg-indigo-50/40 hover:bg-indigo-50/70 border-l-2 border-indigo-400' : 'bg-white hover:bg-zinc-50/50'}`}>
                             <td className="px-3 py-2 text-zinc-500">{(currentPage - 1) * pageSize + index + 1}</td>
-                            <td className="px-3 py-2 font-medium text-zinc-800">{item.label}</td>
+                            <td className="px-3 py-2 font-medium text-zinc-800">
+                              <div className="flex items-center gap-2">
+                                {item.itemType === 'SECTION' && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-100 text-indigo-700 tracking-wider">SECTION</span>}
+                                {item.label}
+                              </div>
+                            </td>
                             <td className="px-3 py-2 text-zinc-500">
                               <div className="truncate max-w-[150px] lg:max-w-[200px] xl:max-w-[300px]" title={item.href}>
-                                {item.href}
+                                {item.href || '-'}
                               </div>
                             </td>
                             <td className="px-3 py-2 text-zinc-500">{item.section}</td>
