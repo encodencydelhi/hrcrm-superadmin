@@ -204,6 +204,10 @@ function SuperAdminCompaniesPageInner() {
   const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<any>(null);
   const [deleteConfirmName, setDeleteConfirmName] = useState('');
   const [deleteReason, setDeleteReason] = useState('');
+  const [deleteOtp, setDeleteOtp] = useState('');
+  const [isDeleteOtpSent, setIsDeleteOtpSent] = useState(false);
+  const [deleteOtpSubmitting, setDeleteOtpSubmitting] = useState(false);
+  const [deleteOtpError, setDeleteOtpError] = useState('');
 
   const [activityLogs, setActivityLogs] = useState<any[]>([]);
   const [activityLogsPage, setActivityLogsPage] = useState(1);
@@ -296,19 +300,39 @@ function SuperAdminCompaniesPageInner() {
     }
   };
 
+  const handleRequestDeleteOtp = async () => {
+    if (!deleteConfirmTarget) return;
+    setDeleteOtpError('');
+    setDeleteOtpSubmitting(true);
+    try {
+      await api.post(`/super-admin/tenants/${deleteConfirmTarget._id}/delete-otp`);
+      setIsDeleteOtpSent(true);
+    } catch (e: any) {
+      setDeleteOtpError(e?.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setDeleteOtpSubmitting(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (!deleteConfirmTarget) return;
+    setDeleteOtpSubmitting(true);
+    setDeleteOtpError('');
     try {
       await api.delete(`/super-admin/tenants/${deleteConfirmTarget._id}`, {
-        data: { reason: deleteReason }
+        data: { reason: deleteReason, otp: deleteOtp }
       });
       fetchData();
       setDeleteConfirmTarget(null);
       setDeleteConfirmName('');
       setDeleteReason('');
-    } catch (e) {
+      setDeleteOtp('');
+      setIsDeleteOtpSent(false);
+    } catch (e: any) {
       console.error(e);
-      alert('Failed to delete company');
+      setDeleteOtpError(e?.response?.data?.message || 'Failed to delete company');
+    } finally {
+      setDeleteOtpSubmitting(false);
     }
   };
 
@@ -524,18 +548,6 @@ function SuperAdminCompaniesPageInner() {
       render: (v: any) => <span className="text-slate-500 whitespace-nowrap">{new Date(v).toLocaleString()}</span>
     },
     {
-      key: 'userId',
-      label: 'User',
-      filterable: true,
-      align: 'left',
-      render: (v: any, log: any) => (
-        <div className="whitespace-nowrap">
-          {log.userId ? `${log.userId.firstName} ${log.userId.lastName}` : 'System'}
-          {log.userId?.email && <div className="text-[10px] text-slate-400">{log.userId.email}</div>}
-        </div>
-      )
-    },
-    {
       key: 'action',
       label: 'Activity',
       sortable: true,
@@ -571,7 +583,19 @@ function SuperAdminCompaniesPageInner() {
           )}
         </div>
       )
-    }
+    },
+    {
+      key: 'userId',
+      label: 'User',
+      filterable: true,
+      align: 'left',
+      render: (v: any, log: any) => (
+        <div className="whitespace-nowrap">
+          {log.userId ? `${log.userId.firstName} ${log.userId.lastName}` : 'System'}
+          {log.userId?.email && <div className="text-[10px] text-slate-400">{log.userId.email}</div>}
+        </div>
+      )
+    },
   ];
 
   return (
@@ -937,6 +961,10 @@ function SuperAdminCompaniesPageInner() {
                 Are you sure you want to delete <strong>{deleteConfirmTarget.name}</strong>? This action cannot be undone and will erase all associated data.
               </p>
 
+              {deleteOtpError && (
+                <div className="mb-4 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">{deleteOtpError}</div>
+              )}
+
               <div className="space-y-4 mb-6">
                 <div className="space-y-1.5">
                   <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
@@ -944,10 +972,11 @@ function SuperAdminCompaniesPageInner() {
                   </label>
                   <input
                     type="text"
-                    className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full"
+                    className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full disabled:opacity-50"
                     value={deleteConfirmName}
                     onChange={(e) => setDeleteConfirmName(e.target.value)}
                     placeholder={deleteConfirmTarget.name}
+                    disabled={isDeleteOtpSent}
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -955,12 +984,28 @@ function SuperAdminCompaniesPageInner() {
                     Reason for deletion
                   </label>
                   <textarea
-                    className="w-full min-h-[80px] p-3 text-sm border-zinc-300 rounded-md focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:border-rose-500 resize-none"
+                    className="w-full min-h-[80px] p-3 text-sm border-zinc-300 rounded-md focus-visible:ring-1 focus-visible:ring-rose-500 focus-visible:border-rose-500 resize-none disabled:opacity-50"
                     value={deleteReason}
                     onChange={(e) => setDeleteReason(e.target.value)}
                     placeholder="Required for auditing..."
+                    disabled={isDeleteOtpSent}
                   />
                 </div>
+
+                {isDeleteOtpSent && (
+                  <div className="space-y-1.5 animate-in slide-in-from-top-2">
+                    <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                      Enter OTP sent to your Email/WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      className="h-8 px-2 border border-zinc-300 rounded-md text-[11px] text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full"
+                      value={deleteOtp}
+                      onChange={(e) => setDeleteOtp(e.target.value)}
+                      placeholder="6-digit OTP"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3">
@@ -968,15 +1013,30 @@ function SuperAdminCompaniesPageInner() {
                   setDeleteConfirmTarget(null);
                   setDeleteConfirmName('');
                   setDeleteReason('');
+                  setDeleteOtp('');
+                  setIsDeleteOtpSent(false);
+                  setDeleteOtpError('');
                 }}>Cancel</Button>
-                <Button
-                  size="sm"
-                  className="bg-rose-600 hover:bg-rose-700 text-white"
-                  onClick={handleDelete}
-                  disabled={deleteConfirmName !== deleteConfirmTarget.name || deleteReason.trim().length === 0}
-                >
-                  Delete
-                </Button>
+
+                {!isDeleteOtpSent ? (
+                  <Button
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    onClick={handleRequestDeleteOtp}
+                    disabled={deleteConfirmName !== deleteConfirmTarget.name || deleteReason.trim().length === 0 || deleteOtpSubmitting}
+                  >
+                    {deleteOtpSubmitting ? 'Sending OTP...' : 'Send OTP'}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="bg-rose-600 hover:bg-rose-700 text-white"
+                    onClick={handleDelete}
+                    disabled={deleteOtp.trim().length === 0 || deleteOtpSubmitting}
+                  >
+                    {deleteOtpSubmitting ? 'Deleting...' : 'Confirm Delete'}
+                  </Button>
+                )}
               </div>
             </div>
           </div>

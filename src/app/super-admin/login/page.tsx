@@ -289,9 +289,17 @@ function SuperAdminLoginInner() {
                 )}
 
                 {step === 'OTP' && (
-                  <div className="flex items-center justify-end">
-                    <button type="button" onClick={() => setStep('IDENTIFIER')} className="text-sm font-medium text-[var(--brand-secondary)] hover:opacity-80 transition-opacity">
-                      Change Email / Phone
+                  <div className="flex items-center justify-between pt-1">
+                    <button type="button" onClick={() => setStep('IDENTIFIER')} className="text-[13px] font-medium text-slate-500 hover:text-slate-700 transition-colors">
+                      Change {identifierType === 'EMAIL' ? 'Email' : 'Mobile'}
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={handleSendOtp} 
+                      disabled={loading}
+                      className="text-[13px] font-bold text-[var(--brand-primary)] hover:opacity-80 transition-opacity disabled:opacity-50"
+                    >
+                      Resend OTP
                     </button>
                   </div>
                 )}
